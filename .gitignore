@@ -1,0 +1,12 @@
+#Build directories
+bin/
+build/
+target/
+out/
+/releases/
+#intellij
+.classpath/
+.project/
+/build/
+/.gradle/
+.idea/
