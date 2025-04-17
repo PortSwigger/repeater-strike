@@ -2,6 +2,8 @@ package burp.repeat.strike.utils;
 
 
 import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.params.ParsedHttpParameter;
+import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.Settings;
 
@@ -12,9 +14,10 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
-import static burp.repeat.strike.RepeatStrikeExtension.SettingsFrame;
-import static burp.repeat.strike.RepeatStrikeExtension.api;
+import static burp.repeat.strike.RepeatStrikeExtension.*;
 
 public class Utils {
 
@@ -80,6 +83,27 @@ public class Utils {
             return true;
         } catch(UnsupportedOperationException ignored) {
             return false;
+        }
+    }
+
+    public static String generateRequestKey(HttpRequest req) {
+        String currentHost = req.httpService().host();
+        String paramNames = req.parameters().stream().map(ParsedHttpParameter::name).collect(Collectors.joining(","));
+        String requestKey = currentHost + paramNames;
+        if(!requestHistoryPos.containsKey(requestKey)) {
+            requestHistoryPos.put(requestKey, 1);
+            requestHistory.put(requestKey, new ArrayList<>());
+            responseHistory.put(requestKey, new ArrayList<>());
+        }
+        return requestKey;
+    }
+
+    public static void resetHistory(String key, boolean shouldDebug) {
+        requestHistoryPos.put(key,1);
+        requestHistory.put(key, new ArrayList<>());
+        responseHistory.put(key, new ArrayList<>());
+        if(shouldDebug) {
+            api.logging().logToOutput("Request history reset");
         }
     }
 }

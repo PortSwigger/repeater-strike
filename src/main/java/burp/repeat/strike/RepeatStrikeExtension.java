@@ -7,6 +7,8 @@ import burp.api.montoya.EnhancedCapability;
 import burp.api.montoya.MontoyaApi;
 import burp.api.montoya.core.Registration;
 import burp.api.montoya.extension.ExtensionUnloadingHandler;
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.contextmenu.MessageEditorHttpRequestResponse;
 import burp.api.montoya.ui.hotkey.HotKeyContext;
 import burp.repeat.strike.ai.AI;
@@ -14,7 +16,11 @@ import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.utils.Utils;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, ExtensionUnloadingHandler {
     public static boolean hasHotKey = false;
@@ -24,6 +30,11 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
     public static MontoyaApi api;
     public static String extensionName = "Repeat Strike";
     public static String version = "v1.0.0";
+    public static HashMap<String, Integer> requestHistoryPos = new HashMap<>();
+    public static HashMap<String, ArrayList<HttpRequest>> requestHistory = new HashMap<>();
+    public static HashMap<String, ArrayList<HttpResponse>> responseHistory = new HashMap<>();
+    public static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
     @Override
     public void initialize(MontoyaApi montoyaApi) {
         RepeatStrikeExtension.api = montoyaApi;
@@ -34,6 +45,7 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
             api.logging().logToOutput("AI features are not available. This extension will not work without AI. You need to enable \"Use AI\" in the extension tab.");
         }
         api.userInterface().menuBar().registerMenu(Utils.generateMenuBar());
+        api.userInterface().registerContextMenuItemsProvider(new ContextMenu());
         Burp burp = new Burp(montoyaApi.burpSuite().version());
         if(burp.hasCapability(Burp.Capability.REGISTER_HOTKEY)) {
             Registration registration = api.userInterface().registerHotKeyHandler(HotKeyContext.HTTP_MESSAGE_EDITOR,
@@ -68,6 +80,6 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
 
     @Override
     public void extensionUnloaded() {
-
+        executorService.shutdown();
     }
 }
