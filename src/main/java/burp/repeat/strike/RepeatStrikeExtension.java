@@ -46,6 +46,7 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
         }
         api.userInterface().menuBar().registerMenu(Utils.generateMenuBar());
         api.userInterface().registerContextMenuItemsProvider(new ContextMenu());
+        api.http().registerHttpHandler(new HttpHandler());
         Burp burp = new Burp(montoyaApi.burpSuite().version());
         if(burp.hasCapability(Burp.Capability.REGISTER_HOTKEY)) {
             Registration registration = api.userInterface().registerHotKeyHandler(HotKeyContext.HTTP_MESSAGE_EDITOR,
