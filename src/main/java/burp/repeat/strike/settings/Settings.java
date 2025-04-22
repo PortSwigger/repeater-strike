@@ -43,9 +43,7 @@ public class Settings {
         Container pane = settingsWindow.getContentPane();
         try {
             Map<String, Integer> columns = new HashMap<>();
-            columns.put("Repeater settings", 1);
             columns.put("AI", 1);
-            columns.put("Organizer settings", 1);
             columns.put("General", 1);
             columns.put("Limits", 2);
             JPanel settingsInterface = settings.buildInterface(settingsWindow, 250, 25,10, columns, RepeatStrikeExtension.generalSettings);

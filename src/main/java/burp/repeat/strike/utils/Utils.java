@@ -2,6 +2,8 @@ package burp.repeat.strike.utils;
 
 
 import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.params.HttpParameter;
+import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.repeat.strike.RepeatStrikeExtension;
@@ -15,15 +17,31 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static burp.repeat.strike.RepeatStrikeExtension.*;
 
 public class Utils {
 
+    public static HttpRequest modifyRequest(HttpRequest req, String type, String name, String value) {
+        return switch (type) {
+            case "header" -> req.withRemovedHeader(name).withAddedHeader(name, value);
+            case "PATH" -> req.withPath(value);
+            case "URL", "BODY", "COOKIE", "JSON" -> {
+                if ((type.equals("BODY") || type.equals("URL")) && !Pattern.compile("%[a-fA-F0-9]{2}]").matcher(value).find()) {
+                    value = api.utilities().urlUtils().encode(value);
+                }
+                yield req.withUpdatedParameters(HttpParameter.parameter(name, value, HttpParameterType.valueOf(type)));
+            }
+            default -> req;
+        };
+    }
+
     public static void registerGeneralSettings(Settings settings) {
         settings.registerBooleanSetting("debugOutput", false, "Print debug output", "General", null);
         settings.registerBooleanSetting("debugAi", false, "Debug AI requests/responses", "AI", null);
+        settings.registerIntegerSetting("maxProxyHistory", 100, "Max proxy history to scan", "Limits", 1, 500);
     }
 
     public static void openUrl(String url) {
