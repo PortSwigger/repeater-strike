@@ -4,6 +4,7 @@ import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
 public class AnalyseProxyHistory {
-    public static void analyse(JSONObject param) {
+    public static void analyse(JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
         RepeatStrikeExtension.executorService.submit(() -> {
             try {
                 boolean debugAi;
@@ -45,6 +46,12 @@ public class AnalyseProxyHistory {
                         break;
                     }
                     ProxyHttpRequestResponse historyItem = proxyHistory.get(i);
+                    if(!originalResponse.mimeType().equals(historyItem.mimeType())) {
+                        continue;
+                    }
+                    if(Utils.generateRequestKey(historyItem.request()).equals(Utils.generateRequestKey(originalRequest)) && historyItem.request().pathWithoutQuery().equals(originalRequest.pathWithoutQuery())) {
+                        continue;
+                    }
                     if(!historyItem.request().isInScope()) {
                         continue;
                     }

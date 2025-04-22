@@ -107,13 +107,7 @@ public class Utils {
     public static String generateRequestKey(HttpRequest req) {
         String currentHost = req.httpService().host();
         String paramNames = req.parameters().stream().map(ParsedHttpParameter::name).collect(Collectors.joining(","));
-        String requestKey = currentHost + paramNames;
-        if(!requestHistoryPos.containsKey(requestKey)) {
-            requestHistoryPos.put(requestKey, 1);
-            requestHistory.put(requestKey, new ArrayList<>());
-            responseHistory.put(requestKey, new ArrayList<>());
-        }
-        return requestKey;
+        return currentHost + paramNames;
     }
 
     public static void resetHistory(String key, boolean shouldDebug) {

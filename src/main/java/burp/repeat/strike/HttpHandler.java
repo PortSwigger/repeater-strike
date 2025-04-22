@@ -16,6 +16,8 @@ import burp.api.montoya.http.handler.ResponseReceivedAction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 import static burp.repeat.strike.RepeatStrikeExtension.*;
 
@@ -33,6 +35,11 @@ public class HttpHandler implements burp.api.montoya.http.handler.HttpHandler {
         ToolSource toolSource = resp.toolSource();
         HttpRequest req = resp.initiatingRequest();
         String requestKey = Utils.generateRequestKey(req);
+        if(!requestHistoryPos.containsKey(requestKey)) {
+            requestHistoryPos.put(requestKey, 1);
+            requestHistory.put(requestKey, new ArrayList<>());
+            responseHistory.put(requestKey, new ArrayList<>());
+        }
         if(toolSource.isFromTool(ToolType.REPEATER) && req.isInScope()) {
             boolean debugOutput;
             try {
@@ -50,7 +57,7 @@ public class HttpHandler implements burp.api.montoya.http.handler.HttpHandler {
             }
             if(!headersAndParameters.isEmpty()) {
                 JSONObject lastParamObject = headersAndParameters.getJSONObject(headersAndParameters.length()- 1);
-                LooksLikeVulnerability.check(req.toString(), resp.toString(), lastParamObject);
+                LooksLikeVulnerability.check(req, resp, lastParamObject);
                 Utils.resetHistory(requestKey, false);
             }
         }
