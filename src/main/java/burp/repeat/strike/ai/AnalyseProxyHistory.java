@@ -87,7 +87,11 @@ public class AnalyseProxyHistory {
                     for (Map.Entry<Integer, ArrayList<String>> entry : selectedProxyHistory.entrySet()) {
                         if (entry.getValue().contains(similarParamName)) {
                             ProxyHttpRequestResponse historyItem = proxyHistory.get(entry.getKey());
-                            HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), param.getString("type"), similarParamName, param.getString("value"));
+                            String value = param.getString("value");
+                            if(Utils.isUrlEncoded(value)) {
+                                value = api.utilities().urlUtils().decode(value);
+                            }
+                            HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), param.getString("type"), similarParamName, value);
                             if(modifiedRequest != null) {
                                 HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
                                 if(VulnerabilityAnalysis.didAttackWork(requestResponse.request().toString(), requestResponse.response().toString())) {
