@@ -27,7 +27,8 @@ public class RepeaterNamer {
                         Do not output markdown. 
                         Look at the request and response and create a Burp Suite Repeater name                     
                         that's relevant to the vulnerability found. It should be short and concise. 
-                        It should just contain only alpha numerics and spaces.                    
+                        It should just contain only alpha numerics and spaces. 
+                        You can use the host header, the request and response when coming up with your Repeater name.                 
                         """);
 
             ai.setPrompt("Request:\n"+request+"\n\nResponse:\n"+response);
@@ -40,7 +41,7 @@ public class RepeaterNamer {
             if(debugAi) {
                 api.logging().logToOutput("AI response:\n"+aiResponse);
             }
-            return aiResponse;
+            return aiResponse.replaceAll("_"," ");
         } catch (Throwable throwable) {
             StringWriter writer = new StringWriter();
             throwable.printStackTrace(new PrintWriter(writer));
