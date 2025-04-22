@@ -1,9 +1,8 @@
 package burp.repeat.strike;
 
 import burp.api.montoya.http.message.requests.HttpRequest;
-import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.repeat.strike.ai.AI;
-import burp.repeat.strike.ai.LooksLikeVulnerability;
+import burp.repeat.strike.ai.VulnerabilityAnalysis;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.repeat.strike.utils.Utils;
@@ -57,7 +56,7 @@ public class HttpHandler implements burp.api.montoya.http.handler.HttpHandler {
             }
             if(!headersAndParameters.isEmpty()) {
                 JSONObject lastParamObject = headersAndParameters.getJSONObject(headersAndParameters.length()- 1);
-                LooksLikeVulnerability.check(req, resp, lastParamObject);
+                VulnerabilityAnalysis.check(req, resp, lastParamObject);
                 Utils.resetHistory(requestKey, false);
             }
         }

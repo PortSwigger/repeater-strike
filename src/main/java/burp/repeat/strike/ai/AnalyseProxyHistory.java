@@ -1,7 +1,6 @@
 package burp.repeat.strike.ai;
 
 import burp.api.montoya.http.message.HttpRequestResponse;
-import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
@@ -10,8 +9,6 @@ import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.repeat.strike.utils.Utils;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.PrintWriter;
@@ -46,7 +43,10 @@ public class AnalyseProxyHistory {
                         break;
                     }
                     ProxyHttpRequestResponse historyItem = proxyHistory.get(i);
-                    if(!originalResponse.mimeType().equals(historyItem.mimeType())) {
+                    if(historyItem.request().parameters().size() == 0) {
+                        continue;
+                    }
+                    if(!originalResponse.mimeType().equals(historyItem.response().mimeType())) {
                         continue;
                     }
                     if(Utils.generateRequestKey(historyItem.request()).equals(Utils.generateRequestKey(originalRequest)) && historyItem.request().pathWithoutQuery().equals(originalRequest.pathWithoutQuery())) {
@@ -73,7 +73,7 @@ public class AnalyseProxyHistory {
                      then return them as text separated by new lines
                  """);
 
-                ai.setPrompt(String.join("\n", paramNames));
+                ai.setPrompt("Param names:"+String.join(",", paramNames));
                 ai.setTemperature(1.0);
                 if(debugAi) {
                     api.logging().logToOutput("Sending information to the AI:");
@@ -90,7 +90,7 @@ public class AnalyseProxyHistory {
                             HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), param.getString("type"), similarParamName, param.getString("value"));
                             if(modifiedRequest != null) {
                                 HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
-                                if(LooksLikeVulnerability.didAttackWork(requestResponse.request().toString(), requestResponse.response().toString())) {
+                                if(VulnerabilityAnalysis.didAttackWork(requestResponse.request().toString(), requestResponse.response().toString())) {
                                     String name = RepeaterNamer.generateName(requestResponse.request().toString(), requestResponse.response().toString());
                                     api.repeater().sendToRepeater(requestResponse.request(), name);
                                 }
