@@ -22,14 +22,17 @@ public class RepeaterNamer {
             AI ai = new AI();
             ai.setBypassRateLimit(true);
             ai.setSystemMessage("""
-                        You are a web security expert.
-                        You are going to be given a request and response.
-                        Do not output markdown. 
-                        Look at the request and response and create a Burp Suite Repeater name                     
-                        that's relevant to the vulnerability found. It should be short and concise. 
-                        It should just contain only alphanumerics and spaces and periods. 
-                        You can use the host header, the request and response when coming up with your Repeater name.                 
-                        """);
+                    You are a web security expert.
+                    You will be provided with an HTTP request and response.
+                    Analyze them to identify any potential vulnerabilities.
+                    Generate a short, relevant Burp Suite Repeater tab name that summarizes the issue.
+                    Your output must:
+                    - Be concise and informative
+                    - Contain only alphanumerics, spaces, and periods
+                    - Avoid markdown or formatting
+                    - Leverage context from the Host header, request, and response
+                    Output only the Repeater tab name. Nothing else.
+                    """);
 
             ai.setPrompt("Request:\n"+request+"\n\nResponse:\n"+response);
             ai.setTemperature(1.0);
