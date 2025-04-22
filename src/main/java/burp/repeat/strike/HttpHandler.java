@@ -45,6 +45,9 @@ public class HttpHandler implements burp.api.montoya.http.handler.HttpHandler {
             requestHistory.get(requestKey).add(req);
             requestHistoryPos.put(requestKey, requestHistoryPos.get(requestKey)+1);
             JSONArray headersAndParameters = RequestDiffer.generateHeadersAndParametersJson(requestHistory.get(requestKey).toArray(new HttpRequest[0]));
+            if(debugOutput) {
+                api.logging().logToOutput("Analysing parameters:" + headersAndParameters);
+            }
             if(!headersAndParameters.isEmpty()) {
                 JSONObject lastParamObject = headersAndParameters.getJSONObject(headersAndParameters.length()- 1);
                 LooksLikeVulnerability.check(req.toString(), resp.toString(), lastParamObject);

@@ -15,10 +15,7 @@ import org.json.JSONObject;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
@@ -28,8 +25,10 @@ public class AnalyseProxyHistory {
         RepeatStrikeExtension.executorService.submit(() -> {
             try {
                 boolean debugAi;
+                boolean debugOutput;
                 int maxProxyHistory;
                 try {
+                    debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
                     debugAi = RepeatStrikeExtension.generalSettings.getBoolean("debugAi");
                     maxProxyHistory = RepeatStrikeExtension.generalSettings.getInteger("maxProxyHistory");
                 } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
@@ -58,6 +57,7 @@ public class AnalyseProxyHistory {
                 for (Map.Entry<Integer, ArrayList<String>> entry : selectedProxyHistory.entrySet()) {
                     paramNames.addAll(entry.getValue());
                 }
+                paramNames = new ArrayList<>(new LinkedHashSet<>(paramNames));
                 AI ai = new AI();
                 ai.setBypassRateLimit(true);
                 ai.setSystemMessage("""
@@ -69,9 +69,13 @@ public class AnalyseProxyHistory {
                 ai.setPrompt(String.join("\n", paramNames));
                 ai.setTemperature(1.0);
                 if(debugAi) {
-                    api.logging().logToOutput("Sending information to the AI");
+                    api.logging().logToOutput("Sending information to the AI:");
+                    api.logging().logToOutput(ai.getSystemMessage()+ai.getPrompt());
                 }
                 String[] similarParamNames = ai.execute().split("\n");
+                if(debugAi) {
+                    api.logging().logToOutput("Response from the AI:" + String.join("\n", similarParamNames));
+                }
                 for (String similarParamName : similarParamNames) {
                     for (Map.Entry<Integer, ArrayList<String>> entry : selectedProxyHistory.entrySet()) {
                         if (entry.getValue().contains(similarParamName)) {
@@ -80,7 +84,8 @@ public class AnalyseProxyHistory {
                             if(modifiedRequest != null) {
                                 HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
                                 if(LooksLikeVulnerability.didAttackWork(requestResponse.request().toString(), requestResponse.response().toString())) {
-                                    api.repeater().sendToRepeater(requestResponse.request());
+                                    String name = RepeaterNamer.generateName(requestResponse.request().toString(), requestResponse.response().toString());
+                                    api.repeater().sendToRepeater(requestResponse.request(), name);
                                 }
                             }
                         }
