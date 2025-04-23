@@ -45,6 +45,7 @@ public class Settings {
             Map<String, Integer> columns = new HashMap<>();
             columns.put("AI", 1);
             columns.put("General", 1);
+            columns.put("Repeater settings", 1);
             columns.put("Limits", 2);
             JPanel settingsInterface = settings.buildInterface(settingsWindow, 250, 25,10, columns, RepeatStrikeExtension.generalSettings);
             settingsInterface.setAutoscrolls(true);

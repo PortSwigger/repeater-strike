@@ -12,6 +12,7 @@ import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.contextmenu.MessageEditorHttpRequestResponse;
 import burp.api.montoya.ui.hotkey.HotKeyContext;
 import burp.repeat.strike.ai.AI;
+import burp.repeat.strike.ai.VulnerabilityAnalysis;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.utils.Utils;
 
@@ -55,7 +56,12 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
                         if (event.messageEditorRequestResponse().isEmpty() || !AI.isAiSupported()) {
                             return;
                         }
-
+                        HttpRequest req = event.messageEditorRequestResponse().get().requestResponse().request();
+                        HttpResponse resp = event.messageEditorRequestResponse().get().requestResponse().response();
+                        if(req == null || resp == null) {
+                            return;
+                        }
+                        VulnerabilityAnalysis.check(req, resp);
                     });
             if (registration.isRegistered()) {
                 hasHotKey = true;
