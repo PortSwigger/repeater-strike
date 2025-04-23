@@ -12,8 +12,8 @@ import java.io.StringWriter;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
-public class VulnerabilityAnalysis {
-    public static boolean didAttackWork(String request, String response) {
+public class IdentifyPayload {
+    public static JSONObject identify(HttpRequest request) {
         try {
             boolean debugAi;
             try {
@@ -26,16 +26,18 @@ public class VulnerabilityAnalysis {
             ai.setBypassRateLimit(true);
             ai.setSystemMessage("""
                         You are a web security expert.
-                        You are going to be given a request and response.
-                        Do not output markdown. Your response can only be "Yes" or "No".
-                        Look at the request and response and determine if you think the request and response resulted in a vulnerability.
-                        Return "Yes" or "No" if you think the attack worked.
+                        You are going to analyse a request and determine which parameter or header the user is testing. 
+                        Do not output markdown.
+                        Return a single JSON object with the following structure:
+                        {
+                          "name": string,
+                          "value": string,
+                          "type": "URL" | "HEADER" | "BODY" | "JSON" | "COOKIE"
+                        }
                         """);
             JSONObject requestJSON = new JSONObject();
             requestJSON.put("request", request);
-            JSONObject responseJSON = new JSONObject();
-            responseJSON.put("response", response);
-            ai.setPrompt("Request:\n"+requestJSON+"\n\nResponse:\n"+responseJSON);
+            ai.setPrompt("Request:\n"+requestJSON);
             ai.setTemperature(1.0);
             if(debugAi) {
                 api.logging().logToOutput("Sending information to the AI");
@@ -45,22 +47,12 @@ public class VulnerabilityAnalysis {
             if(debugAi) {
                 api.logging().logToOutput("AI response:\n"+aiResponse);
             }
-            return aiResponse.trim().equalsIgnoreCase("Yes");
+            return new JSONObject(ai.execute());
         } catch (Throwable throwable) {
             StringWriter writer = new StringWriter();
             throwable.printStackTrace(new PrintWriter(writer));
             api.logging().logToError(writer.toString());
         }
-        return false;
-    }
-    public static void check(HttpRequest request, HttpResponse response) {
-        RepeatStrikeExtension.executorService.submit(() -> {
-            JSONObject param = IdentifyPayload.identify(request);
-            if(param != null) {
-                if(VulnerabilityAnalysis.didAttackWork(request.toString(), response.toString())) {
-                    AnalyseProxyHistory.analyse(param, request, response);
-                }
-            }
-        });
+        return null;
     }
 }

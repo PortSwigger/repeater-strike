@@ -33,12 +33,6 @@ public class HttpHandler implements burp.api.montoya.http.handler.HttpHandler {
         }
         ToolSource toolSource = resp.toolSource();
         HttpRequest req = resp.initiatingRequest();
-        String requestKey = Utils.generateRequestKey(req);
-        if(!requestHistoryPos.containsKey(requestKey)) {
-            requestHistoryPos.put(requestKey, 1);
-            requestHistory.put(requestKey, new ArrayList<>());
-            responseHistory.put(requestKey, new ArrayList<>());
-        }
         if(toolSource.isFromTool(ToolType.REPEATER) && req.isInScope()) {
             boolean debugOutput;
             try {
@@ -47,18 +41,7 @@ public class HttpHandler implements burp.api.montoya.http.handler.HttpHandler {
                 api.logging().logToError("Error loading settings:" + e);
                 throw new RuntimeException(e);
             }
-            responseHistory.get(requestKey).add(resp);
-            requestHistory.get(requestKey).add(req);
-            requestHistoryPos.put(requestKey, requestHistoryPos.get(requestKey)+1);
-            JSONArray headersAndParameters = RequestDiffer.generateHeadersAndParametersJson(requestHistory.get(requestKey).toArray(new HttpRequest[0]));
-            if(debugOutput) {
-                api.logging().logToOutput("Analysing parameters:" + headersAndParameters);
-            }
-            if(!headersAndParameters.isEmpty()) {
-                JSONObject lastParamObject = headersAndParameters.getJSONObject(headersAndParameters.length()- 1);
-                VulnerabilityAnalysis.check(req, resp, lastParamObject);
-                Utils.resetHistory(requestKey, false);
-            }
+            VulnerabilityAnalysis.check(req, resp);
         }
         return null;
     }
