@@ -28,7 +28,7 @@ public class RepeaterNamer {
                     Generate a short, relevant Burp Suite Repeater tab name that summarizes the issue.
                     Your output must:
                     - Be concise and informative
-                    - Contain only alphanumerics, spaces, and periods
+                    - Contain only alphanumerics, spaces, and optional periods
                     - Avoid markdown or formatting
                     - Leverage context from the Host header, request, and response
                     Output only the Repeater tab name. Nothing else.

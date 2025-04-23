@@ -43,7 +43,7 @@ public class AnalyseProxyHistory {
                         break;
                     }
                     ProxyHttpRequestResponse historyItem = proxyHistory.get(i);
-                    if(historyItem.request().parameters().size() == 0) {
+                    if(historyItem.request().parameters().isEmpty()) {
                         continue;
                     }
                     if(!originalResponse.mimeType().equals(historyItem.response().mimeType())) {
