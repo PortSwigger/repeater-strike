@@ -1,8 +1,11 @@
 package burp.repeat.strike.ai;
 
+import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
+import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
 
 import java.io.PrintWriter;
@@ -11,7 +14,7 @@ import java.io.StringWriter;
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
 public class NotesGenerator {
-    public static String generateNotes(String request, String response) {
+    public static String generateNotes(HttpRequest request, HttpResponse response) {
         try {
             boolean debugAi;
             try {
@@ -34,9 +37,9 @@ public class NotesGenerator {
                     Output only text. Nothing else.
                     """);
             JSONObject requestJSON = new JSONObject();
-            requestJSON.put("request", request);
+            requestJSON.put("request", Utils.truncateRequest(request));
             JSONObject responseJSON = new JSONObject();
-            responseJSON.put("response", response);
+            responseJSON.put("response", Utils.truncateResponse(response));
             ai.setPrompt("Request:\n"+requestJSON+"\n\nResponse:\n"+responseJSON);
             ai.setTemperature(1.0);
             if(debugAi) {

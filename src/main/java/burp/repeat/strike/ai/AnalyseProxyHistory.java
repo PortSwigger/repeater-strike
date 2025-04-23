@@ -15,12 +15,14 @@ import org.json.JSONObject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
 public class AnalyseProxyHistory {
-    public static void analyse(JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
+    public static void analyse(JSONObject criteria, JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
         RepeatStrikeExtension.executorService.submit(() -> {
             try {
                 boolean debugAi;
@@ -39,6 +41,18 @@ public class AnalyseProxyHistory {
                 int proxyHistorySize = proxyHistory.size();
                 HashMap<Integer, ArrayList<String>> selectedProxyHistory = new HashMap<>();
                 int count = 0;
+                boolean isDocument = criteria.getString("type").equalsIgnoreCase("document");
+                Pattern responseRegex = null;
+                try {
+                    responseRegex = Pattern.compile(criteria.getString("responseRegex"));
+                } catch (PatternSyntaxException ignored) {}
+                Pattern parameterRegex = null;
+                try {
+                    parameterRegex = Pattern.compile(criteria.getString("parameterRegex"));
+                } catch (PatternSyntaxException ignored) {}
+
+                Set<String> requestKeys = new HashSet<>();
+                requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
                 for(int i = proxyHistorySize - 1; i >= 0; i--) {
                     if(count >= maxProxyHistory) {
                         break;
@@ -47,15 +61,37 @@ public class AnalyseProxyHistory {
                     if(historyItem.request().parameters().isEmpty()) {
                         continue;
                     }
-                    if(!originalResponse.mimeType().equals(historyItem.response().mimeType())) {
-                        continue;
-                    }
-                    if(Utils.generateRequestKey(historyItem.request()).equals(Utils.generateRequestKey(originalRequest)) && historyItem.request().pathWithoutQuery().equals(originalRequest.pathWithoutQuery())) {
+                    String requestKey = Utils.generateRequestKey(historyItem.request())+"|"+historyItem.request().pathWithoutQuery();
+                    if(requestKeys.contains(requestKey)) {
                         continue;
                     }
                     if(!historyItem.request().isInScope()) {
                         continue;
                     }
+                    boolean shouldTryAttack = false;
+                    if(isDocument) {
+                        if(historyItem.request().hasHeader("Sec-Fetch-Dest") && historyItem.request().headerValue("Sec-Fetch-Dest").trim().equalsIgnoreCase("document")) {
+                            shouldTryAttack = true;
+                        }
+                    } else {
+                        if(historyItem.request().hasHeader("Sec-Fetch-Dest") && !historyItem.request().headerValue("Sec-Fetch-Dest").trim().equalsIgnoreCase("document")) {
+                            shouldTryAttack = true;
+                        }
+                    }
+                    if(responseRegex != null) {
+                        if(responseRegex.matcher(historyItem.response().toString()).find()) {
+                            shouldTryAttack = true;
+                        }
+                    }
+                    if(parameterRegex != null) {
+                        if(parameterRegex.matcher(historyItem.request().path()).find()) {
+                            shouldTryAttack = true;
+                        }
+                    }
+                    if(!shouldTryAttack) {
+                        continue;
+                    }
+                    requestKeys.add(requestKey);
                     selectedProxyHistory.put(i, historyItem.request().parameters().stream().map(ParsedHttpParameter::name)
                             .collect(Collectors.toCollection(ArrayList::new)));
                     count++;
@@ -98,8 +134,8 @@ public class AnalyseProxyHistory {
                             HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), param.getString("type"), similarParamName, value);
                             if(modifiedRequest != null) {
                                 HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
-                                if(VulnerabilityAnalysis.didAttackWork(requestResponse.request().toString(), requestResponse.response().toString())) {
-                                    String notes = NotesGenerator.generateNotes(requestResponse.request().toString(), requestResponse.response().toString());
+                                if(VulnerabilityAnalysis.didAttackWork(requestResponse.request(), requestResponse.response())) {
+                                    String notes = NotesGenerator.generateNotes(requestResponse.request(), requestResponse.response());
                                     requestResponse.annotations().setNotes(notes);
                                     api.organizer().sendToOrganizer(requestResponse);
                                 }

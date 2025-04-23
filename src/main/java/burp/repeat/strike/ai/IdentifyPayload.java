@@ -5,6 +5,7 @@ import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
+import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
 
 import java.io.PrintWriter;
@@ -36,7 +37,7 @@ public class IdentifyPayload {
                         }
                         """);
             JSONObject requestJSON = new JSONObject();
-            requestJSON.put("request", request);
+            requestJSON.put("request", Utils.truncateRequest(request));
             ai.setPrompt("Request:\n"+requestJSON);
             ai.setTemperature(1.0);
             if(debugAi) {

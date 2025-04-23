@@ -6,8 +6,11 @@ import burp.api.montoya.http.message.params.HttpParameter;
 import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
+import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.Settings;
+import burp.repeat.strike.settings.UnregisteredSettingException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -47,6 +50,9 @@ public class Utils {
         settings.registerBooleanSetting("debugAi", false, "Debug AI requests/responses", "AI", null);
         settings.registerBooleanSetting("autoInvoke", false, "Auto invoke after repeater requests", "Repeater settings", null);
         settings.registerIntegerSetting("maxProxyHistory", 100, "Max proxy history to scan", "Limits", 1, 500);
+        settings.registerIntegerSetting("maxImageResponseLimit", 1000, "Maximum image response limit (1-128000)", "Limits", 1, 128000);
+        settings.registerIntegerSetting("maxRequestLimit", 100000, "Maximum request limit (1-128000)", "Limits", 1, 128000);
+        settings.registerIntegerSetting("maxResponseLimit", 100000, "Maximum response limit (1-128000)", "Limits", 1, 128000);
     }
 
     public static void openUrl(String url) {
@@ -122,5 +128,38 @@ public class Utils {
         if(shouldDebug) {
             api.logging().logToOutput("Request history reset");
         }
+    }
+    public static String truncateRequest(HttpRequest request) {
+        int maxRequestLimit;
+        try {
+            maxRequestLimit = RepeatStrikeExtension.generalSettings.getInteger("maxRequestLimit");
+        } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
+            api.logging().logToError("Error loading settings:" + e);
+            throw new RuntimeException(e);
+        }
+        String output = request.toString();
+        if(output.length() > maxRequestLimit) {
+            output = output.substring(0, maxRequestLimit);
+        }
+        return output;
+    }
+    public static String truncateResponse(HttpResponse response) {
+        int maxImageResponseLimit;
+        int maxResponseLimit;
+        try {
+            maxImageResponseLimit = RepeatStrikeExtension.generalSettings.getInteger("maxImageResponseLimit");
+            maxResponseLimit = RepeatStrikeExtension.generalSettings.getInteger("maxResponseLimit");
+        } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
+            api.logging().logToError("Error loading settings:" + e);
+            throw new RuntimeException(e);
+        }
+        String output = response.toString();
+        if(response.mimeType().toString().toLowerCase().startsWith("image") && output.length() > maxImageResponseLimit) {
+            output = output.substring(0, maxImageResponseLimit);
+        }
+        if(output.length() > maxResponseLimit) {
+            output = output.substring(0, maxResponseLimit);
+        }
+        return output;
     }
 }
