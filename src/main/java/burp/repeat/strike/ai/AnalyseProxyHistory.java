@@ -9,6 +9,7 @@ import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.repeat.strike.utils.Utils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.PrintWriter;
@@ -67,24 +68,27 @@ public class AnalyseProxyHistory {
                 paramNames = new ArrayList<>(new LinkedHashSet<>(paramNames));
                 AI ai = new AI();
                 ai.setBypassRateLimit(true);
+                JSONObject paramNameJson = new JSONObject();
+                paramNameJson.put("name", param.getString("name"));
                 ai.setSystemMessage("""
                     Do not output markdown. Output as plain text separate by new lines.
-                    Loop through these parameter names and find ones similar to\s""" + param.getString("name") + """
-                     then return them as text separated by new lines
+                    Loop through these parameter names and find ones similar to\s""" + paramNameJson + """
+                     then return them as JSON array
                  """);
-
-                ai.setPrompt("Param names:"+String.join(",", paramNames));
+                JSONArray paramNamesJson = new JSONArray(paramNames);
+                ai.setPrompt("Param names:"+paramNamesJson);
                 ai.setTemperature(1.0);
                 if(debugAi) {
                     api.logging().logToOutput("Sending information to the AI:");
                     api.logging().logToOutput(ai.getSystemMessage()+ai.getPrompt());
                 }
-                String[] similarParamNames = ai.execute().split("\n");
+                JSONArray similarParamNames = new JSONArray(ai.execute());
                 if(debugAi) {
-                    api.logging().logToOutput("Response from the AI:" + String.join("\n", similarParamNames));
+                    api.logging().logToOutput("Response from the AI:" + similarParamNames);
                 }
-                for (String similarParamName : similarParamNames) {
+                for (int i=0; i<similarParamNames.length(); i++) {
                     for (Map.Entry<Integer, ArrayList<String>> entry : selectedProxyHistory.entrySet()) {
+                        String similarParamName = similarParamNames.getString(i);
                         if (entry.getValue().contains(similarParamName)) {
                             ProxyHttpRequestResponse historyItem = proxyHistory.get(entry.getKey());
                             String value = param.getString("value");

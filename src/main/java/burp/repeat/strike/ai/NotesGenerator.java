@@ -3,6 +3,7 @@ package burp.repeat.strike.ai;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
+import org.json.JSONObject;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -32,8 +33,11 @@ public class NotesGenerator {
                     - Leverage context from the Host header, request, and response
                     Output only text. Nothing else.
                     """);
-
-            ai.setPrompt("Request:\n"+request+"\n\nResponse:\n"+response);
+            JSONObject requestJSON = new JSONObject();
+            requestJSON.put("request", request);
+            JSONObject responseJSON = new JSONObject();
+            responseJSON.put("response", response);
+            ai.setPrompt("Request:\n"+requestJSON+"\n\nResponse:\n"+responseJSON);
             ai.setTemperature(1.0);
             if(debugAi) {
                 api.logging().logToOutput("Sending information to the AI");
