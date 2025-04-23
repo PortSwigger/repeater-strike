@@ -95,8 +95,9 @@ public class AnalyseProxyHistory {
                             if(modifiedRequest != null) {
                                 HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
                                 if(VulnerabilityAnalysis.didAttackWork(requestResponse.request().toString(), requestResponse.response().toString())) {
-                                    String name = RepeaterNamer.generateName(requestResponse.request().toString(), requestResponse.response().toString());
-                                    api.repeater().sendToRepeater(requestResponse.request(), name);
+                                    String notes = NotesGenerator.generateNotes(requestResponse.request().toString(), requestResponse.response().toString());
+                                    requestResponse.annotations().setNotes(notes);
+                                    api.organizer().sendToOrganizer(requestResponse);
                                 }
                             }
                         }

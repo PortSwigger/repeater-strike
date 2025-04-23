@@ -9,8 +9,8 @@ import java.io.StringWriter;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
-public class RepeaterNamer {
-    public static String generateName(String request, String response) {
+public class NotesGenerator {
+    public static String generateNotes(String request, String response) {
         try {
             boolean debugAi;
             try {
@@ -25,13 +25,12 @@ public class RepeaterNamer {
                     You are a web security expert.
                     You will be provided with an HTTP request and response.
                     Analyze them to identify any potential vulnerabilities.
-                    Generate a short, relevant Burp Suite Repeater tab name that summarizes the issue.
+                    Generate a short, relevant Burp Suite notes that summarizes the issue.
                     Your output must:
                     - Be concise and informative
-                    - Contain only alphanumerics, spaces, and optional periods
                     - Avoid markdown or formatting
                     - Leverage context from the Host header, request, and response
-                    Output only the Repeater tab name. Nothing else.
+                    Output only text. Nothing else.
                     """);
 
             ai.setPrompt("Request:\n"+request+"\n\nResponse:\n"+response);
