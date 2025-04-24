@@ -10,7 +10,7 @@ import java.io.StringWriter;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
-public class IdentifyCriteria {
+public class ResourceOrDocument {
     public static JSONObject identify(HttpRequest request, HttpResponse response) {
         try {
             AI ai = new AI();
