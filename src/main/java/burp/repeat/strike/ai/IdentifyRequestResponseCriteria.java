@@ -16,20 +16,15 @@ public class IdentifyRequestResponseCriteria {
             AI ai = new AI();
             ai.setBypassRateLimit(true);
             ai.setSystemMessage("""
-                        You are a web security expert.
-                        You first should identify what is being tested.
-                        Your job is to analyse HTTP requests/responses and build criteria to identify similar requests.
-                        You should analyse the request and response to determine if it is a resource or a document.
-                        You should generate a regular expression to find vulnerability of the type detected on the response.
-                        You should generate a regular expression to identify similar parameter names.
-                        Do not output markdown.
-                        Return a single JSON object with the following structure:
-                        {
-                          "type": "DOCUMENT" | "RESOURCE",
-                          "responseRegex": RegExp String,
-                          "parameterRegex": RegExp String
-                        }
-                        """);
+                    You are a web security expert.
+                    Analyze the given HTTP request and response.
+                    Determine if the target is a "DOCUMENT" (e.g., HTML, JSON) or a "RESOURCE" (e.g., images, scripts).
+                    
+                    Return a single JSON object (no markdown, no explanations) with the following format:
+                    {
+                      "type": "DOCUMENT" | "RESOURCE"
+                    }
+                    """);
             JSONObject requestJSON = new JSONObject();
             requestJSON.put("request", Utils.truncateRequest(request));
             JSONObject responseJSON = new JSONObject();

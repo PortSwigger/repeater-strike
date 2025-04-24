@@ -8,6 +8,7 @@ import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
+import burp.repeat.strike.utils.FetchUtils;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,8 +16,6 @@ import org.json.JSONObject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
@@ -41,15 +40,7 @@ public class AnalyseProxyHistory {
                 int proxyHistorySize = proxyHistory.size();
                 HashMap<Integer, ArrayList<String>> selectedProxyHistory = new HashMap<>();
                 int count = 0;
-                boolean isDocument = criteria.getString("type").equalsIgnoreCase("document");
-                Pattern responseRegex = null;
-                try {
-                    responseRegex = Pattern.compile(criteria.getString("responseRegex"));
-                } catch (PatternSyntaxException ignored) {}
-                Pattern parameterRegex = null;
-                try {
-                    parameterRegex = Pattern.compile(criteria.getString("parameterRegex"));
-                } catch (PatternSyntaxException ignored) {}
+                boolean isOriginalRequestADocument = criteria.getString("type").equalsIgnoreCase("document");
 
                 Set<String> requestKeys = new HashSet<>();
                 requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
@@ -68,28 +59,14 @@ public class AnalyseProxyHistory {
                     if(!historyItem.request().isInScope()) {
                         continue;
                     }
-                    boolean shouldTryAttack = false;
-                    if(isDocument) {
-                        if(historyItem.request().hasHeader("Sec-Fetch-Dest") && historyItem.request().headerValue("Sec-Fetch-Dest").trim().equalsIgnoreCase("document")) {
-                            shouldTryAttack = true;
+                    if(isOriginalRequestADocument) {
+                        if(!FetchUtils.isDocument(historyItem.request())) {
+                            continue;
                         }
                     } else {
-                        if(historyItem.request().hasHeader("Sec-Fetch-Dest") && !historyItem.request().headerValue("Sec-Fetch-Dest").trim().equalsIgnoreCase("document")) {
-                            shouldTryAttack = true;
+                        if(FetchUtils.isDocument(historyItem.request())) {
+                            continue;
                         }
-                    }
-                    if(responseRegex != null) {
-                        if(responseRegex.matcher(historyItem.response().toString()).find()) {
-                            shouldTryAttack = true;
-                        }
-                    }
-                    if(parameterRegex != null) {
-                        if(parameterRegex.matcher(historyItem.request().path()).find()) {
-                            shouldTryAttack = true;
-                        }
-                    }
-                    if(!shouldTryAttack) {
-                        continue;
                     }
                     requestKeys.add(requestKey);
                     selectedProxyHistory.put(i, historyItem.request().parameters().stream().map(ParsedHttpParameter::name)
