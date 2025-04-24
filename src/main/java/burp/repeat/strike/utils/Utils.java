@@ -21,12 +21,20 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import static burp.repeat.strike.RepeatStrikeExtension.*;
 
 public class Utils {
 
+    public static boolean isVulnerable(HttpResponse response, String regex) {
+        try {
+            return Pattern.compile(regex).matcher(response.toString()).find();
+        } catch (PatternSyntaxException e) {
+            return false;
+        }
+    }
     public static boolean isUrlEncoded(String value) {
         return Pattern.compile("%[a-fA-F0-9]{2}").matcher(value).find();
     }

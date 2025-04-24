@@ -47,9 +47,6 @@ public class NotesGenerator {
                 api.logging().logToOutput(ai.getSystemMessage()+ai.getPrompt());
             }
             String aiResponse = ai.execute();
-            if(debugAi) {
-                api.logging().logToOutput("AI response:\n"+aiResponse);
-            }
             return aiResponse.replaceAll("_"," ");
         } catch (Throwable throwable) {
             StringWriter writer = new StringWriter();

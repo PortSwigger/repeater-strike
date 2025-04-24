@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
 public class AnalyseProxyHistory {
-    public static void analyse(JSONObject criteria, JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
+    public static void analyse(JSONObject vulnerability, JSONObject criteria, JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
         RepeatStrikeExtension.executorService.submit(() -> {
             try {
                 boolean debugAi;
@@ -43,7 +43,7 @@ public class AnalyseProxyHistory {
                 boolean isOriginalRequestADocument = criteria.getString("type").equalsIgnoreCase("document");
 
                 Set<String> requestKeys = new HashSet<>();
-                requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
+                //requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
                 for(int i = proxyHistorySize - 1; i >= 0; i--) {
                     if(count >= maxProxyHistory) {
                         break;
@@ -104,14 +104,12 @@ public class AnalyseProxyHistory {
                         String similarParamName = similarParamNames.getString(i);
                         if (entry.getValue().contains(similarParamName)) {
                             ProxyHttpRequestResponse historyItem = proxyHistory.get(entry.getKey());
-                            String value = param.getString("value");
-                            if(Utils.isUrlEncoded(value)) {
-                                value = api.utilities().urlUtils().decode(value);
-                            }
-                            HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), param.getString("type"), similarParamName, value);
+                            String probe = vulnerability.getString("probeToUse");
+                            String responseRegex = vulnerability.getString("responseRegex");
+                            HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), param.getString("type"), similarParamName, probe);
                             if(modifiedRequest != null) {
                                 HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
-                                if(VulnerabilityAnalysis.didAttackWork(requestResponse.request(), requestResponse.response())) {
+                                if(Utils.isVulnerable(requestResponse.response(), responseRegex)) {
                                     String notes = NotesGenerator.generateNotes(requestResponse.request(), requestResponse.response());
                                     requestResponse.annotations().setNotes(notes);
                                     api.organizer().sendToOrganizer(requestResponse);
