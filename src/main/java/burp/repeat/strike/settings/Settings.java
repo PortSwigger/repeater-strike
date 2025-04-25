@@ -94,11 +94,12 @@ public class Settings {
                     this.settings.put(name, this.defaults.getJSONObject(name));
                 }
                 JSONObject currentSetting = this.settings.getJSONObject(name);
+                JSONObject defaultSetting = this.defaults.getJSONObject(name);
                 if (currentSetting.getString("type").equals("Integer")) {
                     try {
                         int value = this.getInteger(name);
-                        int min = currentSetting.getInt("min");
-                        int max = currentSetting.getInt("max");
+                        int min = defaultSetting.getInt("min");
+                        int max = defaultSetting.getInt("max");
                         if (value < min || value > max) {
                             api.logging().logToError("Value expects a value between " + min + " and " + max);
                             return false;

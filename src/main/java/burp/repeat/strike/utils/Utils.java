@@ -63,7 +63,7 @@ public class Utils {
         settings.registerBooleanSetting("debugOutput", false, "Print debug output", "General", null);
         settings.registerBooleanSetting("debugAi", false, "Debug AI requests/responses", "AI", null);
         settings.registerBooleanSetting("autoInvoke", false, "Auto invoke after repeater requests", "Repeater settings", null);
-        settings.registerIntegerSetting("maxProxyHistory", 25000, "Max proxy history to scan", "Limits", 1, 500000);
+        settings.registerIntegerSetting("maxProxyHistory", 25000, "Max proxy history to scan (1-500000)", "Limits", 1, 500000);
         settings.registerIntegerSetting("maxImageResponseLimit", 1000, "Maximum image response limit (1-128000)", "Limits", 1, 128000);
         settings.registerIntegerSetting("maxRequestLimit", 100000, "Maximum request limit (1-128000)", "Limits", 1, 128000);
         settings.registerIntegerSetting("maxResponseLimit", 100000, "Maximum response limit (1-128000)", "Limits", 1, 128000);
