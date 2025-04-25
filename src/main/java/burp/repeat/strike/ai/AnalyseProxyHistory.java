@@ -64,17 +64,18 @@ public class AnalyseProxyHistory {
                         }
                     }
                     requestKeys.add(requestKey);
+                    api.logging().logToOutput("Request key:" + requestKey);
+                    String probe = vulnerability.getString("probeToUse");
+                    String responseRegex = vulnerability.getString("responseRegex");
+                    String context = vulnerability.getString("context");
+                    boolean didRepeatAttackWork = conductAttack(historyItem, context, param.getString("type"), param.getString("name"), param.getString("value"), responseRegex);
                     for(ParsedHttpParameter historyItemParam: historyItem.request().parameters()) {
                         if(!historyItemParam.type().toString().equalsIgnoreCase(param.getString("type"))) {
                             continue;
                         }
-                        String probe = vulnerability.getString("probeToUse");
-                        String responseRegex = vulnerability.getString("responseRegex");
-                        String context = vulnerability.getString("context");
                         if(Utils.isVulnerable(context, historyItem.response(), responseRegex)) {
                             continue;
                         }
-                        boolean didRepeatAttackWork = conductAttack(historyItem, context, param.getString("type"), param.getString("name"), param.getString("value"), responseRegex);
                         if(!didRepeatAttackWork) {
                             boolean didDifferentParamWork = conductAttack(historyItem, context, param.getString("type"), historyItemParam.name(), param.getString("value"), responseRegex);
                             if(!didDifferentParamWork) {
