@@ -64,7 +64,6 @@ public class AnalyseProxyHistory {
                         }
                     }
                     requestKeys.add(requestKey);
-                    api.logging().logToOutput("Request key:" + requestKey);
                     String probe = vulnerability.getString("probeToUse");
                     String responseRegex = vulnerability.getString("responseRegex");
                     String context = vulnerability.getString("context");
