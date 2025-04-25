@@ -12,6 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+import static burp.repeat.strike.RepeatStrikeExtension.api;
+
 public class ContextMenu implements ContextMenuItemsProvider {
     public java.util.List<Component> provideMenuItems(ContextMenuEvent event)
     {
@@ -25,17 +27,6 @@ public class ContextMenu implements ContextMenuItemsProvider {
                     return;
                 }
                 VulnerabilityAnalysis.check(req, resp);
-            } else {
-                if(!event.selectedRequestResponses().isEmpty()) {
-                    for(HttpRequestResponse requestsResponses : event.selectedRequestResponses()) {
-                        HttpRequest req = requestsResponses.request();
-                        HttpResponse resp = requestsResponses.response();
-                        if (req == null || resp == null) {
-                            return;
-                        }
-                        VulnerabilityAnalysis.check(req, resp);
-                    }
-                }
             }
         });
         menuItemList.add(doRepeatStrike);

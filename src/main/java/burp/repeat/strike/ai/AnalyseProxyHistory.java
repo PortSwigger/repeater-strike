@@ -22,8 +22,10 @@ public class AnalyseProxyHistory {
     public static void analyse(JSONObject vulnerability, JSONObject criteria, JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
         RepeatStrikeExtension.executorService.submit(() -> {
             try {
+                boolean debugOutput;
                 int maxProxyHistory;
                 try {
+                    debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
                     maxProxyHistory = RepeatStrikeExtension.generalSettings.getInteger("maxProxyHistory");
                 } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
                     api.logging().logToError("Error loading settings:" + e);
@@ -36,7 +38,7 @@ public class AnalyseProxyHistory {
                 boolean isOriginalRequestADocument = criteria.getString("type").equalsIgnoreCase("document");
 
                 Set<String> requestKeys = new HashSet<>();
-                //requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
+                requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
                 for(int i = proxyHistorySize - 1; i >= 0; i--) {
                     if(count >= maxProxyHistory) {
                         break;
@@ -63,20 +65,27 @@ public class AnalyseProxyHistory {
                     }
                     requestKeys.add(requestKey);
                     for(ParsedHttpParameter historyItemParam: historyItem.request().parameters()) {
+                        if(!historyItemParam.type().toString().equalsIgnoreCase(param.getString("type"))) {
+                            continue;
+                        }
                         String probe = vulnerability.getString("probeToUse");
                         String responseRegex = vulnerability.getString("responseRegex");
                         String context = vulnerability.getString("context");
-                        HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), param.getString("type"), historyItemParam.name(), probe);
-                        if(modifiedRequest != null) {
-                            HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
-                            if(Utils.isVulnerable(context, requestResponse.response(), responseRegex)) {
-                                String notes = NotesGenerator.generateNotes(requestResponse.request(), requestResponse.response());
-                                requestResponse.annotations().setNotes(notes);
-                                api.organizer().sendToOrganizer(requestResponse);
+                        if(Utils.isVulnerable(context, historyItem.response(), responseRegex)) {
+                            continue;
+                        }
+                        boolean didRepeatAttackWork = conductAttack(historyItem, context, param.getString("type"), param.getString("name"), param.getString("value"), responseRegex);
+                        if(!didRepeatAttackWork) {
+                            boolean didDifferentParamWork = conductAttack(historyItem, context, param.getString("type"), historyItemParam.name(), param.getString("value"), responseRegex);
+                            if(!didDifferentParamWork) {
+                                conductAttack(historyItem, context, historyItemParam.type().toString(), historyItemParam.name(), probe, responseRegex);
                             }
                         }
                     }
                     count++;
+                }
+                if(debugOutput) {
+                    api.logging().logToOutput("Finished scanning proxy history.");
                 }
             } catch (Throwable throwable) {
                 StringWriter writer = new StringWriter();
@@ -84,5 +93,21 @@ public class AnalyseProxyHistory {
                 api.logging().logToError(writer.toString());
             }
         });
+    }
+
+    public static boolean conductAttack(ProxyHttpRequestResponse historyItem, String context, String paramType, String paramName, String paramValue, String responseRegex) {
+        HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), paramType, paramName, paramValue);
+        if(modifiedRequest != null) {
+            HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
+            if(requestResponse.response() != null) {
+                if (Utils.isVulnerable(context, requestResponse.response(), responseRegex)) {
+                    String notes = NotesGenerator.generateNotes(context, paramType, paramName, paramValue, requestResponse.request(), requestResponse.response());
+                    requestResponse.annotations().setNotes(notes);
+                    api.organizer().sendToOrganizer(requestResponse);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -28,6 +28,7 @@ public class IdentifyPayload {
             ai.setSystemMessage("""
                         You are a web security expert.
                         You are going to analyse a request and determine which parameter or header the user is testing. 
+                        Ignore any blank parameter. Focus on parameters that look like security testing.
                         Do not output markdown.
                         Return a single JSON object with the following structure:
                         {

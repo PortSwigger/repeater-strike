@@ -14,7 +14,7 @@ import java.io.StringWriter;
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
 public class NotesGenerator {
-    public static String generateNotes(HttpRequest request, HttpResponse response) {
+    public static String generateNotes(String context, String paramType, String paramName, String paramValue, HttpRequest request, HttpResponse response) {
         try {
             boolean debugAi;
             try {
@@ -29,6 +29,7 @@ public class NotesGenerator {
                     You are a web security expert.
                     You will be provided with an HTTP request and response.
                     Analyze them to identify any potential vulnerabilities.
+                    I will provide a context of where the vulnerability occurs.
                     Generate a short, relevant Burp Suite notes that summarizes the issue.
                     Your output must:
                     - Be concise and informative
@@ -40,14 +41,18 @@ public class NotesGenerator {
             requestJSON.put("request", Utils.truncateRequest(request));
             JSONObject responseJSON = new JSONObject();
             responseJSON.put("response", Utils.truncateResponse(response));
-            ai.setPrompt("Request:\n"+requestJSON+"\n\nResponse:\n"+responseJSON);
+            JSONObject contextJSON = new JSONObject();
+            contextJSON.put("parameterType", paramType);
+            contextJSON.put("parameterName", paramName);
+            contextJSON.put("parameterValue", paramValue);
+            contextJSON.put("context", context);
+            ai.setPrompt("Request:\n"+requestJSON+"\n\nResponse:\n"+responseJSON+"\n\nContext:"+contextJSON);
             ai.setTemperature(1.0);
             if(debugAi) {
                 api.logging().logToOutput("Sending information to the AI");
                 api.logging().logToOutput(ai.getSystemMessage()+ai.getPrompt());
             }
-            String aiResponse = ai.execute();
-            return aiResponse.replaceAll("_"," ");
+            return ai.execute();
         } catch (Throwable throwable) {
             StringWriter writer = new StringWriter();
             throwable.printStackTrace(new PrintWriter(writer));
