@@ -28,9 +28,15 @@ import static burp.repeat.strike.RepeatStrikeExtension.*;
 
 public class Utils {
 
-    public static boolean isVulnerable(HttpResponse response, String regex) {
+    public static boolean isVulnerable(String context, HttpResponse response, String regex) {
         try {
-            return Pattern.compile(regex).matcher(response.toString()).find();
+            String strToMatch;
+            if(context.equalsIgnoreCase("body")) {
+                strToMatch = response.bodyToString();
+            } else {
+                strToMatch = response.toString().substring(0, response.bodyOffset());
+            }
+            return Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(strToMatch).find();
         } catch (PatternSyntaxException e) {
             return false;
         }
@@ -57,7 +63,7 @@ public class Utils {
         settings.registerBooleanSetting("debugOutput", false, "Print debug output", "General", null);
         settings.registerBooleanSetting("debugAi", false, "Debug AI requests/responses", "AI", null);
         settings.registerBooleanSetting("autoInvoke", false, "Auto invoke after repeater requests", "Repeater settings", null);
-        settings.registerIntegerSetting("maxProxyHistory", 100, "Max proxy history to scan", "Limits", 1, 500);
+        settings.registerIntegerSetting("maxProxyHistory", 25000, "Max proxy history to scan", "Limits", 1, 500000);
         settings.registerIntegerSetting("maxImageResponseLimit", 1000, "Maximum image response limit (1-128000)", "Limits", 1, 128000);
         settings.registerIntegerSetting("maxRequestLimit", 100000, "Maximum request limit (1-128000)", "Limits", 1, 128000);
         settings.registerIntegerSetting("maxResponseLimit", 100000, "Maximum response limit (1-128000)", "Limits", 1, 128000);
