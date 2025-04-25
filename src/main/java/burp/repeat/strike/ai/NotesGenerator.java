@@ -29,7 +29,7 @@ public class NotesGenerator {
                     You are a web security expert.
                     You will be provided with an HTTP request and response.
                     Analyze them to identify any potential vulnerabilities.
-                    I will provide a context of where the vulnerability occurs.
+                    I will provide context of where the vulnerability occurs.
                     Generate a short, relevant Burp Suite notes that summarizes the issue.
                     Your output must:
                     - Be concise and informative
