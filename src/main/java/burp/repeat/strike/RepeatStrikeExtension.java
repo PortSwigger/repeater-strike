@@ -9,7 +9,6 @@ import burp.api.montoya.core.Registration;
 import burp.api.montoya.extension.ExtensionUnloadingHandler;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
-import burp.api.montoya.ui.contextmenu.MessageEditorHttpRequestResponse;
 import burp.api.montoya.ui.hotkey.HotKeyContext;
 import burp.repeat.strike.ai.AI;
 import burp.repeat.strike.ai.VulnerabilityAnalysis;

@@ -1,7 +1,6 @@
 package burp.repeat.strike.ai;
 
 import burp.api.montoya.http.message.requests.HttpRequest;
-import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;

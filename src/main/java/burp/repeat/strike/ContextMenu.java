@@ -12,7 +12,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-import static burp.repeat.strike.RepeatStrikeExtension.api;
 
 public class ContextMenu implements ContextMenuItemsProvider {
     public java.util.List<Component> provideMenuItems(ContextMenuEvent event)
