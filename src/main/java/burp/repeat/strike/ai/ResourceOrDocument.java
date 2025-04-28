@@ -19,6 +19,11 @@ public class ResourceOrDocument {
                     You are a web security expert.
                     Analyze the given HTTP request and response.
                     Determine if the target is a "DOCUMENT" (e.g., HTML, JSON) or a "RESOURCE" (e.g., images, scripts).
+                    Strict requirements:
+                    - Output only raw JSON.
+                    - Do not output any Markdown.
+                    - Do not include any explanations, backticks, syntax highlighting, code fences, or any text outside the JSON data.
+                    - Your output must start immediately with "{" and must end after the closing "}".
                     
                     Return a single JSON object (no markdown, no explanations) with the following format:
                     {

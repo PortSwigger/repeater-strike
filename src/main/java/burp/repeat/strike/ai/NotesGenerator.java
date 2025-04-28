@@ -14,7 +14,7 @@ import java.io.StringWriter;
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
 public class NotesGenerator {
-    public static String generateNotes(String context, String paramType, String paramName, String paramValue, HttpRequest request, HttpResponse response) {
+    public static String generateNotes(String paramType, String paramName, String paramValue, HttpRequest request, HttpResponse response) {
         try {
             boolean debugAi;
             try {
@@ -45,7 +45,6 @@ public class NotesGenerator {
             contextJSON.put("parameterType", paramType);
             contextJSON.put("parameterName", paramName);
             contextJSON.put("parameterValue", paramValue);
-            contextJSON.put("context", context);
             ai.setPrompt("Request:\n"+requestJSON+"\n\nResponse:\n"+responseJSON+"\n\nContext:"+contextJSON);
             ai.setTemperature(1.0);
             if(debugAi) {

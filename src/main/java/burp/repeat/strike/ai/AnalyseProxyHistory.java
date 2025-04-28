@@ -17,9 +17,11 @@ import java.io.StringWriter;
 import java.util.*;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
+import static burp.repeat.strike.ai.VulnerabilityAnalysis.getRequestProbe;
+import static burp.repeat.strike.ai.VulnerabilityAnalysis.isVulnerable;
 
 public class AnalyseProxyHistory {
-    public static void analyse(JSONObject vulnerability, JSONObject criteria, JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
+    public static void analyse(Object scanCheck, JSONObject criteria, JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
         RepeatStrikeExtension.executorService.submit(() -> {
             try {
                 boolean debugOutput;
@@ -64,22 +66,18 @@ public class AnalyseProxyHistory {
                         }
                     }
                     requestKeys.add(requestKey);
-                    String probe = vulnerability.getString("probeToUse");
-                    String responseRegex = vulnerability.getString("responseRegex");
-                    String context = vulnerability.getString("context");
-                    boolean didRepeatAttackWork = conductAttack(historyItem, context, param.getString("type"), param.getString("name"), param.getString("value"), responseRegex);
+                    String probe = getRequestProbe(scanCheck);
+                    conductAttack(historyItem, param.getString("type"), param.getString("name"), param.getString("value"), scanCheck);
                     for(ParsedHttpParameter historyItemParam: historyItem.request().parameters()) {
                         if(!historyItemParam.type().toString().equalsIgnoreCase(param.getString("type"))) {
                             continue;
                         }
-                        if(Utils.isVulnerable(context, historyItem.response(), responseRegex)) {
+                        if(isVulnerable(scanCheck, historyItem.response())) {
                             continue;
                         }
-                        if(!didRepeatAttackWork) {
-                            boolean didDifferentParamWork = conductAttack(historyItem, context, param.getString("type"), historyItemParam.name(), param.getString("value"), responseRegex);
-                            if(!didDifferentParamWork) {
-                                conductAttack(historyItem, context, historyItemParam.type().toString(), historyItemParam.name(), probe, responseRegex);
-                            }
+                        boolean didDifferentParamWork = conductAttack(historyItem, param.getString("type"), historyItemParam.name(), param.getString("value"), scanCheck);
+                        if(!didDifferentParamWork) {
+                            conductAttack(historyItem, historyItemParam.type().toString(), historyItemParam.name(), probe, scanCheck);
                         }
                     }
                     count++;
@@ -95,13 +93,13 @@ public class AnalyseProxyHistory {
         });
     }
 
-    public static boolean conductAttack(ProxyHttpRequestResponse historyItem, String context, String paramType, String paramName, String paramValue, String responseRegex) {
+    public static boolean conductAttack(ProxyHttpRequestResponse historyItem, String paramType, String paramName, String paramValue, Object scanCheck) {
         HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), paramType, paramName, paramValue);
         if(modifiedRequest != null) {
             HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
             if(requestResponse.response() != null) {
-                if (Utils.isVulnerable(context, requestResponse.response(), responseRegex)) {
-                    String notes = NotesGenerator.generateNotes(context, paramType, paramName, paramValue, requestResponse.request(), requestResponse.response());
+                if (isVulnerable(scanCheck, requestResponse.response())) {
+                    String notes = NotesGenerator.generateNotes(paramType, paramName, paramValue, requestResponse.request(), requestResponse.response());
                     requestResponse.annotations().setNotes(notes);
                     api.organizer().sendToOrganizer(requestResponse);
                     return true;
