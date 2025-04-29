@@ -62,6 +62,7 @@ public class AnalyseProxyHistory {
                             continue;
                         }
                         if(debugOutput) {
+                            api.logging().logToOutput("Testing URL " + historyItem.request().pathWithoutQuery() + "...");
                             api.logging().logToOutput("Testing parameter " + historyItemParam.name() + "...");
                         }
                         if(conductAttack(historyItem, historyItemParam.type().toString(), historyItemParam.name(), probe, scanCheck)) {
