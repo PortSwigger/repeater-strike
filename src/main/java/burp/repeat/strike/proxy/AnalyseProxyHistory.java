@@ -18,69 +18,67 @@ import static burp.repeat.strike.ai.VulnerabilityAnalysis.*;
 
 public class AnalyseProxyHistory {
     public static void analyse(Object scanCheck, HttpRequest originalRequest) {
-        RepeatStrikeExtension.executorService.submit(() -> {
+        try {
+            boolean debugOutput;
+            int maxProxyHistory;
             try {
-                boolean debugOutput;
-                int maxProxyHistory;
-                try {
-                    debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
-                    maxProxyHistory = RepeatStrikeExtension.generalSettings.getInteger("maxProxyHistory");
-                } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
-                    api.logging().logToError("Error loading settings:" + e);
-                    throw new RuntimeException(e);
-                }
-
-                List<ProxyHttpRequestResponse> proxyHistory = api.proxy().history();
-                int proxyHistorySize = proxyHistory.size();
-                int count = 0;
-
-                Set<String> requestKeys = new HashSet<>();
-                requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
-                for(int i = proxyHistorySize - 1; i >= 0; i--) {
-                    if(count >= maxProxyHistory) {
-                        break;
-                    }
-                    ProxyHttpRequestResponse historyItem = proxyHistory.get(i);
-                    if(historyItem.request().parameters().isEmpty()) {
-                        continue;
-                    }
-                    String requestKey = Utils.generateRequestKey(historyItem.request())+"|"+historyItem.request().pathWithoutQuery();
-                    if(requestKeys.contains(requestKey)) {
-                        continue;
-                    }
-                    if(!historyItem.request().isInScope()) {
-                        if(debugOutput) {
-                            api.logging().logToOutput("Skipping url " + historyItem.request().url() + " not in scope");
-                        }
-                        continue;
-                    }
-                    requestKeys.add(requestKey);
-                    String probe = getRequestProbe(scanCheck);
-                    for(ParsedHttpParameter historyItemParam: historyItem.request().parameters()) {
-                        if(isVulnerable(scanCheck, historyItem.response())) {
-                            continue;
-                        }
-                        if(debugOutput) {
-                            api.logging().logToOutput("Testing URL " + historyItem.request().pathWithoutQuery() + "...");
-                            api.logging().logToOutput("Testing parameter " + historyItemParam.name() + "...");
-                        }
-                        if(conductAttack(historyItem, historyItemParam.type().toString(), historyItemParam.name(), probe, scanCheck)) {
-                            if(debugOutput) {
-                                api.logging().logToOutput("Found vulnerability");
-                            }
-                        }
-                    }
-                    count++;
-                }
-                if(debugOutput) {
-                    api.logging().logToOutput("Finished scanning proxy history.");
-                }
-            } catch (Throwable throwable) {
-                StringWriter writer = new StringWriter();
-                throwable.printStackTrace(new PrintWriter(writer));
-                api.logging().logToError(writer.toString());
+                debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
+                maxProxyHistory = RepeatStrikeExtension.generalSettings.getInteger("maxProxyHistory");
+            } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
+                api.logging().logToError("Error loading settings:" + e);
+                throw new RuntimeException(e);
             }
-        });
+
+            List<ProxyHttpRequestResponse> proxyHistory = api.proxy().history();
+            int proxyHistorySize = proxyHistory.size();
+            int count = 0;
+
+            Set<String> requestKeys = new HashSet<>();
+            requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
+            for(int i = proxyHistorySize - 1; i >= 0; i--) {
+                if(count >= maxProxyHistory) {
+                    break;
+                }
+                ProxyHttpRequestResponse historyItem = proxyHistory.get(i);
+                if(historyItem.request().parameters().isEmpty()) {
+                    continue;
+                }
+                String requestKey = Utils.generateRequestKey(historyItem.request())+"|"+historyItem.request().pathWithoutQuery();
+                if(requestKeys.contains(requestKey)) {
+                    continue;
+                }
+                if(!historyItem.request().isInScope()) {
+                    if(debugOutput) {
+                        api.logging().logToOutput("Skipping url " + historyItem.request().url() + " not in scope");
+                    }
+                    continue;
+                }
+                requestKeys.add(requestKey);
+                String probe = getRequestProbe(scanCheck);
+                for(ParsedHttpParameter historyItemParam: historyItem.request().parameters()) {
+                    if(isVulnerable(scanCheck, historyItem.response())) {
+                        continue;
+                    }
+                    if(debugOutput) {
+                        api.logging().logToOutput("Testing URL " + historyItem.request().pathWithoutQuery() + "...");
+                        api.logging().logToOutput("Testing parameter " + historyItemParam.name() + "...");
+                    }
+                    if(conductAttack(historyItem, historyItemParam.type().toString(), historyItemParam.name(), probe, scanCheck)) {
+                        if(debugOutput) {
+                            api.logging().logToOutput("Found vulnerability");
+                        }
+                    }
+                }
+                count++;
+            }
+            if(debugOutput) {
+                api.logging().logToOutput("Finished scanning proxy history.");
+            }
+        } catch (Throwable throwable) {
+            StringWriter writer = new StringWriter();
+            throwable.printStackTrace(new PrintWriter(writer));
+            api.logging().logToError(writer.toString());
+        }
     }
 
     public static boolean conductAttack(ProxyHttpRequestResponse historyItem, String paramType, String paramName, String paramValue, Object scanCheck) {
