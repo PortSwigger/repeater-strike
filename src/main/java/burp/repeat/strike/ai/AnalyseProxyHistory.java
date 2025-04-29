@@ -37,6 +37,7 @@ public class AnalyseProxyHistory {
                 int count = 0;
 
                 Set<String> requestKeys = new HashSet<>();
+                requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
                 for(int i = proxyHistorySize - 1; i >= 0; i--) {
                     if(count >= maxProxyHistory) {
                         break;
