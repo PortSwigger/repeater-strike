@@ -8,7 +8,6 @@ import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
-import burp.repeat.strike.utils.FetchUtils;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
 
@@ -17,11 +16,10 @@ import java.io.StringWriter;
 import java.util.*;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
-import static burp.repeat.strike.ai.VulnerabilityAnalysis.getRequestProbe;
-import static burp.repeat.strike.ai.VulnerabilityAnalysis.isVulnerable;
+import static burp.repeat.strike.ai.VulnerabilityAnalysis.*;
 
 public class AnalyseProxyHistory {
-    public static void analyse(Object scanCheck, JSONObject criteria, JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
+    public static void analyse(Object scanCheck, JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
         RepeatStrikeExtension.executorService.submit(() -> {
             try {
                 boolean debugOutput;
@@ -37,10 +35,8 @@ public class AnalyseProxyHistory {
                 List<ProxyHttpRequestResponse> proxyHistory = api.proxy().history();
                 int proxyHistorySize = proxyHistory.size();
                 int count = 0;
-                boolean isOriginalRequestADocument = criteria.getString("type").equalsIgnoreCase("document");
 
                 Set<String> requestKeys = new HashSet<>();
-                requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
                 for(int i = proxyHistorySize - 1; i >= 0; i--) {
                     if(count >= maxProxyHistory) {
                         break;
@@ -54,30 +50,24 @@ public class AnalyseProxyHistory {
                         continue;
                     }
                     if(!historyItem.request().isInScope()) {
+                        if(debugOutput) {
+                            api.logging().logToOutput("Skipping url " + historyItem.request().url() + " not in scope");
+                        }
                         continue;
-                    }
-                    if(isOriginalRequestADocument) {
-                        if(!FetchUtils.isDocument(historyItem.request())) {
-                            continue;
-                        }
-                    } else {
-                        if(FetchUtils.isDocument(historyItem.request())) {
-                            continue;
-                        }
                     }
                     requestKeys.add(requestKey);
                     String probe = getRequestProbe(scanCheck);
-                    conductAttack(historyItem, param.getString("type"), param.getString("name"), param.getString("value"), scanCheck);
                     for(ParsedHttpParameter historyItemParam: historyItem.request().parameters()) {
-                        if(!historyItemParam.type().toString().equalsIgnoreCase(param.getString("type"))) {
-                            continue;
-                        }
                         if(isVulnerable(scanCheck, historyItem.response())) {
                             continue;
                         }
-                        boolean didDifferentParamWork = conductAttack(historyItem, param.getString("type"), historyItemParam.name(), param.getString("value"), scanCheck);
-                        if(!didDifferentParamWork) {
-                            conductAttack(historyItem, historyItemParam.type().toString(), historyItemParam.name(), probe, scanCheck);
+                        if(debugOutput) {
+                            api.logging().logToOutput("Testing parameter " + historyItemParam.name() + "...");
+                        }
+                        if(conductAttack(historyItem, historyItemParam.type().toString(), historyItemParam.name(), probe, scanCheck)) {
+                            if(debugOutput) {
+                                api.logging().logToOutput("Found vulnerability");
+                            }
                         }
                     }
                     count++;
@@ -99,8 +89,7 @@ public class AnalyseProxyHistory {
             HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
             if(requestResponse.response() != null) {
                 if (isVulnerable(scanCheck, requestResponse.response())) {
-                    String notes = NotesGenerator.generateNotes(paramType, paramName, paramValue, requestResponse.request(), requestResponse.response());
-                    requestResponse.annotations().setNotes(notes);
+                    requestResponse.annotations().setNotes(getDescription(scanCheck));
                     api.organizer().sendToOrganizer(requestResponse);
                     return true;
                 }
