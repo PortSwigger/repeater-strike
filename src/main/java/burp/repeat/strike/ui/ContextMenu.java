@@ -16,8 +16,8 @@ public class ContextMenu implements ContextMenuItemsProvider {
     public java.util.List<Component> provideMenuItems(ContextMenuEvent event)
     {
         java.util.List<Component> menuItemList = new ArrayList<>();
-        JMenuItem doRepeatStrike = new JMenuItem("Do Repeat Strike");
-        doRepeatStrike.addActionListener(e -> {
+        JMenuItem runRepeatStrike = new JMenuItem("Run Repeat Strike");
+        runRepeatStrike.addActionListener(e -> {
             if(event.messageEditorRequestResponse().isPresent()) {
                 HttpRequest req = event.messageEditorRequestResponse().get().requestResponse().request();
                 HttpResponse resp = event.messageEditorRequestResponse().get().requestResponse().response();
@@ -27,7 +27,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
                 VulnerabilityAnalysis.check(req, resp);
             }
         });
-        menuItemList.add(doRepeatStrike);
+        menuItemList.add(runRepeatStrike);
         JMenuItem settings = new JMenuItem("Settings");
         settings.addActionListener(e -> Settings.showSettingsWindow());
         menuItemList.add(settings);
