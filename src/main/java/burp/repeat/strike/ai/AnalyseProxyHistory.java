@@ -19,7 +19,7 @@ import static burp.repeat.strike.RepeatStrikeExtension.api;
 import static burp.repeat.strike.ai.VulnerabilityAnalysis.*;
 
 public class AnalyseProxyHistory {
-    public static void analyse(Object scanCheck, JSONObject param, HttpRequest originalRequest, HttpResponse originalResponse) {
+    public static void analyse(Object scanCheck, HttpRequest originalRequest) {
         RepeatStrikeExtension.executorService.submit(() -> {
             try {
                 boolean debugOutput;
