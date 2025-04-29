@@ -12,7 +12,10 @@ import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.hotkey.HotKeyContext;
 import burp.repeat.strike.ai.AI;
 import burp.repeat.strike.ai.VulnerabilityAnalysis;
+import burp.repeat.strike.capabilities.Burp;
+import burp.repeat.strike.handlers.HttpHandler;
 import burp.repeat.strike.settings.Settings;
+import burp.repeat.strike.ui.ContextMenu;
 import burp.repeat.strike.utils.Utils;
 
 import javax.swing.*;

@@ -1,4 +1,4 @@
-package burp.repeat.strike;
+package burp.repeat.strike.capabilities;
 
 import burp.api.montoya.core.Version;
 

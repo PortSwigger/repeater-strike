@@ -1,4 +1,4 @@
-package burp.repeat.strike.ai;
+package burp.repeat.strike.proxy;
 
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;

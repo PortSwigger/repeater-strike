@@ -1,6 +1,7 @@
-package burp.repeat.strike;
+package burp.repeat.strike.handlers;
 
 import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.ai.AI;
 import burp.repeat.strike.ai.VulnerabilityAnalysis;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
