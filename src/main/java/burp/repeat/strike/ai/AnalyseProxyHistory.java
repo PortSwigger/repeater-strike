@@ -3,13 +3,11 @@ package burp.repeat.strike.ai;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
-import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.repeat.strike.utils.Utils;
-import org.json.JSONObject;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
