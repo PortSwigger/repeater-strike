@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
@@ -28,12 +29,14 @@ public class IdentifyPayload {
                         You are a web security expert.
                         You are going to analyse a request and determine which parameter or header the user is testing. 
                         Ignore any blank parameter. Focus on parameters that look like security testing.
+                        Once you have identified the parameter you should look at what vulnerability class they are looking for and update the vulnerability class property.
                         Do not output markdown.
                         Return a single JSON object with the following structure:
                         {
                           "name": string,
                           "value": string,
-                          "type": "URL" | "HEADER" | "BODY" | "JSON" | "COOKIE"
+                          "type": "URL" | "HEADER" | "BODY" | "JSON" | "COOKIE",
+                          "vulnerabilityClass": """+" \""+String.join("\" | \"", Arrays.stream(Vulnerability.values()).map(Enum::name).toArray(String[]::new))+"\"\n"+"""                
                         }
                         """);
             JSONObject requestJSON = new JSONObject();
