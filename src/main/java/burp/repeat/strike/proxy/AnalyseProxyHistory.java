@@ -1,5 +1,6 @@
 package burp.repeat.strike.proxy;
 
+import burp.api.montoya.http.RequestOptions;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
@@ -82,9 +83,10 @@ public class AnalyseProxyHistory {
     }
 
     public static boolean conductAttack(ProxyHttpRequestResponse historyItem, String paramType, String paramName, String paramValue, Object scanCheck) {
+        long timeoutMs = 2000;
         HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), paramType, paramName, paramValue);
         if(modifiedRequest != null) {
-            HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
+            HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest, RequestOptions.requestOptions().withResponseTimeout(timeoutMs));
             if(requestResponse.response() != null) {
                 if (isVulnerable(scanCheck, requestResponse.response())) {
                     requestResponse.annotations().setNotes(getDescription(scanCheck));
