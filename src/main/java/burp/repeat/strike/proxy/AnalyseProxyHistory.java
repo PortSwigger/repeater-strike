@@ -33,6 +33,7 @@ public class AnalyseProxyHistory {
             List<ProxyHttpRequestResponse> proxyHistory = api.proxy().history();
             int proxyHistorySize = proxyHistory.size();
             int count = 0;
+            int vulnCount = 0;
 
             Set<String> requestKeys = new HashSet<>();
             requestKeys.add(Utils.generateRequestKey(originalRequest)+"|"+originalRequest.pathWithoutQuery());
@@ -68,12 +69,14 @@ public class AnalyseProxyHistory {
                         if(debugOutput) {
                             api.logging().logToOutput("Found vulnerability");
                         }
+                        vulnCount++;
                     }
                 }
                 count++;
             }
             if(debugOutput) {
                 api.logging().logToOutput("Finished scanning proxy history.");
+                api.logging().logToOutput("Repeat Strike found " + vulnCount + " potential vulnerabilit" + (vulnCount == 1 ? "y" : "ies"));
             }
         } catch (Throwable throwable) {
             StringWriter writer = new StringWriter();
