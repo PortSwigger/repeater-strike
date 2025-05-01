@@ -11,6 +11,7 @@ dependencies {
     compileOnly 'net.portswigger.burp.extender:burp-extender-api:2.3'
     implementation 'org.json:json:20231013'
     implementation files("libs/montoya-api-2025.3.8-spike.jar")
+    implementation "org.jsoup:jsoup:1.19.1"
 }
 
 jar {
