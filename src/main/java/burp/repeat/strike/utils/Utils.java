@@ -11,6 +11,8 @@ import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.settings.UnregisteredSettingException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,7 +50,6 @@ public class Utils {
     public static void registerGeneralSettings(Settings settings) {
         settings.registerBooleanSetting("debugOutput", false, "Print debug output", "General", null);
         settings.registerBooleanSetting("debugAi", false, "Debug AI requests/responses", "AI", null);
-        settings.registerBooleanSetting("autoInvoke", false, "Auto invoke after repeater requests", "Repeater settings", null);
         settings.registerIntegerSetting("maxProxyHistory", 25000, "Max proxy history to scan (1-500000)", "Limits", 1, 500000);
         settings.registerIntegerSetting("maxImageResponseLimit", 1000, "Maximum image response limit (1-128000)", "Limits", 1, 128000);
         settings.registerIntegerSetting("maxRequestLimit", 100000, "Maximum request limit (1-128000)", "Limits", 1, 128000);
@@ -121,10 +122,9 @@ public class Utils {
         return currentHost + "|" + paramNames;
     }
 
-    public static void resetHistory(String key, boolean shouldDebug) {
-        requestHistoryPos.put(key,1);
-        requestHistory.put(key, new ArrayList<>());
-        responseHistory.put(key, new ArrayList<>());
+    public static void resetHistory(boolean shouldDebug) {
+        requestHistory = new ArrayList<>();
+        responseHistory = new ArrayList<>();
         if(shouldDebug) {
             api.logging().logToOutput("Request history reset");
         }
@@ -161,5 +161,21 @@ public class Utils {
             output = output.substring(0, maxResponseLimit);
         }
         return output;
+    }
+
+    public static String getRequestsAndResponsesAsJson(HttpRequest[] requests, HttpResponse[] responses) {
+        JSONArray requestsJSON = new JSONArray();
+        for(HttpRequest request : requests) {
+            JSONObject json = new JSONObject();
+            json.put("request", Utils.truncateRequest(request));
+            requestsJSON.put(json);
+        }
+        JSONArray responsesJSON = new JSONArray();
+        for(HttpResponse response : responses) {
+            JSONObject json = new JSONObject();
+            json.put("response", Utils.truncateResponse(response));
+            responsesJSON.put(json);
+        }
+        return "Requests:\n"+requestsJSON+"\n\nResponses:\n"+responsesJSON;
     }
 }

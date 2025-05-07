@@ -12,30 +12,27 @@ import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.hotkey.HotKeyContext;
 import burp.repeat.strike.ai.AI;
 import burp.repeat.strike.ai.VulnerabilityAnalysis;
+import burp.repeat.strike.ai.VulnerabilityScanType;
 import burp.repeat.strike.capabilities.Burp;
-import burp.repeat.strike.handlers.HttpHandler;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.ui.ContextMenu;
 import burp.repeat.strike.utils.Utils;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, ExtensionUnloadingHandler {
-    public static boolean hasHotKey = false;
     public static JFrame SettingsFrame = null;
     public static IBurpExtenderCallbacks callbacks;
     public static Settings generalSettings = null;
     public static MontoyaApi api;
     public static String extensionName = "Repeat Strike";
     public static String version = "v1.0.0";
-    public static HashMap<String, Integer> requestHistoryPos = new HashMap<>();
-    public static HashMap<String, ArrayList<HttpRequest>> requestHistory = new HashMap<>();
-    public static HashMap<String, ArrayList<HttpResponse>> responseHistory = new HashMap<>();
+    public static ArrayList<HttpRequest> requestHistory = new ArrayList<>();
+    public static ArrayList<HttpResponse> responseHistory = new ArrayList<>();
     public static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
@@ -49,29 +46,6 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
         }
         api.userInterface().menuBar().registerMenu(Utils.generateMenuBar());
         api.userInterface().registerContextMenuItemsProvider(new ContextMenu());
-        api.http().registerHttpHandler(new HttpHandler());
-        Burp burp = new Burp(montoyaApi.burpSuite().version());
-        if(burp.hasCapability(Burp.Capability.REGISTER_HOTKEY)) {
-            Registration registration = api.userInterface().registerHotKeyHandler(HotKeyContext.HTTP_MESSAGE_EDITOR,
-                    "Ctrl+Alt+R",
-                    event -> {
-                        if (event.messageEditorRequestResponse().isEmpty() || !AI.isAiSupported()) {
-                            return;
-                        }
-                        HttpRequest req = event.messageEditorRequestResponse().get().requestResponse().request();
-                        HttpResponse resp = event.messageEditorRequestResponse().get().requestResponse().response();
-                        if(req == null || resp == null) {
-                            return;
-                        }
-                        VulnerabilityAnalysis.check(req, resp);
-                    });
-            if (registration.isRegistered()) {
-                hasHotKey = true;
-                api.logging().logToOutput("Successfully registered hotkey handler");
-            } else {
-                api.logging().logToError("Failed to register hotkey handler");
-            }
-        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package burp.repeat.strike.ai;
 
 import burp.api.montoya.http.message.requests.HttpRequest;
+import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
@@ -14,7 +15,7 @@ import java.util.Arrays;
 import static burp.repeat.strike.RepeatStrikeExtension.api;
 
 public class IdentifyPayload {
-    public static JSONObject identify(HttpRequest request) {
+    public static JSONObject identify(HttpRequest[] requests, HttpResponse[] responses) {
         try {
             boolean debugAi;
             try {
@@ -27,7 +28,7 @@ public class IdentifyPayload {
             ai.setBypassRateLimit(true);
             ai.setSystemMessage("""
                         You are a web security expert.
-                        You are going to analyse a request and determine which parameter or header the user is testing. 
+                        You are going to analyse requests and responses and determine which parameter or header the user is testing. 
                         Ignore any blank parameter. Focus on parameters that look like security testing.
                         Once you have identified the parameter you should look at what vulnerability class they are looking for and update the vulnerability class property.
                         Do not output markdown.
@@ -39,9 +40,7 @@ public class IdentifyPayload {
                           "vulnerabilityClass": """+" \""+String.join("\" | \"", Arrays.stream(Vulnerability.values()).map(Enum::name).toArray(String[]::new))+"\"\n"+"""                
                         }
                         """);
-            JSONObject requestJSON = new JSONObject();
-            requestJSON.put("request", Utils.truncateRequest(request));
-            ai.setPrompt("Request:\n"+requestJSON);
+            ai.setPrompt(Utils.getRequestsAndResponsesAsJson(requests, responses));
             ai.setTemperature(1.0);
             if(debugAi) {
                 api.logging().logToOutput("Sending information to the AI");
