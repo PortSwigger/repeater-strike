@@ -45,7 +45,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
             });
             menuItemList.add(runRepeatStrikeJava);
             JMenuItem runRepeatStrikeRegex = new JMenuItem("Scan using Regex ("+requestHistory.size()+")");
-            runRepeatStrikeRegex.setEnabled(requestHistory.size() < 2);
+            runRepeatStrikeRegex.setEnabled(requestHistory.size() == 1);
             runRepeatStrikeRegex.addActionListener(e -> {
                 VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Regex);
                 Utils.resetHistory(false);
