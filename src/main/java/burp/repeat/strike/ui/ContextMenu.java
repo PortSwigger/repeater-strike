@@ -24,7 +24,6 @@ public class ContextMenu implements ContextMenuItemsProvider {
         java.util.List<Component> menuItemList = new ArrayList<>();
         if(event.messageEditorRequestResponse().isPresent() && event.invocationType() == InvocationType.MESSAGE_EDITOR_REQUEST && event.isFromTool(ToolType.REPEATER)) {
             JMenuItem addToRepeatStrike = new JMenuItem("Add to Repeat Strike");
-            addToRepeatStrike.setEnabled(requestHistory.size() < 2);
             addToRepeatStrike.addActionListener(e -> {
                 if(event.messageEditorRequestResponse().isPresent()) {
                     HttpRequest req = event.messageEditorRequestResponse().get().requestResponse().request();
@@ -38,7 +37,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
             });
             menuItemList.add(addToRepeatStrike);
             JMenuItem runRepeatStrikeJava = new JMenuItem("Scan using AI Java ("+requestHistory.size()+")");
-            runRepeatStrikeJava.setEnabled(!requestHistory.isEmpty());
+            runRepeatStrikeJava.setEnabled(!requestHistory.isEmpty() && requestHistory.size() < 3);
             runRepeatStrikeJava.addActionListener(e -> {
                 VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Java);
                 Utils.resetHistory(false);
@@ -52,7 +51,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
             });
             menuItemList.add(runRepeatStrikeRegex);
             JMenuItem runRepeatStrikeDiffing = new JMenuItem("Scan using Diffing Non-AI ("+requestHistory.size()+")");
-            runRepeatStrikeDiffing.setEnabled(!requestHistory.isEmpty());
+            runRepeatStrikeDiffing.setEnabled(requestHistory.size() > 1);
             runRepeatStrikeDiffing.addActionListener(e -> {
                 VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.DiffingNonAi);
                 Utils.resetHistory(false);
