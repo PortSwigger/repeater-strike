@@ -5,8 +5,10 @@ import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.http.message.responses.analysis.ResponseVariationsAnalyzer;
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
+import burp.repeat.strike.diffing.DiffingAttributes;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.repeat.strike.utils.Utils;
@@ -78,6 +80,79 @@ public class AnalyseProxyHistory {
             api.logging().logToError(writer.toString());
         }
     }
+    public static void analyseWithDiffing(String requestKey, JSONObject attackParam, HttpRequest[] requests, DiffingAttributes analysis) {
+        try {
+            boolean debugOutput;
+            int maxProxyHistory;
+            try {
+                debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
+                maxProxyHistory = RepeatStrikeExtension.generalSettings.getInteger("maxProxyHistory");
+            } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
+                api.logging().logToError("Error loading settings:" + e);
+                throw new RuntimeException(e);
+            }
+
+            List<ProxyHttpRequestResponse> proxyHistory = api.proxy().history();
+            int proxyHistorySize = proxyHistory.size();
+            int count = 0;
+            int vulnCount = 0;
+
+            for(int i = proxyHistorySize - 1; i >= 0; i--) {
+                if(count >= maxProxyHistory) {
+                    break;
+                }
+                ProxyHttpRequestResponse historyItem = proxyHistory.get(i);
+                if(historyItem.finalRequest().parameters().isEmpty()) {
+                    continue;
+                }
+                if(!historyItem.finalRequest().isInScope()) {
+                    if(debugOutput) {
+                        api.logging().logToOutput("Skipping url " + historyItem.finalRequest().url() + " not in scope");
+                    }
+                    continue;
+                }
+                if(requestKey.equals(Utils.generateRequestKey(historyItem.finalRequest()))) {
+                    continue;
+                }
+                for(ParsedHttpParameter historyItemParam: historyItem.finalRequest().parameters()) {
+                    if(debugOutput) {
+                        api.logging().logToOutput("Testing URL " + historyItem.finalRequest().pathWithoutQuery() + "...");
+                        api.logging().logToOutput("Testing parameter " + historyItemParam.name() + "...");
+                    }
+
+                    ArrayList<HttpRequestResponse> requestResponses = new ArrayList<>();
+                    for(int j=0;j<requests.length;j++) {
+                        HttpRequestResponse requestResponse = conductAttack(requests[j], historyItemParam.type().toString(), historyItemParam.name(), attackParam.getString("value"));
+                        if(requestResponse != null) {
+                            requestResponses.add(requestResponse);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if(Utils.checkInvariantAttributes(requestResponses, analysis)) {
+                        if (debugOutput) {
+                            api.logging().logToOutput("Found vulnerability");
+                            for(HttpRequestResponse requestResponse: requestResponses) {
+                                requestResponse.annotations().setNotes(vulnCount + " - Found vulnerability using diffing scan");
+                                api.organizer().sendToOrganizer(requestResponse);
+                            }
+                            vulnCount++;
+                        }
+                    }
+                }
+                count++;
+            }
+            if(debugOutput) {
+                api.logging().logToOutput("Finished scanning proxy history.");
+                api.logging().logToOutput("Repeat Strike found " + vulnCount + " potential vulnerabilit" + (vulnCount == 1 ? "y" : "ies"));
+            }
+        } catch (Throwable throwable) {
+            StringWriter writer = new StringWriter();
+            throwable.printStackTrace(new PrintWriter(writer));
+            api.logging().logToError(writer.toString());
+        }
+    }
     public static void analyseWithObject(Object scanCheck) {
         try {
             boolean debugOutput;
@@ -122,6 +197,8 @@ public class AnalyseProxyHistory {
                         if (requestResponse != null) {
                             requestResponses.add(requestResponse);
                             probeSuccess++;
+                        } else {
+                            break;
                         }
                     }
                     if(probeSuccess == probes.length) {
@@ -147,6 +224,15 @@ public class AnalyseProxyHistory {
             throwable.printStackTrace(new PrintWriter(writer));
             api.logging().logToError(writer.toString());
         }
+    }
+
+    public static HttpRequestResponse conductAttack(HttpRequest request, String paramType, String paramName, String paramValue) {
+        long timeoutMs = 2000;
+        HttpRequest modifiedRequest = Utils.modifyRequest(request, paramType, paramName, paramValue);
+        if(modifiedRequest != null) {
+            return api.http().sendRequest(modifiedRequest, RequestOptions.requestOptions().withResponseTimeout(timeoutMs));
+        }
+        return null;
     }
 
     public static HttpRequestResponse conductAttackUsingObject(HttpRequestResponse httpReqResp, String paramType, String paramName, String paramValue, int probeNumber, Object scanCheck) {

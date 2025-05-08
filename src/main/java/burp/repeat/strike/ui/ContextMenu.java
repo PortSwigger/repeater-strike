@@ -37,20 +37,27 @@ public class ContextMenu implements ContextMenuItemsProvider {
                 }
             });
             menuItemList.add(addToRepeatStrike);
-            JMenuItem runRepeatStrikeJava = new JMenuItem("Scan using Java ("+requestHistory.size()+")");
+            JMenuItem runRepeatStrikeJava = new JMenuItem("Scan using AI Java ("+requestHistory.size()+")");
             runRepeatStrikeJava.setEnabled(!requestHistory.isEmpty());
             runRepeatStrikeJava.addActionListener(e -> {
                 VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Java);
                 Utils.resetHistory(false);
             });
             menuItemList.add(runRepeatStrikeJava);
-            JMenuItem runRepeatStrikeRegex = new JMenuItem("Scan using Regex ("+requestHistory.size()+")");
+            JMenuItem runRepeatStrikeRegex = new JMenuItem("Scan using AI Regex ("+requestHistory.size()+")");
             runRepeatStrikeRegex.setEnabled(requestHistory.size() == 1);
             runRepeatStrikeRegex.addActionListener(e -> {
                 VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Regex);
                 Utils.resetHistory(false);
             });
             menuItemList.add(runRepeatStrikeRegex);
+            JMenuItem runRepeatStrikeDiffing = new JMenuItem("Scan using Diffing Non-AI ("+requestHistory.size()+")");
+            runRepeatStrikeDiffing.setEnabled(!requestHistory.isEmpty());
+            runRepeatStrikeDiffing.addActionListener(e -> {
+                VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.DiffingNonAi);
+                Utils.resetHistory(false);
+            });
+            menuItemList.add(runRepeatStrikeDiffing);
         }
 
         JMenuItem resetMenu = new JMenuItem("Empty requests/responses");

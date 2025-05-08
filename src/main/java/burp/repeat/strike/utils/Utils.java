@@ -2,12 +2,15 @@ package burp.repeat.strike.utils;
 
 
 import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.HttpParameter;
 import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.http.message.responses.analysis.ResponseVariationsAnalyzer;
 import burp.repeat.strike.RepeatStrikeExtension;
+import burp.repeat.strike.diffing.DiffingAttributes;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.settings.UnregisteredSettingException;
@@ -21,6 +24,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -32,6 +36,39 @@ public class Utils {
     public static boolean isUrlEncoded(String value) {
         return Pattern.compile("%[a-fA-F0-9]{2}").matcher(value).find();
     }
+
+    public static boolean checkInvariantAttributes(ArrayList<HttpRequestResponse> requestResponses, DiffingAttributes analysis) {
+        ResponseVariationsAnalyzer analyzer = api.http().createResponseVariationsAnalyzer();
+        for(HttpRequestResponse requestResponse : requestResponses) {
+            analyzer.updateWith(requestResponse.response());
+        }
+        return analysis.invariantAttributes.equals(analyzer.invariantAttributes());
+    }
+
+    public static String randomString(int length) throws IllegalArgumentException {
+        String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom RANDOM = new SecureRandom();
+        if (length <= 0) {
+            throw new IllegalArgumentException("Length must be greater than 0");
+        }
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
+        }
+
+        return sb.toString();
+    }
+
+    public static String getParameterValue(HttpRequest request, String name, String type) {
+        type = type.toUpperCase();
+        return switch (type) {
+            case "HEADER" -> request.headerValue(name);
+            case "PATH" -> request.pathWithoutQuery();
+            case "URL", "BODY", "COOKIE", "JSON" -> request.parameter(name, HttpParameterType.valueOf(type.toUpperCase())).value();
+            default -> null;
+        };
+    }
+
     public static HttpRequest modifyRequest(HttpRequest req, String type, String name, String value) {
         type = type.toUpperCase();
         return switch (type) {
