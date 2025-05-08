@@ -80,7 +80,7 @@ public class AnalyseProxyHistory {
             api.logging().logToError(writer.toString());
         }
     }
-    public static void analyseWithDiffing(String requestKey, JSONObject attackParam, HttpRequest[] requests, DiffingAttributes analysis) {
+    public static void analyseWithDiffing(JSONObject attackParam, HttpRequestResponse[] attackRequestResponses, DiffingAttributes analysis) {
         try {
             boolean debugOutput;
             int maxProxyHistory;
@@ -111,19 +111,25 @@ public class AnalyseProxyHistory {
                     }
                     continue;
                 }
-                if(requestKey.equals(Utils.generateRequestKey(historyItem.finalRequest()))) {
-                    continue;
-                }
+
                 for(ParsedHttpParameter historyItemParam: historyItem.finalRequest().parameters()) {
+                    if(attackRequestResponses[0].request().pathWithoutQuery().equals(historyItem.finalRequest().pathWithoutQuery()) && historyItemParam.name().equals(attackParam.getString("name")) && historyItemParam.type().toString().equalsIgnoreCase(attackParam.getString("type"))) {
+                        if(debugOutput) {
+                            api.logging().logToOutput("Skipping url " + historyItem.finalRequest().url() + " is too similar to the original.");
+                        }
+                        continue;
+                    }
                     if(debugOutput) {
                         api.logging().logToOutput("Testing URL " + historyItem.finalRequest().pathWithoutQuery() + "...");
                         api.logging().logToOutput("Testing parameter " + historyItemParam.name() + "...");
                     }
 
                     ArrayList<HttpRequestResponse> requestResponses = new ArrayList<>();
-                    for(int j=0;j<requests.length;j++) {
-                        HttpRequestResponse requestResponse = conductAttack(requests[j], historyItemParam.type().toString(), historyItemParam.name(), attackParam.getString("value"));
-                        if(requestResponse != null) {
+                    for (HttpRequestResponse attackRequestResponse : attackRequestResponses) {
+                        HttpRequest request = attackRequestResponse.request();
+                        String value = Utils.getParameterValue(request, attackParam.getString("name"), attackParam.getString("type"));
+                        HttpRequestResponse requestResponse = conductAttack(historyItem.finalRequest(), historyItemParam.type().toString(), historyItemParam.name(), value);
+                        if (requestResponse != null) {
                             requestResponses.add(requestResponse);
                         } else {
                             break;
