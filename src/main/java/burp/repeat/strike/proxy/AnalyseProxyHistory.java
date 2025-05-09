@@ -4,11 +4,9 @@ import burp.api.montoya.http.RequestOptions;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
-import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.http.message.responses.analysis.ResponseVariationsAnalyzer;
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
-import burp.repeat.strike.diffing.DiffingAttributes;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.repeat.strike.utils.Utils;
@@ -80,7 +78,7 @@ public class AnalyseProxyHistory {
             api.logging().logToError(writer.toString());
         }
     }
-    public static void analyseWithDiffing(JSONObject attackParam, HttpRequestResponse[] attackRequestResponses, DiffingAttributes analysis) {
+    public static void analyseWithDiffing(short expectedStatusCode, String attackValue) {
         try {
             boolean debugOutput;
             int maxProxyHistory;
@@ -113,36 +111,20 @@ public class AnalyseProxyHistory {
                 }
 
                 for(ParsedHttpParameter historyItemParam: historyItem.finalRequest().parameters()) {
-                    if(attackRequestResponses[0].request().pathWithoutQuery().equals(historyItem.finalRequest().pathWithoutQuery()) && historyItemParam.name().equals(attackParam.getString("name")) && historyItemParam.type().toString().equalsIgnoreCase(attackParam.getString("type"))) {
-                        if(debugOutput) {
-                            api.logging().logToOutput("Skipping url " + historyItem.finalRequest().url() + " is too similar to the original.");
-                        }
-                        continue;
-                    }
                     if(debugOutput) {
                         api.logging().logToOutput("Testing URL " + historyItem.finalRequest().pathWithoutQuery() + "...");
                         api.logging().logToOutput("Testing parameter " + historyItemParam.name() + "...");
                     }
-
-                    ArrayList<HttpRequestResponse> requestResponses = new ArrayList<>();
-                    for (HttpRequestResponse attackRequestResponse : attackRequestResponses) {
-                        HttpRequest request = attackRequestResponse.request();
-                        String value = Utils.getParameterValue(request, attackParam.getString("name"), attackParam.getString("type"));
-                        HttpRequestResponse requestResponse = conductAttack(historyItem.finalRequest(), historyItemParam.type().toString(), historyItemParam.name(), value);
-                        if (requestResponse != null) {
-                            requestResponses.add(requestResponse);
-                        } else {
-                            break;
-                        }
+                    if(historyItem.response() != null && historyItem.response().statusCode() == expectedStatusCode) {
+                        continue;
                     }
+                    HttpRequestResponse requestResponse = conductAttack(historyItem.finalRequest(), historyItemParam.type().toString(), historyItemParam.name(), attackValue);
 
-                    if(Utils.checkInvariantAttributes(requestResponses, analysis)) {
+                    if(requestResponse != null && requestResponse.response().statusCode() == expectedStatusCode) {
                         if (debugOutput) {
                             api.logging().logToOutput("Found vulnerability");
-                            for(HttpRequestResponse requestResponse: requestResponses) {
-                                requestResponse.annotations().setNotes(vulnCount + " - Found vulnerability using diffing scan");
-                                api.organizer().sendToOrganizer(requestResponse);
-                            }
+                            requestResponse.annotations().setNotes("Found vulnerability using diffing scan");
+                            api.organizer().sendToOrganizer(requestResponse);
                             vulnCount++;
                         }
                     }
