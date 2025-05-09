@@ -78,7 +78,7 @@ public class AnalyseProxyHistory {
             api.logging().logToError(writer.toString());
         }
     }
-    public static void analyseWithDiffing(short expectedStatusCode, String attackValue) {
+    public static void analyseWithDiffing(JSONObject originalParam, HttpRequest originalRequest, short expectedStatusCode, String attackValue) {
         try {
             boolean debugOutput;
             int maxProxyHistory;
@@ -109,8 +109,11 @@ public class AnalyseProxyHistory {
                     }
                     continue;
                 }
-
                 for(ParsedHttpParameter historyItemParam: historyItem.finalRequest().parameters()) {
+                    if(originalRequest.pathWithoutQuery().equals(historyItem.finalRequest().pathWithoutQuery()) && originalParam.getString("type").equalsIgnoreCase(historyItemParam.type().toString()) && originalParam.getString("name").equalsIgnoreCase(historyItemParam.name())) {
+                        api.logging().logToOutput("Skipping URL " + historyItem.finalRequest().pathWithoutQuery() + " looks the same as the original attack...");
+                        continue;
+                    }
                     if(debugOutput) {
                         api.logging().logToOutput("Testing URL " + historyItem.finalRequest().pathWithoutQuery() + "...");
                         api.logging().logToOutput("Testing parameter " + historyItemParam.name() + "...");
@@ -122,8 +125,10 @@ public class AnalyseProxyHistory {
 
                     if(requestResponse != null && requestResponse.response().statusCode() == expectedStatusCode) {
                         if (debugOutput) {
-                            api.logging().logToOutput("Found vulnerability");
-                            requestResponse.annotations().setNotes("Found vulnerability using diffing scan");
+                            HttpRequestResponse baseRequestResponse = HttpRequestResponse.httpRequestResponse(historyItem.finalRequest(), historyItem.response());
+                            baseRequestResponse.annotations().setNotes(vulnCount + " - Base request");
+                            api.organizer().sendToOrganizer(baseRequestResponse);
+                            requestResponse.annotations().setNotes(vulnCount + " - Attack found using diffing");
                             api.organizer().sendToOrganizer(requestResponse);
                             vulnCount++;
                         }
