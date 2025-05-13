@@ -23,7 +23,9 @@ public class UnauthenticatedAnalyzer {
                         - Output of a username
                         - An image to suggest you have an avatar.
                         - A profile link
-                        - A welcome message that mentions your name                       
+                        - A welcome message that mentions your name 
+                        
+                        Once you have determined if you are logged in you should return a string of "authenticated" or "unauthenticated".                      
                         """);
             ai.setPrompt(Utils.getResponseAsJson(response));
             ai.setTemperature(1.0);
