@@ -2,9 +2,6 @@ package burp.repeat.strike.ai;
 
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
-import burp.repeat.strike.RepeatStrikeExtension;
-import burp.repeat.strike.settings.InvalidTypeSettingException;
-import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
 
@@ -17,13 +14,6 @@ import static burp.repeat.strike.RepeatStrikeExtension.api;
 public class IdentifyPayload {
     public static JSONObject identify(HttpRequest[] requests, HttpResponse[] responses) {
         try {
-            boolean debugAi;
-            try {
-                debugAi = RepeatStrikeExtension.generalSettings.getBoolean("debugAi");
-            } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
-                api.logging().logToError("Error loading settings:" + e);
-                throw new RuntimeException(e);
-            }
             AI ai = new AI();
             ai.setBypassRateLimit(true);
             ai.setSystemMessage("""
