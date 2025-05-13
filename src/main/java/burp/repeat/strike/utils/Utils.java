@@ -180,6 +180,14 @@ public class Utils {
         return output;
     }
 
+    public static String getResponseAsJson(HttpResponse response) {
+        JSONArray responseJSON = new JSONArray();
+        JSONObject json = new JSONObject();
+        json.put("response", response);
+        responseJSON.put(json);
+        return "Response:\n"+responseJSON;
+    }
+
     public static String getRequestsAndResponsesAsJson(HttpRequest[] requests, HttpResponse[] responses) {
         JSONArray requestsJSON = new JSONArray();
         for(HttpRequest request : requests) {

@@ -42,10 +42,6 @@ public class IdentifyPayload {
                         """);
             ai.setPrompt(Utils.getRequestsAndResponsesAsJson(requests, responses));
             ai.setTemperature(1.0);
-            if(debugAi) {
-                api.logging().logToOutput("Sending information to the AI");
-                api.logging().logToOutput(ai.getSystemMessage()+ai.getPrompt());
-            }
             return new JSONObject(ai.execute());
         } catch (Throwable throwable) {
             StringWriter writer = new StringWriter();

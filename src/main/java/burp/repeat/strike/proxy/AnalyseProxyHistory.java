@@ -4,7 +4,6 @@ import burp.api.montoya.http.RequestOptions;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
-import burp.api.montoya.http.message.responses.analysis.ResponseVariationsAnalyzer;
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
@@ -59,7 +58,7 @@ public class AnalyseProxyHistory {
                         api.logging().logToOutput("Testing URL " + historyItem.request().pathWithoutQuery() + "...");
                         api.logging().logToOutput("Testing parameter " + historyItemParam.name() + "...");
                     }
-                    if(conductAttackUsingRegex(vulnerability, historyItem, context, historyItemParam.type().toString(), historyItemParam.name(), probe, responseRegex)) {
+                    if(makeRequestAndVerifyUsingRegex(vulnerability, historyItem, context, historyItemParam.type().toString(), historyItemParam.name(), probe, responseRegex)) {
                         if (debugOutput) {
                             api.logging().logToOutput("Found vulnerability");
                         }
@@ -121,7 +120,7 @@ public class AnalyseProxyHistory {
                     if(historyItem.response() != null && historyItem.response().statusCode() == expectedStatusCode) {
                         continue;
                     }
-                    HttpRequestResponse requestResponse = conductAttack(historyItem.finalRequest(), historyItemParam.type().toString(), historyItemParam.name(), attackValue);
+                    HttpRequestResponse requestResponse = makeRequest(historyItem.finalRequest(), historyItemParam.type().toString(), historyItemParam.name(), attackValue);
 
                     if(requestResponse != null && requestResponse.response().statusCode() == expectedStatusCode) {
                         if (debugOutput) {
@@ -191,7 +190,7 @@ public class AnalyseProxyHistory {
                     int probeSuccess = 0;
                     ArrayList<HttpRequestResponse> requestResponses = new ArrayList<>();
                     for(int probeNumber = 0; probeNumber < probes.length; probeNumber++ ) {
-                        HttpRequestResponse requestResponse = conductAttackUsingObject(HttpRequestResponse.httpRequestResponse(historyItem.finalRequest(), historyItem.response()), historyItemParam.type().toString(), historyItemParam.name(), probes[probeNumber], probeNumber, scanCheck);
+                        HttpRequestResponse requestResponse = makeRequestAndVerifyUsingObject(HttpRequestResponse.httpRequestResponse(historyItem.finalRequest(), historyItem.response()), historyItemParam.type().toString(), historyItemParam.name(), probes[probeNumber], probeNumber, scanCheck);
                         if (requestResponse != null) {
                             requestResponses.add(requestResponse);
                             probeSuccess++;
@@ -224,7 +223,7 @@ public class AnalyseProxyHistory {
         }
     }
 
-    public static HttpRequestResponse conductAttack(HttpRequest request, String paramType, String paramName, String paramValue) {
+    public static HttpRequestResponse makeRequest(HttpRequest request, String paramType, String paramName, String paramValue) {
         long timeoutMs = 2000;
         HttpRequest modifiedRequest = Utils.modifyRequest(request, paramType, paramName, paramValue);
         if(modifiedRequest != null) {
@@ -233,29 +232,22 @@ public class AnalyseProxyHistory {
         return null;
     }
 
-    public static HttpRequestResponse conductAttackUsingObject(HttpRequestResponse httpReqResp, String paramType, String paramName, String paramValue, int probeNumber, Object scanCheck) {
-        long timeoutMs = 2000;
-        HttpRequest modifiedRequest = Utils.modifyRequest(httpReqResp.request(), paramType, paramName, paramValue);
-        if(modifiedRequest != null) {
-            HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest, RequestOptions.requestOptions().withResponseTimeout(timeoutMs));
-            if(requestResponse.response() != null) {
-                if(didProbeWork(scanCheck, requestResponse.response(), probeNumber)) {
-                    return requestResponse;
-                }
+    public static HttpRequestResponse makeRequestAndVerifyUsingObject(HttpRequestResponse httpReqResp, String paramType, String paramName, String paramValue, int probeNumber, Object scanCheck) {
+        HttpRequestResponse requestResponse = makeRequest(httpReqResp.request(), paramType, paramName, paramValue);
+        if(requestResponse != null && requestResponse.response() != null) {
+            if(didProbeWork(scanCheck, requestResponse.response(), probeNumber)) {
+                return requestResponse;
             }
         }
         return null;
     }
-    public static boolean conductAttackUsingRegex(JSONObject vulnerability, ProxyHttpRequestResponse historyItem, String context, String paramType, String paramName, String paramValue, String responseRegex) {
-        HttpRequest modifiedRequest = Utils.modifyRequest(historyItem.request(), paramType, paramName, paramValue);
-        if(modifiedRequest != null) {
-            HttpRequestResponse requestResponse = api.http().sendRequest(modifiedRequest);
-            if (requestResponse.response() != null) {
-                if (isVulnerable(context, requestResponse.response(), responseRegex)) {
-                    requestResponse.annotations().setNotes(vulnerability.getString("shortDescription"));
-                    api.organizer().sendToOrganizer(requestResponse);
-                    return true;
-                }
+    public static boolean makeRequestAndVerifyUsingRegex(JSONObject vulnerability, ProxyHttpRequestResponse historyItem, String context, String paramType, String paramName, String paramValue, String responseRegex) {
+        HttpRequestResponse requestResponse = makeRequest(historyItem.request(), paramType, paramName, paramValue);
+        if (requestResponse != null && requestResponse.response() != null) {
+            if (isVulnerable(context, requestResponse.response(), responseRegex)) {
+                requestResponse.annotations().setNotes(vulnerability.getString("shortDescription"));
+                api.organizer().sendToOrganizer(requestResponse);
+                return true;
             }
         }
         return false;
