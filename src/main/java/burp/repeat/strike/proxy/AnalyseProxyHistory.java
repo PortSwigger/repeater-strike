@@ -138,7 +138,7 @@ public class AnalyseProxyHistory {
             }
             if(debugOutput) {
                 api.logging().logToOutput("Finished scanning proxy history.");
-                api.logging().logToOutput("Repeat Strike found " + vulnCount + " potential vulnerabilit" + (vulnCount == 1 ? "y" : "ies"));
+                outputVulCount(vulnCount);
             }
         } catch (Throwable throwable) {
             StringWriter writer = new StringWriter();
@@ -146,6 +146,11 @@ public class AnalyseProxyHistory {
             api.logging().logToError(writer.toString());
         }
     }
+
+    public static void outputVulCount(int vulnCount) {
+        api.logging().logToOutput("Repeat Strike found " + vulnCount + " potential vulnerabilit" + (vulnCount == 1 ? "y" : "ies"));
+    }
+
     public static void analyseWithObject(Object scanCheck) {
         try {
             boolean debugOutput;
@@ -210,7 +215,7 @@ public class AnalyseProxyHistory {
             }
             if(debugOutput) {
                 api.logging().logToOutput("Finished scanning proxy history.");
-                api.logging().logToOutput("Repeat Strike found " + vulnCount + " potential vulnerabilit" + (vulnCount == 1 ? "y" : "ies"));
+                outputVulCount(vulnCount);
             }
         } catch (Throwable throwable) {
             StringWriter writer = new StringWriter();
