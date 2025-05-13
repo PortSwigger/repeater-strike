@@ -17,6 +17,7 @@ public class ResponseSensitivityAnalyzer {
                         You are a web security expert.
                         Your job is to look at response and decide if there is anything sensitive.
                         Once you've found some sensitive data you should return it as a string.
+                        If you don't find anything sensitive return the string "nothing".
                         """);
             ai.setPrompt(Utils.getResponseAsJson(response));
             ai.setTemperature(1.0);
