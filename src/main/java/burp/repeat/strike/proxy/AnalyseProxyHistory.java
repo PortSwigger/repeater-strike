@@ -19,7 +19,7 @@ import static burp.repeat.strike.RepeatStrikeExtension.api;
 import static burp.repeat.strike.ai.VulnerabilityAnalysis.*;
 
 public class AnalyseProxyHistory {
-    public static void analyseWithRegex(JSONObject vulnerability, JSONObject param) {
+    public static void analyseWithRegex(JSONObject analysis, JSONObject param, HttpRequest originalRequest) {
         try {
             boolean debugOutput;
             int maxProxyHistory;
@@ -32,6 +32,8 @@ public class AnalyseProxyHistory {
             }
 
             List<ProxyHttpRequestResponse> proxyHistory = api.proxy().history();
+            Set<String> requestKeys = new HashSet<>();
+            requestKeys.add(Utils.generateRequestKey(originalRequest));
             int proxyHistorySize = proxyHistory.size();
             int count = 0;
             int vulnCount = 0;
@@ -41,24 +43,22 @@ public class AnalyseProxyHistory {
                     break;
                 }
                 ProxyHttpRequestResponse historyItem = proxyHistory.get(i);
-                if (historyItem.request().parameters().isEmpty()) {
+                if (historyItem.finalRequest().parameters().isEmpty()) {
                     continue;
                 }
-                if (!historyItem.request().isInScope()) {
+                if (!historyItem.finalRequest().isInScope()) {
                     continue;
                 }
-                String probe = vulnerability.getString("probeToUse");
-                String responseRegex = vulnerability.getString("responseRegex");
-                String context = vulnerability.getString("context");
-                for (ParsedHttpParameter historyItemParam : historyItem.request().parameters()) {
-                    if (isVulnerable(context, historyItem.response(), responseRegex)) {
-                        continue;
-                    }
+                String requestKey = Utils.generateRequestKey(historyItem.finalRequest());
+                if(requestKeys.contains(requestKey)) {
+                    continue;
+                }
+                for (ParsedHttpParameter historyItemParam : historyItem.finalRequest().parameters()) {
                     if(debugOutput) {
-                        api.logging().logToOutput("Testing URL " + historyItem.request().pathWithoutQuery() + "...");
+                        api.logging().logToOutput("Testing URL " + historyItem.finalRequest().pathWithoutQuery() + "...");
                         api.logging().logToOutput("Testing parameter " + historyItemParam.name() + "...");
                     }
-                    if(makeRequestAndVerifyUsingRegex(vulnerability, historyItem, context, historyItemParam.type().toString(), historyItemParam.name(), probe, responseRegex)) {
+                    if(isVulnerable(analysis, historyItem.finalRequest(), param.getString("vulnerabilityClass"), historyItemParam.type().name(), historyItemParam.name(), true)) {
                         if (debugOutput) {
                             api.logging().logToOutput("Found vulnerability");
                         }
@@ -66,6 +66,7 @@ public class AnalyseProxyHistory {
                     }
                 }
                 count++;
+                requestKeys.add(requestKey);
             }
             if (debugOutput) {
                 api.logging().logToOutput("Finished scanning proxy history.");
@@ -240,16 +241,5 @@ public class AnalyseProxyHistory {
             }
         }
         return null;
-    }
-    public static boolean makeRequestAndVerifyUsingRegex(JSONObject vulnerability, ProxyHttpRequestResponse historyItem, String context, String paramType, String paramName, String paramValue, String responseRegex) {
-        HttpRequestResponse requestResponse = makeRequest(historyItem.request(), paramType, paramName, paramValue);
-        if (requestResponse != null && requestResponse.response() != null) {
-            if (isVulnerable(context, requestResponse.response(), responseRegex)) {
-                requestResponse.annotations().setNotes(vulnerability.getString("shortDescription"));
-                api.organizer().sendToOrganizer(requestResponse);
-                return true;
-            }
-        }
-        return false;
     }
 }

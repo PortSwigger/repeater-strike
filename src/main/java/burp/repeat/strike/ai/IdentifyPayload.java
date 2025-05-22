@@ -25,7 +25,7 @@ public class IdentifyPayload {
                         Return a single JSON object with the following structure:
                         {
                           "name": string,
-                          "value": string,
+                          "values": [string],
                           "type": "URL" | "HEADER" | "BODY" | "JSON" | "COOKIE",
                           "vulnerabilityClass": """+" \""+String.join("\" | \"", Arrays.stream(Vulnerability.values()).map(Enum::name).toArray(String[]::new))+"\"\n"+"""                
                         }
