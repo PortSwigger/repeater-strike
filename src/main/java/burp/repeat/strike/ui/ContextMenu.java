@@ -77,8 +77,9 @@ public class ContextMenu implements ContextMenuItemsProvider {
         savedScanChecks.setEnabled(!scanChecksJSON.isEmpty());
         if(!scanChecksJSON.isEmpty()) {
             scanChecksJSON.keySet().forEach(key -> {
-                JMenuItem scanCheckMenuItem = new JMenuItem(key);
-                scanCheckMenuItem.addActionListener(e -> {
+                JMenu scanCheckMenu = new JMenu(key);
+                JMenuItem runScanCheck = new JMenuItem("Run");
+                runScanCheck.addActionListener(e -> {
                    JSONObject scanCheck = scanChecksJSON.getJSONObject(key);
                    if(scanCheck.getString("type").equals(VulnerabilityScanType.DiffingNonAi.name())) {
                        RepeatStrikeExtension.executorService.submit(() -> {
@@ -104,7 +105,17 @@ public class ContextMenu implements ContextMenuItemsProvider {
                        });
                    }
                 });
-               savedScanChecks.add(scanCheckMenuItem);
+                scanCheckMenu.add(runScanCheck);
+                JMenuItem deleteScanCheck = new JMenuItem("Delete");
+                deleteScanCheck.addActionListener(e -> {
+                    int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to this scan check?", "Confirm", JOptionPane.YES_NO_OPTION);
+                    if(confirm == 0) {
+                        scanChecksJSON.remove(key);
+                        api.persistence().extensionData().setString("scanChecks", scanChecksJSON.toString());
+                    }
+                });
+                scanCheckMenu.add(deleteScanCheck);
+               savedScanChecks.add(scanCheckMenu);
             });
         }
         menuItemList.add(savedScanChecks);
