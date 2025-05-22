@@ -17,6 +17,7 @@ import burp.repeat.strike.capabilities.Burp;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.ui.ContextMenu;
 import burp.repeat.strike.utils.Utils;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
     public static ArrayList<HttpRequest> requestHistory = new ArrayList<>();
     public static ArrayList<HttpResponse> responseHistory = new ArrayList<>();
     public static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    public static JSONObject lastScanCheckRan = null;
 
     @Override
     public void initialize(MontoyaApi montoyaApi) {
