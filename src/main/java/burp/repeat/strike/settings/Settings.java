@@ -21,6 +21,7 @@ import java.util.Map;
 import static burp.repeat.strike.RepeatStrikeExtension.*;
 import static burp.repeat.strike.utils.GridbagUtils.addMarginToGbc;
 import static burp.repeat.strike.utils.GridbagUtils.createConstraints;
+import static burp.repeat.strike.utils.Utils.confirm;
 import static java.awt.GridBagConstraints.CENTER;
 
 public class Settings {
@@ -421,8 +422,7 @@ public class Settings {
                         checkBox.addActionListener(e -> {
                             boolean isChecked = checkBox.isSelected();
                             if(isChecked && shouldWarn) {
-                                int confirm = JOptionPane.showConfirmDialog(checkBox, currentSetting.getString("warning"));
-                                if(confirm != 0) {
+                                if(confirm(checkBox, "Confirm", currentSetting.getString("warning"))) {
                                     checkBox.setSelected(false);
                                     isChecked = false;
                                 }
@@ -454,8 +454,7 @@ public class Settings {
         JButton closeSettingsBtn = new JButton("Close");
         JButton resetSettingsBtn = new JButton("Reset");
         resetSettingsBtn.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to reset your settings?");
-            if(confirm == 0) {
+            if(confirm(null, "Confirm reset setting", "Are you sure you want to reset your settings?")) {
                 this.resetSettings();
                 this.save();
                 loadSettingObject.load();
@@ -487,8 +486,7 @@ public class Settings {
         buttonsContainer.add(new Label(), GridbagUtils.createConstraints(4, 0, 1, GridBagConstraints.BOTH, 0, 0, 5, 5, CENTER));
         closeSettingsBtn.addActionListener(e -> {
             if(isModified) {
-                int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you have unsaved settings?");
-                if(confirm != 0) {
+                if(confirm(null, "Confirm", "Are you sure you have unsaved settings?")) {
                     return;
                 }
             }

@@ -3,9 +3,18 @@ package burp.repeat.strike.utils;
 import org.json.JSONObject;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
+import static burp.repeat.strike.utils.Utils.alert;
 
 public class ScanCheckUtils {
     public static boolean validateScanCheckName(String name) {
+        if(name.isEmpty()) {
+            alert("The scan check name was empty");
+            return false;
+        }
+        if(name.length() > 100) {
+            alert("The scan check name was too long");
+            return false;
+        }
         String scanCheckNameRegex = "^\\w[\\s\\w\\-]*$";
         return name.matches(scanCheckNameRegex);
     }

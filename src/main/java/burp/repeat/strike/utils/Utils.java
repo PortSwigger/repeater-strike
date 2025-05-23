@@ -205,4 +205,16 @@ public class Utils {
         settings.addActionListener(e -> Settings.showSettingsWindow());
         return settings;
     }
+
+    public static void alert(String message) {
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    public static boolean confirm(JComponent component, String title, String message) {
+        return JOptionPane.showConfirmDialog(component, message, title, JOptionPane.YES_NO_OPTION) == 0;
+    }
+
+    public static String prompt(JComponent component, String title, String message) {
+        return JOptionPane.showInputDialog(component, message, title, JOptionPane.QUESTION_MESSAGE);
+    }
 }

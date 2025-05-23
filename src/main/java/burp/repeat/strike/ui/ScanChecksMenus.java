@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static burp.repeat.strike.RepeatStrikeExtension.*;
+import static burp.repeat.strike.utils.Utils.*;
 
 public class ScanChecksMenus {
 
@@ -41,8 +42,7 @@ public class ScanChecksMenus {
         JMenuItem deleteScanChecks = new JMenuItem("Delete all saved scan checks");
         deleteScanChecks.setEnabled(scanChecksJSON != null && !scanChecksJSON.isEmpty());
         deleteScanChecks.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete all saved scan checks?", "Confirm", JOptionPane.YES_NO_OPTION);
-            if (confirm == 0) {
+            if (confirm(null, "Confirm delete scan checks", "Are you sure you want to delete all saved scan checks?")) {
                 ScanCheckUtils.deleteAllScanChecks();
             }
         });
@@ -92,12 +92,12 @@ public class ScanChecksMenus {
         saveLastScanCheck.addActionListener(e -> {
             if(lastScanCheckRan != null) {
                 if(lastScanCheckRan.getString("type").equals(VulnerabilityScanType.Java.name())) {
-                    JOptionPane.showMessageDialog(null, "Repeat Strike can't save Java scan checks yet.");
+                    alert("Repeat Strike can't save Java scan checks yet.");
                     return;
                 }
-                String scanCheckName = JOptionPane.showInputDialog(null, "Enter the name of your scan check:", "Save Last Scan", JOptionPane.QUESTION_MESSAGE);
+                String scanCheckName = prompt(null, "Save Last Scan", "Enter the name of your scan check:");
                 if(!ScanCheckUtils.validateScanCheckName(scanCheckName)) {
-                    JOptionPane.showMessageDialog(null, "Invalid scan check name.");
+                    alert("Invalid scan check name.");
                     return;
                 }
                 ScanCheckUtils.addCustomScanCheck(scanCheckName, lastScanCheckRan, scanChecksJSON);
@@ -143,8 +143,7 @@ public class ScanChecksMenus {
                 scanCheckMenu.add(runScanCheck);
                 JMenuItem deleteScanCheck = new JMenuItem("Delete");
                 deleteScanCheck.addActionListener(e -> {
-                    int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to this scan check?", "Confirm", JOptionPane.YES_NO_OPTION);
-                    if(confirm == 0) {
+                    if(confirm(null, "Confirm delete scan check", "Are you sure you want to this scan check?")) {
                         ScanCheckUtils.deleteCustomScanCheck(key, scanChecksJSON);
                     }
                 });
