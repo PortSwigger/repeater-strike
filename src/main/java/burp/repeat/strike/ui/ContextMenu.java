@@ -75,7 +75,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
         JMenu savedScanChecks = new JMenu("Saved scan checks");
         savedScanChecks.setEnabled(!scanChecksJSON.isEmpty());
         if(!scanChecksJSON.isEmpty()) {
-            scanChecksJSON.keySet().forEach(key -> {
+            scanChecksJSON.keySet().stream().sorted().forEach(key -> {
                 JMenu scanCheckMenu = new JMenu(key);
                 JMenuItem runScanCheck = new JMenuItem("Run");
                 runScanCheck.addActionListener(e -> {
