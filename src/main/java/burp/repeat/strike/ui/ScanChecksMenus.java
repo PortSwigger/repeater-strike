@@ -37,8 +37,9 @@ public class ScanChecksMenus {
         return addToRepeatStrike;
     }
 
-    public static JMenuItem buildDeleteAllScanChecksMenu() {
+    public static JMenuItem buildDeleteAllScanChecksMenu(JSONObject scanChecksJSON) {
         JMenuItem deleteScanChecks = new JMenuItem("Delete all saved scan checks");
+        deleteScanChecks.setEnabled(scanChecksJSON != null && !scanChecksJSON.isEmpty());
         deleteScanChecks.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete all saved scan checks?", "Confirm", JOptionPane.YES_NO_OPTION);
             if (confirm == 0) {
@@ -67,7 +68,7 @@ public class ScanChecksMenus {
 
     public static JMenuItem buildRunRegexScanMenu() {
         JMenuItem runRepeatStrikeRegex = new JMenuItem("Using AI Regex (" + requestHistory.size() + ")");
-        runRepeatStrikeRegex.setEnabled(!requestHistory.isEmpty() && requestHistory.size() < 3);
+        runRepeatStrikeRegex.setEnabled(!requestHistory.isEmpty());
         runRepeatStrikeRegex.addActionListener(e -> {
             VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Regex);
             Utils.resetHistory(false);
@@ -77,7 +78,7 @@ public class ScanChecksMenus {
 
     public static JMenuItem buildRunJavaScanMenu() {
         JMenuItem runRepeatStrikeJava = new JMenuItem("Using AI Java (" + requestHistory.size() + ")");
-        runRepeatStrikeJava.setEnabled(!requestHistory.isEmpty() && requestHistory.size() < 3);
+        runRepeatStrikeJava.setEnabled(!requestHistory.isEmpty());
         runRepeatStrikeJava.addActionListener(e -> {
             VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Java);
             Utils.resetHistory(false);

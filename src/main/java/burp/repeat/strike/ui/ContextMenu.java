@@ -23,7 +23,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
         if(event.messageEditorRequestResponse().isPresent() && event.invocationType() == InvocationType.MESSAGE_EDITOR_REQUEST && event.isFromTool(ToolType.REPEATER)) {
             JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
             menuItemList.add(ScanChecksMenus.buildAddToRepeatStrikeMenu(event));
-            JMenu scanMenu = new JMenu("Scan");
+            JMenu scanMenu = new JMenu("Scan " + "(" + requestHistory.size() + ")");
             scanMenu.setEnabled(!requestHistory.isEmpty());
             scanMenu.add(buildRunJavaScanMenu());
             scanMenu.add(buildRunRegexScanMenu());
@@ -32,7 +32,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
             menuItemList.add(ScanChecksMenus.buildScanCheckMenu(scanChecksJSON));
             menuItemList.add(ScanChecksMenus.buildSaveLastScanCheckMenu(scanChecksJSON));
             menuItemList.add(buildResetMenu());
-            menuItemList.add(buildDeleteAllScanChecksMenu());
+            menuItemList.add(buildDeleteAllScanChecksMenu(scanChecksJSON));
         }
         menuItemList.add(buildSettingsMenu());
         return menuItemList;
