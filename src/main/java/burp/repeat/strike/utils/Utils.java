@@ -197,7 +197,7 @@ public class Utils {
     }
 
     public static boolean validateScanCheckName(String name) {
-        String scanCheckNameRegex = "^\\w[\\s\\w]*$";
+        String scanCheckNameRegex = "^\\w[\\s\\w\\-]*$";
         return name.matches(scanCheckNameRegex);
     }
 }
