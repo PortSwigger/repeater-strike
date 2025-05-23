@@ -48,7 +48,7 @@ public class AnalyseProxyHistory {
                 for (ParsedHttpParameter param : request.parameters()) {
                     if (debugOutput) {
                         api.logging().logToOutput("Testing URL " + request.pathWithoutQuery() + "...");
-                        api.logging().logToOutput("Testing parameter " + param.name() + "...");
+                        api.logging().logToOutput("Testing parameter name" + param.name() + "...");
                     }
                     callback.analyse(request, response, param, item);
                 }
@@ -148,6 +148,7 @@ public class AnalyseProxyHistory {
         long timeoutMs = 2000;
         HttpRequest modifiedRequest = Utils.modifyRequest(request, paramType, paramName, paramValue);
         if (modifiedRequest != null) {
+            api.logging().logToOutput("Conducting attack:" + paramValue);
             return api.http().sendRequest(modifiedRequest, RequestOptions.requestOptions().withResponseTimeout(timeoutMs));
         }
         return null;

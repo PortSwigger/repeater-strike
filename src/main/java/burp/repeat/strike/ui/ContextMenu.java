@@ -120,7 +120,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
         }
         menuItemList.add(savedScanChecks);
         JMenuItem saveLastScanCheck = new JMenuItem("Save last scan check");
-        saveLastScanCheck.setEnabled(lastScanCheckRan != null);
+        saveLastScanCheck.setEnabled(lastScanCheckRan != null && !lastScanCheckRan.isEmpty());
         saveLastScanCheck.addActionListener(e -> {
             if(lastScanCheckRan != null) {
                 if(lastScanCheckRan.getString("type").equals(VulnerabilityScanType.Java.name())) {
