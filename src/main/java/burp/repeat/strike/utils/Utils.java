@@ -8,6 +8,8 @@ import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
+import burp.repeat.strike.ai.VulnerabilityScanType;
+import burp.repeat.strike.proxy.AnalyseProxyHistory;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.settings.UnregisteredSettingException;
@@ -22,6 +24,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -196,8 +200,9 @@ public class Utils {
         return "Requests:\n"+requestsJSON+"\n\nResponses:\n"+responsesJSON;
     }
 
-    public static boolean validateScanCheckName(String name) {
-        String scanCheckNameRegex = "^\\w[\\s\\w\\-]*$";
-        return name.matches(scanCheckNameRegex);
+    public static JMenuItem buildSettingsMenu() {
+        JMenuItem settings = new JMenuItem("Settings");
+        settings.addActionListener(e -> Settings.showSettingsWindow());
+        return settings;
     }
 }
