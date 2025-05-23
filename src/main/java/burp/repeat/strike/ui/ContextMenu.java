@@ -131,8 +131,8 @@ public class ContextMenu implements ContextMenuItemsProvider {
                 if(scanCheckName != null) {
                     scanChecksJSON.put(scanCheckName, lastScanCheckRan);
                     api.persistence().extensionData().setString("scanChecks", scanChecksJSON.toString());
+                    lastScanCheckRan = null;
                 }
-                lastScanCheckRan = null;
             }
         });
         menuItemList.add(saveLastScanCheck);
