@@ -23,7 +23,7 @@ public class AnalyseProxyHistory {
 
     @FunctionalInterface
     public interface ParamAnalysisCallback {
-        void analyse(HttpRequest baseRequest, HttpResponse baseResponse, ParsedHttpParameter param, ProxyHttpRequestResponse historyItem);
+        void analyse(HttpRequest baseRequest, HttpResponse baseResponse, ParsedHttpParameter param, ProxyHttpRequestResponse historyItem) throws UnregisteredSettingException, InvalidTypeSettingException;
     }
 
     public static void analyse(Set<String> requestKeys, ParamAnalysisCallback callback) {
@@ -144,17 +144,20 @@ public class AnalyseProxyHistory {
         api.logging().logToOutput("Repeat Strike found " + vulnCount + " potential vulnerabilit" + (vulnCount == 1 ? "y" : "ies"));
     }
 
-    public static HttpRequestResponse makeRequest(HttpRequest request, String paramType, String paramName, String paramValue) {
+    public static HttpRequestResponse makeRequest(HttpRequest request, String paramType, String paramName, String paramValue) throws UnregisteredSettingException, InvalidTypeSettingException {
+        final boolean debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
         long timeoutMs = 2000;
         HttpRequest modifiedRequest = Utils.modifyRequest(request, paramType, paramName, paramValue);
         if (modifiedRequest != null) {
-            api.logging().logToOutput("Conducting attack:" + paramValue);
+            if(debugOutput) {
+                api.logging().logToOutput("Conducting attack:" + paramValue);
+            }
             return api.http().sendRequest(modifiedRequest, RequestOptions.requestOptions().withResponseTimeout(timeoutMs));
         }
         return null;
     }
 
-    public static HttpRequestResponse makeRequestAndVerifyUsingObject(HttpRequestResponse httpReqResp, String paramType, String paramName, String paramValue, int probeNumber, Object scanCheck) {
+    public static HttpRequestResponse makeRequestAndVerifyUsingObject(HttpRequestResponse httpReqResp, String paramType, String paramName, String paramValue, int probeNumber, Object scanCheck) throws UnregisteredSettingException, InvalidTypeSettingException {
         HttpRequestResponse requestResponse = makeRequest(httpReqResp.request(), paramType, paramName, paramValue);
         if (requestResponse != null && requestResponse.response() != null) {
             if (didProbeWork(scanCheck, requestResponse.response(), probeNumber)) {
