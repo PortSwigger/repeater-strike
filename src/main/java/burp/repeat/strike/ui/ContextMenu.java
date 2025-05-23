@@ -139,6 +139,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
         menuItemList.add(saveLastScanCheck);
 
         JMenuItem resetMenu = new JMenuItem("Empty requests/responses");
+        resetMenu.setEnabled(!requestHistory.isEmpty());
         resetMenu.addActionListener(e -> Utils.resetHistory(false));
         menuItemList.add(resetMenu);
 
