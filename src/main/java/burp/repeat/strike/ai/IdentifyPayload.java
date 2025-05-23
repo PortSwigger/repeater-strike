@@ -26,7 +26,7 @@ public class IdentifyPayload {
                         {
                           "name": string,
                           "values": [string],
-                          "type": "URL" | "HEADER" | "BODY" | "JSON" | "COOKIE",
+                          "type": "URL" | "PATH" | "HEADER" | "BODY" | "JSON" | "COOKIE",
                           "vulnerabilityClass": """+" \""+String.join("\" | \"", Arrays.stream(Vulnerability.values()).map(Enum::name).toArray(String[]::new))+"\"\n"+"""                
                         }
                         """);
