@@ -14,7 +14,6 @@ import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.repeat.strike.utils.Utils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -128,11 +127,13 @@ public class ContextMenu implements ContextMenuItemsProvider {
                     return;
                 }
                 String scanCheckName = JOptionPane.showInputDialog(null, "Enter the name of your scan check:", "Save Last Scan", JOptionPane.QUESTION_MESSAGE);
-                if(scanCheckName != null) {
-                    scanChecksJSON.put(scanCheckName, lastScanCheckRan);
-                    api.persistence().extensionData().setString("scanChecks", scanChecksJSON.toString());
-                    lastScanCheckRan = null;
+                if(!Utils.validateScanCheckName(scanCheckName)) {
+                    JOptionPane.showMessageDialog(null, "Invalid scan check name.");
+                    return;
                 }
+                scanChecksJSON.put(scanCheckName, lastScanCheckRan);
+                api.persistence().extensionData().setString("scanChecks", scanChecksJSON.toString());
+                lastScanCheckRan = null;
             }
         });
         menuItemList.add(saveLastScanCheck);

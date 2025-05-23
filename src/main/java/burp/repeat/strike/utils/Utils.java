@@ -2,14 +2,11 @@ package burp.repeat.strike.utils;
 
 
 import burp.api.montoya.core.Annotations;
-import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.HttpParameter;
 import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
-import burp.api.montoya.http.message.responses.analysis.AttributeType;
-import burp.api.montoya.http.message.responses.analysis.ResponseVariationsAnalyzer;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.Settings;
@@ -24,10 +21,7 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -106,9 +100,7 @@ public class Utils {
         settingsMenu.addActionListener(e -> Settings.showSettingsWindow());
         menuBar.add(settingsMenu);
         JMenuItem reportFeedbackMenu = new JMenuItem("Report feedback");
-        reportFeedbackMenu.addActionListener(e -> {
-            Utils.openUrl("https://github.com/hackvertor/auto-notes/issues/new");
-        });
+        reportFeedbackMenu.addActionListener(e -> Utils.openUrl("https://github.com/hackvertor/auto-notes/issues/new"));
         menuBar.add(reportFeedbackMenu);
         return menuBar;
     }
@@ -202,5 +194,10 @@ public class Utils {
             responsesJSON.put(json);
         }
         return "Requests:\n"+requestsJSON+"\n\nResponses:\n"+responsesJSON;
+    }
+
+    public static boolean validateScanCheckName(String name) {
+        String scanCheckNameRegex = "^\\w[\\s\\w]*$";
+        return name.matches(scanCheckNameRegex);
     }
 }
