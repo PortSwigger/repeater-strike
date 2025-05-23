@@ -21,6 +21,22 @@ import static burp.repeat.strike.RepeatStrikeExtension.*;
 
 public class ScanChecksMenus {
 
+    public static JMenuItem buildAddToRepeatStrikeMenu(ContextMenuEvent event) {
+        JMenuItem addToRepeatStrike = new JMenuItem("Send to Repeat Strike");
+        addToRepeatStrike.addActionListener(e -> {
+            if (event.messageEditorRequestResponse().isPresent()) {
+                HttpRequest req = event.messageEditorRequestResponse().get().requestResponse().request();
+                HttpResponse resp = event.messageEditorRequestResponse().get().requestResponse().response();
+                if (req == null || resp == null) {
+                    return;
+                }
+                requestHistory.add(req);
+                responseHistory.add(resp);
+            }
+        });
+        return addToRepeatStrike;
+    }
+
     public static JMenuItem buildDeleteAllScanChecksMenu() {
         JMenuItem deleteScanChecks = new JMenuItem("Delete all saved scan checks");
         deleteScanChecks.addActionListener(e -> {
@@ -40,7 +56,7 @@ public class ScanChecksMenus {
     }
 
     public static JMenuItem buildRunDiffingScanMenu(){
-        JMenuItem runRepeatStrikeDiffing = new JMenuItem("Scan using Diffing Non-AI (" + requestHistory.size() + ")");
+        JMenuItem runRepeatStrikeDiffing = new JMenuItem("Using Diffing Non-AI (" + requestHistory.size() + ")");
         runRepeatStrikeDiffing.setEnabled(requestHistory.size() > 1);
         runRepeatStrikeDiffing.addActionListener(e -> {
             VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.DiffingNonAi);
@@ -50,7 +66,7 @@ public class ScanChecksMenus {
     }
 
     public static JMenuItem buildRunRegexScanMenu() {
-        JMenuItem runRepeatStrikeRegex = new JMenuItem("Scan using AI Regex (" + requestHistory.size() + ")");
+        JMenuItem runRepeatStrikeRegex = new JMenuItem("Using AI Regex (" + requestHistory.size() + ")");
         runRepeatStrikeRegex.setEnabled(!requestHistory.isEmpty() && requestHistory.size() < 3);
         runRepeatStrikeRegex.addActionListener(e -> {
             VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Regex);
@@ -60,29 +76,13 @@ public class ScanChecksMenus {
     }
 
     public static JMenuItem buildRunJavaScanMenu() {
-        JMenuItem runRepeatStrikeJava = new JMenuItem("Scan using AI Java (" + requestHistory.size() + ")");
+        JMenuItem runRepeatStrikeJava = new JMenuItem("Using AI Java (" + requestHistory.size() + ")");
         runRepeatStrikeJava.setEnabled(!requestHistory.isEmpty() && requestHistory.size() < 3);
         runRepeatStrikeJava.addActionListener(e -> {
             VulnerabilityAnalysis.check(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Java);
             Utils.resetHistory(false);
         });
         return runRepeatStrikeJava;
-    }
-
-    public static JMenuItem buildAddToRepeatStrikeMenu(ContextMenuEvent event) {
-        JMenuItem addToRepeatStrike = new JMenuItem("Add to Repeat Strike");
-        addToRepeatStrike.addActionListener(e -> {
-            if (event.messageEditorRequestResponse().isPresent()) {
-                HttpRequest req = event.messageEditorRequestResponse().get().requestResponse().request();
-                HttpResponse resp = event.messageEditorRequestResponse().get().requestResponse().response();
-                if (req == null || resp == null) {
-                    return;
-                }
-                requestHistory.add(req);
-                responseHistory.add(resp);
-            }
-        });
-        return addToRepeatStrike;
     }
 
     public static JMenuItem buildSaveLastScanCheckMenu(JSONObject scanChecksJSON) {
