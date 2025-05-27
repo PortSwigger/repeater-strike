@@ -113,7 +113,7 @@ public class ScanChecksMenus {
         if(!scanChecksJSON.isEmpty()) {
             scanChecksJSON.keySet().stream().sorted().forEach(key -> {
                 JMenu scanCheckMenu = new JMenu(key);
-                JMenuItem runScanCheck = new JMenuItem("Run");
+                JMenuItem runScanCheck = new JMenuItem("Scan proxy history");
                 runScanCheck.addActionListener(e -> {
                     JSONObject scanCheck = scanChecksJSON.getJSONObject(key);
                     if(scanCheck.getString("type").equals(VulnerabilityScanType.DiffingNonAi.name())) {
