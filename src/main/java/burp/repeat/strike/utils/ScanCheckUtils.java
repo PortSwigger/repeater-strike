@@ -7,7 +7,7 @@ import static burp.repeat.strike.utils.Utils.alert;
 
 public class ScanCheckUtils {
     public static boolean validateScanCheckName(String name) {
-        if(name.isEmpty()) {
+        if(name == null || name.isEmpty()) {
             alert("The scan check name was empty");
             return false;
         }
