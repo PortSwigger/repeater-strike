@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class RepeatStrikePanel extends javax.swing.JPanel {
-    private final String defaultInstructions = "Go to Repeater and right click on a request Extensions->Repeat Strike->Send to Repeat Strike to begin";
+    private final String defaultInstructions = "Click on a request in Repeater, then right-click and select Extensions → Repeat Strike → Send to Repeat Strike to begin.";
     private final JLabel repeatStrikeDescription = new JLabel(defaultInstructions);
     public RepeatStrikePanel(RepeatStrikeTab repeatStrikeTab) {
         super(new BorderLayout());

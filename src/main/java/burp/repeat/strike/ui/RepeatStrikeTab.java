@@ -23,6 +23,7 @@ import java.util.List;
 import static burp.api.montoya.ui.editor.EditorOptions.READ_ONLY;
 import static burp.repeat.strike.RepeatStrikeExtension.*;
 import static burp.repeat.strike.ui.ScanChecksMenus.*;
+import static burp.repeat.strike.utils.Utils.alert;
 import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 
 public class RepeatStrikeTab extends JTabbedPane {
@@ -54,10 +55,9 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
         this.clearButton = new JButton("Clear");
         JButton savedScanChecksButton = new JButton("Scan checks");
-        JPopupMenu savedScanChecksPopupMenu = new JPopupMenu();
         savedScanChecksButton.addActionListener(e -> {
             JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
-            savedScanChecksPopupMenu.removeAll();
+            JPopupMenu savedScanChecksPopupMenu = new JPopupMenu();
             savedScanChecksPopupMenu.add(ScanChecksMenus.buildSaveLastScanCheckMenu(scanChecksJSON));
             savedScanChecksPopupMenu.add(ScanChecksMenus.buildScanCheckMenu(scanChecksJSON));
             savedScanChecksPopupMenu.add(buildDeleteAllScanChecksMenu(scanChecksJSON));
@@ -66,9 +66,8 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.scanButton = new JButton("Scan");
         this.scanButton.setBackground(Color.decode("#d86633"));
         this.scanButton.setForeground(Color.white);
-        JPopupMenu scanPopupMenu = new JPopupMenu();
         this.scanButton.addActionListener(e -> {
-            scanPopupMenu.removeAll();
+            JPopupMenu scanPopupMenu = new JPopupMenu();
             JMenu scanMenu = new JMenu("Scan " + "(" + requestHistory.size() + ")");
             scanMenu.setEnabled(!requestHistory.isEmpty());
             scanMenu.add(buildRunJavaScanMenu());
