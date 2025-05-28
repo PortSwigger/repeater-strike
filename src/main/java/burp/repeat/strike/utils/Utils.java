@@ -8,8 +8,6 @@ import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
-import burp.repeat.strike.ai.VulnerabilityScanType;
-import burp.repeat.strike.proxy.AnalyseProxyHistory;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.settings.UnregisteredSettingException;
@@ -141,6 +139,7 @@ public class Utils {
         if(shouldDebug) {
             api.logging().logToOutput("Request history reset");
         }
+        repeatStrikeTab.clearQueue();
     }
     public static String truncateRequest(HttpRequest request) {
         int maxRequestLimit;

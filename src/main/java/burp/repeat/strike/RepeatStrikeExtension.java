@@ -5,17 +5,13 @@ import burp.IBurpExtenderCallbacks;
 import burp.api.montoya.BurpExtension;
 import burp.api.montoya.EnhancedCapability;
 import burp.api.montoya.MontoyaApi;
-import burp.api.montoya.core.Registration;
 import burp.api.montoya.extension.ExtensionUnloadingHandler;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
-import burp.api.montoya.ui.hotkey.HotKeyContext;
 import burp.repeat.strike.ai.AI;
-import burp.repeat.strike.ai.VulnerabilityAnalysis;
-import burp.repeat.strike.ai.VulnerabilityScanType;
-import burp.repeat.strike.capabilities.Burp;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.ui.ContextMenu;
+import burp.repeat.strike.ui.RepeatStrikePanel;
 import burp.repeat.strike.ui.RepeatStrikeTab;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
@@ -38,6 +34,7 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
     public static final ExecutorService executorService = Executors.newSingleThreadExecutor();
     public static JSONObject lastScanCheckRan = null;
     public static RepeatStrikeTab repeatStrikeTab;
+    public static RepeatStrikePanel repeatStrikePanel;
     @Override
     public void initialize(MontoyaApi montoyaApi) {
         RepeatStrikeExtension.api = montoyaApi;
@@ -50,7 +47,8 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
         api.userInterface().menuBar().registerMenu(Utils.generateMenuBar());
         repeatStrikeTab = new RepeatStrikeTab(api.userInterface());
         api.userInterface().registerContextMenuItemsProvider(new ContextMenu(repeatStrikeTab));
-        api.userInterface().registerSuiteTab(extensionName, repeatStrikeTab);
+        repeatStrikePanel = new RepeatStrikePanel(repeatStrikeTab);
+        api.userInterface().registerSuiteTab(extensionName, repeatStrikePanel);
     }
 
     @Override

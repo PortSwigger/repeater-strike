@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static burp.api.montoya.ui.editor.EditorOptions.READ_ONLY;
-import static burp.repeat.strike.RepeatStrikeExtension.requestHistory;
-import static burp.repeat.strike.RepeatStrikeExtension.responseHistory;
+import static burp.repeat.strike.RepeatStrikeExtension.*;
 import static burp.repeat.strike.ui.ScanChecksMenus.*;
 import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 
@@ -36,6 +35,13 @@ public class RepeatStrikeTab extends JTabbedPane {
     private final RequestTableModel tableModel = new RequestTableModel(requestResponseList);
     private final JTable table = new JTable(tableModel);
     public final SavedScanChecksEditor scanChecksEditor = new SavedScanChecksEditor();
+
+    public void clearQueue() {
+        repeatStrikePanel.resetInstructions();
+        requestResponseList.clear();
+        httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
+        httpResponseEditor.setResponse(HttpResponse.httpResponse());
+    }
 
     public RepeatStrikeTab(UserInterface userInterface) {
         super();
@@ -120,6 +126,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.NORTH);
         JSplitPane splitPane = new JSplitPane();
+        splitPane.setResizeWeight(0.5);
         splitPane.add(httpRequestEditor.uiComponent(), JSplitPane.LEFT);
         splitPane.add(httpResponseEditor.uiComponent(), JSplitPane.RIGHT);
         panel.add(splitPane, BorderLayout.CENTER);
@@ -134,7 +141,6 @@ public class RepeatStrikeTab extends JTabbedPane {
             operationsButton.setEnabled(false);
             httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
             httpResponseEditor.setResponse(HttpResponse.httpResponse());
-            requestResponseList.clear();
             Utils.resetHistory(false);
 
         });
@@ -172,6 +178,7 @@ public class RepeatStrikeTab extends JTabbedPane {
             }
             clearButton.setEnabled(true);
             operationsButton.setEnabled(true);
+            repeatStrikePanel.setInstructions("Now you have requests/responses in the queue. You can right click in Repeater Extensions->Repeat Strike->Scan to perform a scan. Or use the Operations button below.");
         });
     }
 
