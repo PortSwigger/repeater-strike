@@ -28,7 +28,7 @@ import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 public class RepeatStrikeTab extends JTabbedPane {
     private final HttpRequestEditor httpRequestEditor;
     private final HttpResponseEditor httpResponseEditor;
-    private final JButton operationsButton;
+    private final JButton scanButton;
     private final JButton clearButton;
 
     private final java.util.List<HttpRequestResponse> requestResponseList = new ArrayList<>();
@@ -42,7 +42,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
         httpResponseEditor.setResponse(HttpResponse.httpResponse());
         clearButton.setEnabled(false);
-        operationsButton.setEnabled(false);
+        scanButton.setEnabled(false);
     }
 
     public RepeatStrikeTab(UserInterface userInterface) {
@@ -53,32 +53,41 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.httpRequestEditor = userInterface.createHttpRequestEditor(READ_ONLY);
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
         this.clearButton = new JButton("Clear");
-        this.operationsButton = new JButton("Operations");
-        this.operationsButton.setBackground(Color.decode("#d86633"));
-        this.operationsButton.setForeground(Color.white);
-        JPopupMenu operationsPopupMenu = new JPopupMenu();
-        this.operationsButton.addActionListener(e -> {
-            operationsPopupMenu.removeAll();
+        JButton savedScanChecksButton = new JButton("Scan checks");
+        JPopupMenu savedScanChecksPopupMenu = new JPopupMenu();
+        savedScanChecksButton.addActionListener(e -> {
             JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
+            savedScanChecksPopupMenu.removeAll();
+            savedScanChecksPopupMenu.add(ScanChecksMenus.buildSaveLastScanCheckMenu(scanChecksJSON));
+            savedScanChecksPopupMenu.add(ScanChecksMenus.buildScanCheckMenu(scanChecksJSON));
+            savedScanChecksPopupMenu.add(buildDeleteAllScanChecksMenu(scanChecksJSON));
+            savedScanChecksPopupMenu.show(savedScanChecksButton, 0, savedScanChecksButton.getHeight());
+        });
+        this.scanButton = new JButton("Scan");
+        this.scanButton.setBackground(Color.decode("#d86633"));
+        this.scanButton.setForeground(Color.white);
+        JPopupMenu scanPopupMenu = new JPopupMenu();
+        this.scanButton.addActionListener(e -> {
+            scanPopupMenu.removeAll();
             JMenu scanMenu = new JMenu("Scan " + "(" + requestHistory.size() + ")");
             scanMenu.setEnabled(!requestHistory.isEmpty());
             scanMenu.add(buildRunJavaScanMenu());
             scanMenu.add(buildRunRegexScanMenu());
             scanMenu.add(buildRunDiffingScanMenu());
-            operationsPopupMenu.add(scanMenu);
-            operationsPopupMenu.add(ScanChecksMenus.buildScanCheckMenu(scanChecksJSON));
-            operationsPopupMenu.add(ScanChecksMenus.buildSaveLastScanCheckMenu(scanChecksJSON));
-            operationsPopupMenu.add(buildResetMenu());
-            operationsPopupMenu.add(buildDeleteAllScanChecksMenu(scanChecksJSON));
-            operationsPopupMenu.show(operationsButton, 0, operationsButton.getHeight());
+            scanPopupMenu.add(scanMenu);
+            scanPopupMenu.add(buildResetMenu());
+            scanPopupMenu.show(scanButton, 0, scanButton.getHeight());
         });
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                int selectedRow = table.getSelectedRow();
-                if (selectedRow >= 0) {
-                    HttpRequestResponse selected = requestResponseList.get(selectedRow);
-                    httpRequestEditor.setRequest(selected.request());
-                    httpResponseEditor.setResponse(selected.response());
+                int viewRow = table.getSelectedRow();
+                if (viewRow >= 0) {
+                    int modelRow = table.convertRowIndexToModel(viewRow);
+                    if (modelRow >= 0 && modelRow < requestResponseList.size()) {
+                        HttpRequestResponse selected = requestResponseList.get(modelRow);
+                        httpRequestEditor.setRequest(selected.request());
+                        httpResponseEditor.setResponse(selected.response());
+                    }
                 }
             }
         });
@@ -137,7 +146,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         clearButton.addActionListener(e -> {
             tableModel.clear();
             clearButton.setEnabled(false);
-            operationsButton.setEnabled(false);
+            scanButton.setEnabled(false);
             httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
             httpResponseEditor.setResponse(HttpResponse.httpResponse());
             Utils.resetHistory(false);
@@ -147,8 +156,9 @@ public class RepeatStrikeTab extends JTabbedPane {
 
         buttonPanel.add(new JSeparator(VERTICAL));
 
-        operationsButton.setEnabled(false);
-        buttonPanel.add(operationsButton);
+        scanButton.setEnabled(false);
+        buttonPanel.add(savedScanChecksButton);
+        buttonPanel.add(scanButton);
         panel.add(buttonPanel, BorderLayout.SOUTH);
         addHierarchyListener(new HierarchyListener() {
             @Override
@@ -176,8 +186,8 @@ public class RepeatStrikeTab extends JTabbedPane {
                 table.scrollRectToVisible(table.getCellRect(rowCount - 1, 0, true));
             }
             clearButton.setEnabled(true);
-            operationsButton.setEnabled(true);
-            repeatStrikePanel.setInstructions("Now you have requests/responses in the queue. You can right click in Repeater Extensions->Repeat Strike->Scan to perform a scan. Or use the Operations button below.");
+            scanButton.setEnabled(true);
+            repeatStrikePanel.setInstructions("You now have requests and responses in the queue. Right-click in Repeater Extensions → Repeat Strike → Scan to start a scan, or simply click the Scan button below.");
         });
     }
 
