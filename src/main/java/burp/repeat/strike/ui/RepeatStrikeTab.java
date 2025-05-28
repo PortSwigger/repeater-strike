@@ -41,6 +41,8 @@ public class RepeatStrikeTab extends JTabbedPane {
         requestResponseList.clear();
         httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
         httpResponseEditor.setResponse(HttpResponse.httpResponse());
+        clearButton.setEnabled(false);
+        operationsButton.setEnabled(false);
     }
 
     public RepeatStrikeTab(UserInterface userInterface) {
@@ -91,10 +93,7 @@ public class RepeatStrikeTab extends JTabbedPane {
                 requestHistory.remove(row);
                 responseHistory.remove(row);
                 if(requestHistory.isEmpty()) {
-                    clearButton.setEnabled(false);
-                    operationsButton.setEnabled(false);
-                    httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
-                    httpResponseEditor.setResponse(HttpResponse.httpResponse());
+                    clearQueue();
                 }
             }
         });
