@@ -27,7 +27,8 @@ public class SavedScanChecksEditor extends JPanel {
         List<String> options = new ArrayList<>();
         options.add("Please select");
         options.addAll(scanChecksJSON.keySet());
-        scanChecksComboBox.setModel(new DefaultComboBoxModel<>(options.toArray(new String[0])));;
+        scanChecksComboBox.setModel(new DefaultComboBoxModel<>(options.toArray(new String[0])));
+        codeEditor.setText("");
     }
 
     public void buildInterface() {

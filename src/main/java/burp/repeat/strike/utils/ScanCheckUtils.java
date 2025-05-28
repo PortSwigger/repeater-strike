@@ -39,14 +39,17 @@ public class ScanCheckUtils {
     public static void addCustomScanCheck(String name, JSONObject scanCheck, JSONObject scanChecksJSON) {
         scanChecksJSON.put(name, scanCheck);
         saveCustomScanChecks(scanChecksJSON);
+        repeatStrikeTab.scanChecksEditor.loadData();
     }
 
     public static void deleteCustomScanCheck(String name, JSONObject scanChecksJSON) {
         scanChecksJSON.remove(name);
         saveCustomScanChecks(scanChecksJSON);
+        repeatStrikeTab.scanChecksEditor.loadData();
     }
 
     public static void deleteAllScanChecks() {
         saveCustomScanChecks(new JSONObject());
+        repeatStrikeTab.scanChecksEditor.loadData();
     }
 }
