@@ -1,5 +1,6 @@
 package burp.repeat.strike.ui;
 
+import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.contextmenu.ContextMenuEvent;
@@ -22,7 +23,7 @@ import static burp.repeat.strike.utils.Utils.*;
 
 public class ScanChecksMenus {
 
-    public static JMenuItem buildAddToRepeatStrikeMenu(ContextMenuEvent event) {
+    public static JMenuItem buildAddToRepeatStrikeMenu(ContextMenuEvent event, RepeatStrikeTab repeatStrikeTab) {
         JMenuItem addToRepeatStrike = new JMenuItem("Send to Repeat Strike");
         addToRepeatStrike.addActionListener(e -> {
             if (event.messageEditorRequestResponse().isPresent()) {
@@ -33,6 +34,7 @@ public class ScanChecksMenus {
                 }
                 requestHistory.add(req);
                 responseHistory.add(resp);
+                repeatStrikeTab.addRequestResponse(event.messageEditorRequestResponse().get().requestResponse());
             }
         });
         return addToRepeatStrike;

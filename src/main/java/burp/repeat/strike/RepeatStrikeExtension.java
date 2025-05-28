@@ -16,6 +16,7 @@ import burp.repeat.strike.ai.VulnerabilityScanType;
 import burp.repeat.strike.capabilities.Burp;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.ui.ContextMenu;
+import burp.repeat.strike.ui.RepeatStrikeTab;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
 
@@ -36,7 +37,7 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
     public static ArrayList<HttpResponse> responseHistory = new ArrayList<>();
     public static final ExecutorService executorService = Executors.newSingleThreadExecutor();
     public static JSONObject lastScanCheckRan = null;
-
+    public static RepeatStrikeTab repeatStrikeTab;
     @Override
     public void initialize(MontoyaApi montoyaApi) {
         RepeatStrikeExtension.api = montoyaApi;
@@ -47,7 +48,9 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
             api.logging().logToOutput("AI features are not available. This extension will not work without AI. You need to enable \"Use AI\" in the extension tab.");
         }
         api.userInterface().menuBar().registerMenu(Utils.generateMenuBar());
-        api.userInterface().registerContextMenuItemsProvider(new ContextMenu());
+        repeatStrikeTab = new RepeatStrikeTab(api.userInterface());
+        api.userInterface().registerContextMenuItemsProvider(new ContextMenu(repeatStrikeTab));
+        api.userInterface().registerSuiteTab(extensionName, repeatStrikeTab);
     }
 
     @Override

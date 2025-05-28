@@ -17,12 +17,17 @@ import static burp.repeat.strike.utils.Utils.buildSettingsMenu;
 
 
 public class ContextMenu implements ContextMenuItemsProvider {
+    private RepeatStrikeTab repeatStrikeTab;
+    public ContextMenu(RepeatStrikeTab repeatStrikeTab) {
+        super();
+        this.repeatStrikeTab = repeatStrikeTab;
+    }
     public java.util.List<Component> provideMenuItems(ContextMenuEvent event)
     {
         java.util.List<Component> menuItemList = new ArrayList<>();
         if(event.messageEditorRequestResponse().isPresent() && event.invocationType() == InvocationType.MESSAGE_EDITOR_REQUEST && event.isFromTool(ToolType.REPEATER)) {
             JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
-            menuItemList.add(ScanChecksMenus.buildAddToRepeatStrikeMenu(event));
+            menuItemList.add(ScanChecksMenus.buildAddToRepeatStrikeMenu(event, repeatStrikeTab));
             JMenu scanMenu = new JMenu("Scan " + "(" + requestHistory.size() + ")");
             scanMenu.setEnabled(!requestHistory.isEmpty());
             scanMenu.add(buildRunJavaScanMenu());

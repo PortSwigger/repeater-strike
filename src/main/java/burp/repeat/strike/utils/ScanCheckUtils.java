@@ -3,6 +3,7 @@ package burp.repeat.strike.utils;
 import org.json.JSONObject;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
+import static burp.repeat.strike.RepeatStrikeExtension.repeatStrikeTab;
 import static burp.repeat.strike.utils.Utils.alert;
 
 public class ScanCheckUtils {
@@ -32,6 +33,7 @@ public class ScanCheckUtils {
 
     public static void saveCustomScanChecks(JSONObject scanChecksJSON) {
         api.persistence().extensionData().setString("scanChecks", scanChecksJSON.toString());
+        repeatStrikeTab.scanChecksEditor.loadData();
     }
 
     public static void addCustomScanCheck(String name, JSONObject scanCheck, JSONObject scanChecksJSON) {
