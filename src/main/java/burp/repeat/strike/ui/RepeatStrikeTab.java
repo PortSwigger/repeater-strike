@@ -40,7 +40,7 @@ public class RepeatStrikeTab extends JTabbedPane {
     public RepeatStrikeTab(UserInterface userInterface) {
         super();
         JPanel panel = new JPanel(new BorderLayout());
-        this.add("Requests/Responses queue", panel);
+        this.add("Requests/responses queue", panel);
         this.add("Saved scan checks", scanChecksEditor);
         this.httpRequestEditor = userInterface.createHttpRequestEditor(READ_ONLY);
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);

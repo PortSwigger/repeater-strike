@@ -6,6 +6,8 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,7 +76,15 @@ public class SavedScanChecksEditor extends JPanel {
             try {
                 scanChecksJSON.put(selectedItem, new JSONObject(codeEditor.getText()));
                 ScanCheckUtils.saveCustomScanChecks(scanChecksJSON);
-                message.setText("Scan Check saved.");
+                message.setText("Scan check saved.");
+                Timer timer = new Timer(2000, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        message.setText("");
+                    }
+                });
+                timer.setRepeats(false);
+                timer.start();
                 scanChecksComboBox.setSelectedIndex(selectedIndex);
 
             } catch (JSONException ex) {
