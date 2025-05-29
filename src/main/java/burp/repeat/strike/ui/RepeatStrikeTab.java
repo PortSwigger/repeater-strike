@@ -56,7 +56,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
         this.clearButton = new JButton("Clear");
         runSavedScanChecksButton = new JButton("Run scan checks on proxy history");
-        runSavedScanChecksButton.setEnabled(ScanCheckUtils.getSavedCustomScanChecks().keySet().isEmpty());
+        runSavedScanChecksButton.setEnabled(!ScanCheckUtils.getSavedCustomScanChecks().keySet().isEmpty());
         runSavedScanChecksButton.addActionListener(e -> {
             JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
             JPopupMenu savedScanChecksPopupMenu;
