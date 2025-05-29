@@ -172,6 +172,7 @@ public class RepeatStrikeTab extends JTabbedPane {
                 ScanCheckUtils.addCustomScanCheck(scanCheckName, lastScanCheckRan, scanChecksJSON);
                 lastScanCheckRan = null;
                 saveLastScanCheckButton.setEnabled(false);
+                repeatStrikePanel.setStatus("Idle", false);
             }
         });
         buttonPanel.add(saveLastScanCheckButton);
