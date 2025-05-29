@@ -18,6 +18,7 @@ import java.util.Set;
 
 import static burp.repeat.strike.RepeatStrikeExtension.*;
 import static burp.repeat.strike.ai.VulnerabilityAnalysis.compileScanCheck;
+import static burp.repeat.strike.utils.Utils.alert;
 
 public class ScanChecksMenus {
 
@@ -28,6 +29,10 @@ public class ScanChecksMenus {
                 HttpRequest req = event.messageEditorRequestResponse().get().requestResponse().request();
                 HttpResponse resp = event.messageEditorRequestResponse().get().requestResponse().response();
                 if (req == null || resp == null) {
+                    return;
+                }
+                if(!req.isInScope()) {
+                    alert("This request is not in scope");
                     return;
                 }
                 requestHistory.add(req);
