@@ -29,6 +29,7 @@ public class ScanChecksMenus {
                 HttpRequest req = event.messageEditorRequestResponse().get().requestResponse().request();
                 HttpResponse resp = event.messageEditorRequestResponse().get().requestResponse().response();
                 if (req == null || resp == null) {
+                    alert("Repeat Strike requires a request and response.");
                     return;
                 }
                 if(!req.isInScope()) {
