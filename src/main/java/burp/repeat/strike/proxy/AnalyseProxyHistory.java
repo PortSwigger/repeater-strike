@@ -17,6 +17,7 @@ import java.io.StringWriter;
 import java.util.*;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
+import static burp.repeat.strike.RepeatStrikeExtension.repeatStrikePanel;
 import static burp.repeat.strike.ai.VulnerabilityAnalysis.*;
 
 public class AnalyseProxyHistory {
@@ -32,7 +33,7 @@ public class AnalyseProxyHistory {
             int maxProxyHistory;
             debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
             maxProxyHistory = RepeatStrikeExtension.generalSettings.getInteger("maxProxyHistory");
-
+            repeatStrikePanel.setStatus("Scanning proxy history...", false);
             List<ProxyHttpRequestResponse> proxyHistory = api.proxy().history();
             int proxyHistorySize = proxyHistory.size();
             int count = 0;
@@ -79,9 +80,7 @@ public class AnalyseProxyHistory {
             }
         });
 
-        if (debugOutput) {
-            api.logging().logToOutput("Repeat Strike found " + vulnCount[0] + " potential vulnerabilit" + (vulnCount[0] == 1 ? "y" : "ies"));
-        }
+        outputVulCount(vulnCount[0]);
     }
 
     public static void analyseWithDiffing(Set<String> requestKeys, short expectedStatusCode, String attackValue) throws UnregisteredSettingException, InvalidTypeSettingException {
@@ -102,9 +101,7 @@ public class AnalyseProxyHistory {
             }
         });
 
-        if (debugOutput) {
-            outputVulCount(vulnCount[0]);
-        }
+        outputVulCount(vulnCount[0]);
     }
 
     public static void analyseWithObject(Set<String> requestKeys, Object scanCheck) throws UnregisteredSettingException, InvalidTypeSettingException {
@@ -135,13 +132,13 @@ public class AnalyseProxyHistory {
             }
         });
 
-        if (debugOutput) {
-            outputVulCount(vulnCount[0]);
-        }
+        outputVulCount(vulnCount[0]);
     }
 
     public static void outputVulCount(int vulnCount) {
-        api.logging().logToOutput("Repeat Strike found " + vulnCount + " potential vulnerabilit" + (vulnCount == 1 ? "y" : "ies"));
+        String vulnMessage = "Repeat Strike found " + vulnCount + " potential vulnerabilit" + (vulnCount == 1 ? "y" : "ies");
+        repeatStrikePanel.setStatus(vulnMessage, false);
+        api.logging().logToOutput(vulnMessage);
     }
 
     public static HttpRequestResponse makeRequest(HttpRequest request, String paramType, String paramName, String paramValue) throws UnregisteredSettingException, InvalidTypeSettingException {
