@@ -2,8 +2,7 @@ package burp.repeat.strike.utils;
 
 import org.json.JSONObject;
 
-import static burp.repeat.strike.RepeatStrikeExtension.api;
-import static burp.repeat.strike.RepeatStrikeExtension.repeatStrikeTab;
+import static burp.repeat.strike.RepeatStrikeExtension.*;
 import static burp.repeat.strike.utils.Utils.alert;
 
 public class ScanCheckUtils {
@@ -40,16 +39,21 @@ public class ScanCheckUtils {
         scanChecksJSON.put(name, scanCheck);
         saveCustomScanChecks(scanChecksJSON);
         repeatStrikeTab.scanChecksEditor.loadData();
+        repeatStrikeTab.runSavedScanChecksButton.setEnabled(true);
     }
 
     public static void deleteCustomScanCheck(String name, JSONObject scanChecksJSON) {
         scanChecksJSON.remove(name);
         saveCustomScanChecks(scanChecksJSON);
+        if(scanChecksJSON.keySet().isEmpty()) {
+            repeatStrikeTab.runSavedScanChecksButton.setEnabled(false);
+        }
         repeatStrikeTab.scanChecksEditor.loadData();
     }
 
     public static void deleteAllScanChecks() {
         saveCustomScanChecks(new JSONObject());
         repeatStrikeTab.scanChecksEditor.loadData();
+        repeatStrikeTab.runSavedScanChecksButton.setEnabled(false);
     }
 }

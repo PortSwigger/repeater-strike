@@ -99,7 +99,6 @@ public class SavedScanChecksEditor extends JPanel {
                 timer.setRepeats(false);
                 timer.start();
                 scanChecksComboBox.setSelectedIndex(selectedIndex);
-
             } catch (JSONException ex) {
                 message.setText("Invalid JSON saved failed:" + ex.getMessage());
             }

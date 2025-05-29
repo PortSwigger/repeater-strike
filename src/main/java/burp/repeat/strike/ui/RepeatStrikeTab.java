@@ -6,7 +6,6 @@ import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.UserInterface;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
-import burp.repeat.strike.ai.VulnerabilityScanType;
 import burp.repeat.strike.utils.ScanCheckUtils;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
@@ -29,6 +28,8 @@ import static burp.repeat.strike.utils.Utils.prompt;
 import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 
 public class RepeatStrikeTab extends JTabbedPane {
+    public final JButton runSavedScanChecksButton;
+    public final JButton saveLastScanCheckButton;
     public final SavedScanChecksEditor scanChecksEditor = new SavedScanChecksEditor();
     private final HttpRequestEditor httpRequestEditor;
     private final HttpResponseEditor httpResponseEditor;
@@ -54,8 +55,9 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.httpRequestEditor = userInterface.createHttpRequestEditor(READ_ONLY);
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
         this.clearButton = new JButton("Clear");
-        JButton savedScanChecksButton = new JButton("Run scan checks on proxy history");
-        savedScanChecksButton.addActionListener(e -> {
+        runSavedScanChecksButton = new JButton("Run scan checks on proxy history");
+        runSavedScanChecksButton.setEnabled(ScanCheckUtils.getSavedCustomScanChecks().keySet().isEmpty());
+        runSavedScanChecksButton.addActionListener(e -> {
             JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
             JPopupMenu savedScanChecksPopupMenu;
             if(scanChecksJSON.keySet().isEmpty()) {
@@ -65,7 +67,7 @@ public class RepeatStrikeTab extends JTabbedPane {
                 savedScanChecksPopupMenu = ScanChecksMenus.buildScanCheckMenu(scanChecksJSON);
             }
 
-            savedScanChecksPopupMenu.show(savedScanChecksButton, 0, savedScanChecksButton.getHeight());
+            savedScanChecksPopupMenu.show(runSavedScanChecksButton, 0, runSavedScanChecksButton.getHeight());
         });
         this.generateScanCheckButton = new JButton("Generate scan check");
         this.generateScanCheckButton.setBackground(Color.decode("#d86633"));
@@ -149,10 +151,10 @@ public class RepeatStrikeTab extends JTabbedPane {
             httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
             httpResponseEditor.setResponse(HttpResponse.httpResponse());
             Utils.resetHistory(false);
-
         });
         buttonPanel.add(clearButton);
-        JButton saveLastScanCheckButton = new JButton("Save last scan check");
+        saveLastScanCheckButton = new JButton("Save last scan check");
+        saveLastScanCheckButton.setEnabled(false);
         saveLastScanCheckButton.addActionListener(e -> {
             JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
             if(lastScanCheckRan == null || lastScanCheckRan.isEmpty()) {
@@ -169,11 +171,12 @@ public class RepeatStrikeTab extends JTabbedPane {
                 }
                 ScanCheckUtils.addCustomScanCheck(scanCheckName, lastScanCheckRan, scanChecksJSON);
                 lastScanCheckRan = null;
+                saveLastScanCheckButton.setEnabled(false);
             }
         });
         buttonPanel.add(saveLastScanCheckButton);
         generateScanCheckButton.setEnabled(false);
-        buttonPanel.add(savedScanChecksButton);
+        buttonPanel.add(runSavedScanChecksButton);
         buttonPanel.add(generateScanCheckButton);
         panel.add(buttonPanel, BorderLayout.SOUTH);
         addHierarchyListener(new HierarchyListener() {
