@@ -10,10 +10,12 @@ import java.io.StringWriter;
 import java.util.Arrays;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
+import static burp.repeat.strike.RepeatStrikeExtension.repeatStrikePanel;
 
 public class IdentifyPayload {
     public static JSONObject identify(HttpRequest[] requests, HttpResponse[] responses) {
         try {
+            repeatStrikePanel.setStatus("Identifying vulnerability", false);
             AI ai = new AI();
             ai.setBypassRateLimit(true);
             ai.setSystemMessage("""

@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import static burp.repeat.strike.utils.Utils.alert;
 import static burp.repeat.strike.utils.Utils.confirm;
 
 public class SavedScanChecksEditor extends JPanel {
@@ -33,6 +34,17 @@ public class SavedScanChecksEditor extends JPanel {
 
     public void buildInterface() {
         JPanel topPanel = new JPanel();
+        JButton deleteAllScanChecksButton = new JButton("Delete All Scan Checks");
+        deleteAllScanChecksButton.addActionListener(e -> {
+            JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
+            if(scanChecksJSON.isEmpty()) {
+                return;
+            }
+            if (confirm(null, "Confirm delete scan checks", "Are you sure you want to delete all saved scan checks?")) {
+                ScanCheckUtils.deleteAllScanChecks();
+            }
+        });
+        topPanel.add(deleteAllScanChecksButton);
         JLabel scanCheckLabel = new JLabel("Scan Checks");
         topPanel.add(scanCheckLabel);
         topPanel.add(scanChecksComboBox);

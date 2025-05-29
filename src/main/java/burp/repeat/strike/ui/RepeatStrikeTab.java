@@ -6,6 +6,7 @@ import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.UserInterface;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
+import burp.repeat.strike.ai.VulnerabilityScanType;
 import burp.repeat.strike.utils.ScanCheckUtils;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
@@ -24,26 +25,25 @@ import static burp.api.montoya.ui.editor.EditorOptions.READ_ONLY;
 import static burp.repeat.strike.RepeatStrikeExtension.*;
 import static burp.repeat.strike.ui.ScanChecksMenus.*;
 import static burp.repeat.strike.utils.Utils.alert;
+import static burp.repeat.strike.utils.Utils.prompt;
 import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 
 public class RepeatStrikeTab extends JTabbedPane {
+    public final SavedScanChecksEditor scanChecksEditor = new SavedScanChecksEditor();
     private final HttpRequestEditor httpRequestEditor;
     private final HttpResponseEditor httpResponseEditor;
-    private final JButton scanButton;
+    private final JButton generateScanCheckButton;
     private final JButton clearButton;
-
     private final java.util.List<HttpRequestResponse> requestResponseList = new ArrayList<>();
     private final RequestTableModel tableModel = new RequestTableModel(requestResponseList);
     private final JTable table = new JTable(tableModel);
-    public final SavedScanChecksEditor scanChecksEditor = new SavedScanChecksEditor();
-
     public void clearQueue() {
         repeatStrikePanel.resetInstructions();
         requestResponseList.clear();
         httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
         httpResponseEditor.setResponse(HttpResponse.httpResponse());
         clearButton.setEnabled(false);
-        scanButton.setEnabled(false);
+        generateScanCheckButton.setEnabled(false);
     }
 
     public RepeatStrikeTab(UserInterface userInterface) {
@@ -54,28 +54,29 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.httpRequestEditor = userInterface.createHttpRequestEditor(READ_ONLY);
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
         this.clearButton = new JButton("Clear");
-        JButton savedScanChecksButton = new JButton("Scan checks");
+        JButton savedScanChecksButton = new JButton("Run scan checks on proxy history");
         savedScanChecksButton.addActionListener(e -> {
             JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
-            JPopupMenu savedScanChecksPopupMenu = new JPopupMenu();
-            savedScanChecksPopupMenu.add(ScanChecksMenus.buildSaveLastScanCheckMenu(scanChecksJSON));
-            savedScanChecksPopupMenu.add(ScanChecksMenus.buildScanCheckMenu(scanChecksJSON));
-            savedScanChecksPopupMenu.add(buildDeleteAllScanChecksMenu(scanChecksJSON));
+            JPopupMenu savedScanChecksPopupMenu;
+            if(scanChecksJSON.keySet().isEmpty()) {
+                savedScanChecksPopupMenu = new JPopupMenu();
+                savedScanChecksPopupMenu.add(new JMenuItem("No scan checks are saved."));
+            } else {
+                savedScanChecksPopupMenu = ScanChecksMenus.buildScanCheckMenu(scanChecksJSON);
+            }
+
             savedScanChecksPopupMenu.show(savedScanChecksButton, 0, savedScanChecksButton.getHeight());
         });
-        this.scanButton = new JButton("Scan");
-        this.scanButton.setBackground(Color.decode("#d86633"));
-        this.scanButton.setForeground(Color.white);
-        this.scanButton.addActionListener(e -> {
+        this.generateScanCheckButton = new JButton("Generate scan check");
+        this.generateScanCheckButton.setBackground(Color.decode("#d86633"));
+        this.generateScanCheckButton.setForeground(Color.white);
+        this.generateScanCheckButton.addActionListener(e -> {
             JPopupMenu scanPopupMenu = new JPopupMenu();
-            JMenu scanMenu = new JMenu("Scan " + "(" + requestHistory.size() + ")");
-            scanMenu.setEnabled(!requestHistory.isEmpty());
-            scanMenu.add(buildRunJavaScanMenu());
-            scanMenu.add(buildRunRegexScanMenu());
-            scanMenu.add(buildRunDiffingScanMenu());
-            scanPopupMenu.add(scanMenu);
-            scanPopupMenu.add(buildResetMenu());
-            scanPopupMenu.show(scanButton, 0, scanButton.getHeight());
+            scanPopupMenu.setEnabled(!requestHistory.isEmpty());
+            scanPopupMenu.add(buildRunJavaScanMenu());
+            scanPopupMenu.add(buildRunRegexScanMenu());
+            scanPopupMenu.add(buildRunDiffingScanMenu());
+            scanPopupMenu.show(generateScanCheckButton, 0, generateScanCheckButton.getHeight());
         });
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -137,7 +138,6 @@ public class RepeatStrikeTab extends JTabbedPane {
         splitPane.add(httpRequestEditor.uiComponent(), JSplitPane.LEFT);
         splitPane.add(httpResponseEditor.uiComponent(), JSplitPane.RIGHT);
         panel.add(splitPane, BorderLayout.CENTER);
-
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
 
@@ -145,19 +145,36 @@ public class RepeatStrikeTab extends JTabbedPane {
         clearButton.addActionListener(e -> {
             tableModel.clear();
             clearButton.setEnabled(false);
-            scanButton.setEnabled(false);
+            generateScanCheckButton.setEnabled(false);
             httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
             httpResponseEditor.setResponse(HttpResponse.httpResponse());
             Utils.resetHistory(false);
 
         });
         buttonPanel.add(clearButton);
-
-        buttonPanel.add(new JSeparator(VERTICAL));
-
-        scanButton.setEnabled(false);
+        JButton saveLastScanCheckButton = new JButton("Save last scan check");
+        saveLastScanCheckButton.addActionListener(e -> {
+            JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
+            if(lastScanCheckRan == null || lastScanCheckRan.isEmpty()) {
+                JPopupMenu scanPopupMenu = new JPopupMenu();
+                scanPopupMenu.add(new JMenuItem("You need to generate a scan check first."));
+                scanPopupMenu.show(saveLastScanCheckButton, 0, saveLastScanCheckButton.getHeight());
+                return;
+            }
+            if(lastScanCheckRan != null) {
+                String scanCheckName = prompt(null, "Save Last Scan", "Enter the name of your scan check:");
+                if(!ScanCheckUtils.validateScanCheckName(scanCheckName)) {
+                    alert("Invalid scan check name.");
+                    return;
+                }
+                ScanCheckUtils.addCustomScanCheck(scanCheckName, lastScanCheckRan, scanChecksJSON);
+                lastScanCheckRan = null;
+            }
+        });
+        buttonPanel.add(saveLastScanCheckButton);
+        generateScanCheckButton.setEnabled(false);
         buttonPanel.add(savedScanChecksButton);
-        buttonPanel.add(scanButton);
+        buttonPanel.add(generateScanCheckButton);
         panel.add(buttonPanel, BorderLayout.SOUTH);
         addHierarchyListener(new HierarchyListener() {
             @Override
@@ -185,8 +202,8 @@ public class RepeatStrikeTab extends JTabbedPane {
                 table.scrollRectToVisible(table.getCellRect(rowCount - 1, 0, true));
             }
             clearButton.setEnabled(true);
-            scanButton.setEnabled(true);
-            repeatStrikePanel.setInstructions("You now have requests and responses in the queue. Right-click in Repeater Extensions → Repeat Strike → Scan to start a scan, or simply click the Scan button below.");
+            generateScanCheckButton.setEnabled(true);
+            repeatStrikePanel.setInstructions("You now have requests and responses in the queue. Click the \"Generate scan check\" button at the bottom right to start.");
         });
     }
 
