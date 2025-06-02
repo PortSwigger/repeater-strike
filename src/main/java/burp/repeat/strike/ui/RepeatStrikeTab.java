@@ -26,6 +26,7 @@ import static burp.repeat.strike.ui.ScanChecksMenus.*;
 import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 
 public class RepeatStrikeTab extends JTabbedPane {
+
     public final JButton runSavedScanChecksButton;
     public final SavedScanChecksEditor scanChecksEditor = new SavedScanChecksEditor();
     private final HttpRequestEditor httpRequestEditor;
@@ -52,7 +53,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.httpRequestEditor = userInterface.createHttpRequestEditor(READ_ONLY);
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
         this.clearButton = new JButton("Clear");
-        runSavedScanChecksButton = new JButton("Run scan checks on proxy history");
+        runSavedScanChecksButton = new JButton("Scan proxy history");
         runSavedScanChecksButton.setEnabled(!ScanCheckUtils.getSavedCustomScanChecks().keySet().isEmpty());
         runSavedScanChecksButton.addActionListener(e -> {
             JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();

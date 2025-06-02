@@ -15,9 +15,9 @@ import org.json.JSONObject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.List;
 
-import static burp.repeat.strike.RepeatStrikeExtension.api;
-import static burp.repeat.strike.RepeatStrikeExtension.repeatStrikePanel;
+import static burp.repeat.strike.RepeatStrikeExtension.*;
 import static burp.repeat.strike.ai.VulnerabilityAnalysis.*;
 
 public class AnalyseProxyHistory {
@@ -28,12 +28,12 @@ public class AnalyseProxyHistory {
     }
 
     public static void analyse(ParamAnalysisCallback callback) {
+        repeatStrikePanel.setStatus("Scanning proxy history...", false);
         try {
             boolean debugOutput;
             int maxProxyHistory;
             debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
             maxProxyHistory = RepeatStrikeExtension.generalSettings.getInteger("maxProxyHistory");
-            repeatStrikePanel.setStatus("Scanning proxy history...", false);
             List<ProxyHttpRequestResponse> proxyHistory = api.proxy().history();
             int proxyHistorySize = proxyHistory.size();
             int count = 0;
@@ -87,9 +87,11 @@ public class AnalyseProxyHistory {
 
         analyse((request, response, historyParam, item) -> {
             ArrayList<HttpRequestResponse> baseResponses = Utils.getBaseResponses(request, historyParam.type().name(), historyParam.name());
-            String baseFingerprint = Utils.getBaseFingerprint(baseResponses);
-            if(Utils.checkForDifferences(request, baseFingerprint, baseResponses, historyParam.type().name(), historyParam.name(), attackValue, true)) {
-                vulnCount[0]++;
+            if(baseResponses != null) {
+                String baseFingerprint = Utils.getBaseFingerprint(baseResponses);
+                if (Utils.checkForDifferences(request, baseFingerprint, baseResponses, historyParam.type().name(), historyParam.name(), attackValue, true)) {
+                    vulnCount[0]++;
+                }
             }
         });
 

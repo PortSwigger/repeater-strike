@@ -7,11 +7,6 @@ import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
 import org.json.JSONObject;
 
-import javax.swing.*;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.concurrent.Future;
-
 import static burp.repeat.strike.RepeatStrikeExtension.*;
 import static burp.repeat.strike.ai.VulnerabilityAnalysis.compileScanCheck;
 import static burp.repeat.strike.utils.Utils.alert;
@@ -86,37 +81,23 @@ public class ScanCheckUtils {
 
     public static void scanProxyHistory(JSONObject scanCheck) {
         if(scanCheck.getString("type").equals(VulnerabilityScanType.DiffingNonAi.name())) {
-            Future<?> future = RepeatStrikeExtension.executorService.submit(() -> {
+            RepeatStrikeExtension.executorService.submit(() -> {
                 try {
                     AnalyseProxyHistory.analyseWithDiffing(scanCheck.getString("value"));
                 } catch (UnregisteredSettingException | InvalidTypeSettingException ex) {
                     throw new RuntimeException(ex);
                 }
             });
-            try {
-                future.get();
-            } catch (Throwable throwable) {
-                StringWriter writer = new StringWriter();
-                throwable.printStackTrace(new PrintWriter(writer));
-                api.logging().logToError(writer.toString());
-            }
         } else if(scanCheck.getString("type").equals(VulnerabilityScanType.Regex.name())) {
-            Future<?> future = RepeatStrikeExtension.executorService.submit(() -> {
+            RepeatStrikeExtension.executorService.submit(() -> {
                 try {
                     AnalyseProxyHistory.analyseWithRegex(scanCheck.getJSONObject("analysis"), scanCheck.getJSONObject("param"));
                 } catch (UnregisteredSettingException | InvalidTypeSettingException ex) {
                     throw new RuntimeException(ex);
                 }
             });
-            try {
-                future.get();
-            } catch (Throwable throwable) {
-                StringWriter writer = new StringWriter();
-                throwable.printStackTrace(new PrintWriter(writer));
-                api.logging().logToError(writer.toString());
-            }
         } else if(scanCheck.getString("type").equals(VulnerabilityScanType.Java.name())) {
-            Future<?> future = RepeatStrikeExtension.executorService.submit(() -> {
+            RepeatStrikeExtension.executorService.submit(() -> {
                 try {
                     String javaCode = scanCheck.getString("code");
                     Object compiledScanCheck = compileScanCheck(javaCode);
@@ -125,13 +106,6 @@ public class ScanCheckUtils {
                     throw new RuntimeException(ex);
                 }
             });
-            try {
-                future.get();
-            } catch (Throwable throwable) {
-                StringWriter writer = new StringWriter();
-                throwable.printStackTrace(new PrintWriter(writer));
-                api.logging().logToError(writer.toString());
-            }
         }
     }
 }

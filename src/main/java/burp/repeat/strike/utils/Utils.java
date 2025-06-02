@@ -234,9 +234,10 @@ public class Utils {
             HttpRequestResponse baseRequestResponse = null;
             try {
                 baseRequestResponse = makeRequest(request, paramType, paramName, Utils.randomAlphaString(1) + Utils.randomString(7));
-                if(baseRequestResponse != null) {
-                    baseResponses.add(baseRequestResponse);
+                if(baseRequestResponse == null) {
+                    return null;
                 }
+                baseResponses.add(baseRequestResponse);
             } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
                 throw new RuntimeException(e);
             }
