@@ -23,13 +23,10 @@ import java.util.List;
 import static burp.api.montoya.ui.editor.EditorOptions.READ_ONLY;
 import static burp.repeat.strike.RepeatStrikeExtension.*;
 import static burp.repeat.strike.ui.ScanChecksMenus.*;
-import static burp.repeat.strike.utils.Utils.alert;
-import static burp.repeat.strike.utils.Utils.prompt;
 import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 
 public class RepeatStrikeTab extends JTabbedPane {
     public final JButton runSavedScanChecksButton;
-    public final JButton saveLastScanCheckButton;
     public final SavedScanChecksEditor scanChecksEditor = new SavedScanChecksEditor();
     private final HttpRequestEditor httpRequestEditor;
     private final HttpResponseEditor httpResponseEditor;
@@ -153,29 +150,6 @@ public class RepeatStrikeTab extends JTabbedPane {
             Utils.resetHistory(false);
         });
         buttonPanel.add(clearButton);
-        saveLastScanCheckButton = new JButton("Save last scan check");
-        saveLastScanCheckButton.setEnabled(false);
-        saveLastScanCheckButton.addActionListener(e -> {
-            JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
-            if(lastScanCheckRan == null || lastScanCheckRan.isEmpty()) {
-                JPopupMenu scanPopupMenu = new JPopupMenu();
-                scanPopupMenu.add(new JMenuItem("You need to generate a scan check first."));
-                scanPopupMenu.show(saveLastScanCheckButton, 0, saveLastScanCheckButton.getHeight());
-                return;
-            }
-            if(lastScanCheckRan != null) {
-                String scanCheckName = prompt(null, "Save Last Scan", "Enter the name of your scan check:");
-                if(!ScanCheckUtils.validateScanCheckName(scanCheckName)) {
-                    alert("Invalid scan check name.");
-                    return;
-                }
-                ScanCheckUtils.addCustomScanCheck(scanCheckName, lastScanCheckRan, scanChecksJSON);
-                lastScanCheckRan = null;
-                saveLastScanCheckButton.setEnabled(false);
-                repeatStrikePanel.setStatus("Idle", false);
-            }
-        });
-        buttonPanel.add(saveLastScanCheckButton);
         generateScanCheckButton.setEnabled(false);
         buttonPanel.add(runSavedScanChecksButton);
         buttonPanel.add(generateScanCheckButton);

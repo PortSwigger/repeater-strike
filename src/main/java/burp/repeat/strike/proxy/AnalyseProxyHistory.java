@@ -27,7 +27,7 @@ public class AnalyseProxyHistory {
         void analyse(HttpRequest baseRequest, HttpResponse baseResponse, ParsedHttpParameter param, ProxyHttpRequestResponse historyItem) throws UnregisteredSettingException, InvalidTypeSettingException;
     }
 
-    public static void analyse(Set<String> requestKeys, ParamAnalysisCallback callback) {
+    public static void analyse(ParamAnalysisCallback callback) {
         try {
             boolean debugOutput;
             int maxProxyHistory;
@@ -43,8 +43,7 @@ public class AnalyseProxyHistory {
                 ProxyHttpRequestResponse item = proxyHistory.get(i);
                 HttpRequest request = item.finalRequest();
                 HttpResponse response = item.response();
-                String requestKey = Utils.generateRequestKey(request);
-                if (request.parameters().isEmpty() || !request.isInScope() || requestKeys.contains(requestKey)) continue;
+                if (request.parameters().isEmpty() || !request.isInScope()) continue;
 
                 for (ParsedHttpParameter param : request.parameters()) {
                     if (debugOutput) {
@@ -53,7 +52,6 @@ public class AnalyseProxyHistory {
                     }
                     callback.analyse(request, response, param, item);
                 }
-                requestKeys.add(requestKey);
                 count++;
             }
 
@@ -67,13 +65,13 @@ public class AnalyseProxyHistory {
         }
     }
 
-    public static void analyseWithRegex(Set<String> requestKeys, JSONObject analysis, JSONObject param) throws UnregisteredSettingException, InvalidTypeSettingException {
+    public static void analyseWithRegex(JSONObject analysis, JSONObject param) throws UnregisteredSettingException, InvalidTypeSettingException {
         final boolean debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
 
         final String vulnClass = param.getString("vulnerabilityClass");
 
         final int[] vulnCount = {0};
-        analyse(requestKeys, (request, response, historyParam, item) -> {
+        analyse((request, response, historyParam, item) -> {
             if (isVulnerable(analysis, request, vulnClass, historyParam.type().name(), historyParam.name(), true)) {
                 if (debugOutput) api.logging().logToOutput("Found vulnerability");
                 vulnCount[0]++;
@@ -83,20 +81,14 @@ public class AnalyseProxyHistory {
         outputVulCount(vulnCount[0]);
     }
 
-    public static void analyseWithDiffing(Set<String> requestKeys, short expectedStatusCode, String attackValue) throws UnregisteredSettingException, InvalidTypeSettingException {
+    public static void analyseWithDiffing(String attackValue) throws UnregisteredSettingException, InvalidTypeSettingException {
         final int[] vulnCount = {0};
         final boolean debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
 
-        analyse(requestKeys, (request, response, historyParam, item) -> {
-            if (item.response() != null && item.response().statusCode() == expectedStatusCode) return;
-
-            HttpRequestResponse rr = makeRequest(request, historyParam.type().toString(), historyParam.name(), attackValue);
-            if (rr != null && rr.response().statusCode() == expectedStatusCode) {
-                HttpRequestResponse baseRR = HttpRequestResponse.httpRequestResponse(request, item.response());
-                baseRR.annotations().setNotes(vulnCount[0] + " - Base request");
-                rr.annotations().setNotes(vulnCount[0] + " - Attack found using diffing");
-                api.organizer().sendToOrganizer(baseRR);
-                api.organizer().sendToOrganizer(rr);
+        analyse((request, response, historyParam, item) -> {
+            ArrayList<HttpRequestResponse> baseResponses = Utils.getBaseResponses(request, historyParam.type().name(), historyParam.name());
+            String baseFingerprint = Utils.getBaseFingerprint(baseResponses);
+            if(Utils.checkForDifferences(request, baseFingerprint, baseResponses, historyParam.type().name(), historyParam.name(), attackValue, true)) {
                 vulnCount[0]++;
             }
         });
@@ -104,11 +96,11 @@ public class AnalyseProxyHistory {
         outputVulCount(vulnCount[0]);
     }
 
-    public static void analyseWithObject(Set<String> requestKeys, Object scanCheck) throws UnregisteredSettingException, InvalidTypeSettingException {
+    public static void analyseWithObject(Object scanCheck) throws UnregisteredSettingException, InvalidTypeSettingException {
         final int[] vulnCount = {0};
         final boolean debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
 
-        analyse(requestKeys, (request, response, historyParam, item) -> {
+        analyse((request, response, historyParam, item) -> {
             String[] probes = getRequestProbes(scanCheck);
             int probeSuccess = 0;
             ArrayList<HttpRequestResponse> responses = new ArrayList<>();
@@ -143,7 +135,7 @@ public class AnalyseProxyHistory {
 
     public static HttpRequestResponse makeRequest(HttpRequest request, String paramType, String paramName, String paramValue) throws UnregisteredSettingException, InvalidTypeSettingException {
         final boolean debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
-        long timeoutMs = 2000;
+        long timeoutMs = 10000;
         HttpRequest modifiedRequest = Utils.modifyRequest(request, paramType, paramName, paramValue);
         if (modifiedRequest != null) {
             if(debugOutput) {

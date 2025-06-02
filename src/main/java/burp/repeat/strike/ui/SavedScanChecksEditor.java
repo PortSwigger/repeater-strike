@@ -11,7 +11,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import static burp.repeat.strike.utils.Utils.alert;
 import static burp.repeat.strike.utils.Utils.confirm;
 
 public class SavedScanChecksEditor extends JPanel {

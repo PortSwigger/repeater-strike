@@ -3,21 +3,16 @@ package burp.repeat.strike.ui;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.contextmenu.ContextMenuEvent;
-import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.ai.VulnerabilityAnalysis;
 import burp.repeat.strike.ai.VulnerabilityScanType;
-import burp.repeat.strike.proxy.AnalyseProxyHistory;
-import burp.repeat.strike.settings.InvalidTypeSettingException;
-import burp.repeat.strike.settings.UnregisteredSettingException;
+import burp.repeat.strike.utils.ScanCheckUtils;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
 
 import javax.swing.*;
-import java.util.HashSet;
-import java.util.Set;
+
 
 import static burp.repeat.strike.RepeatStrikeExtension.*;
-import static burp.repeat.strike.ai.VulnerabilityAnalysis.compileScanCheck;
 import static burp.repeat.strike.utils.Utils.alert;
 
 public class ScanChecksMenus {
@@ -49,7 +44,6 @@ public class ScanChecksMenus {
         runRepeatStrikeDiffing.setEnabled(requestHistory.size() > 1);
         runRepeatStrikeDiffing.addActionListener(e -> {
             VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.DiffingNonAi);
-            Utils.resetHistory(false);
         });
         return runRepeatStrikeDiffing;
     }
@@ -59,7 +53,6 @@ public class ScanChecksMenus {
         runRepeatStrikeRegex.setEnabled(!requestHistory.isEmpty());
         runRepeatStrikeRegex.addActionListener(e -> {
             VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Regex);
-            Utils.resetHistory(false);
         });
         return runRepeatStrikeRegex;
     }
@@ -69,7 +62,6 @@ public class ScanChecksMenus {
         runRepeatStrikeJava.setEnabled(!requestHistory.isEmpty());
         runRepeatStrikeJava.addActionListener(e -> {
             VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Java);
-            Utils.resetHistory(false);
         });
         return runRepeatStrikeJava;
     }
@@ -81,42 +73,7 @@ public class ScanChecksMenus {
                 JMenuItem runScanCheck = new JMenuItem(key);
                 runScanCheck.addActionListener(e -> {
                     JSONObject scanCheck = scanChecksJSON.getJSONObject(key);
-                    if(scanCheck.getString("type").equals(VulnerabilityScanType.DiffingNonAi.name())) {
-                        RepeatStrikeExtension.executorService.submit(() -> {
-                            try {
-                                Set<String> requestKeys = new HashSet<>();
-                                AnalyseProxyHistory.analyseWithDiffing(requestKeys, (short) scanCheck.getInt("statusCode"), scanCheck.getString("value"));
-                            } catch (UnregisteredSettingException | InvalidTypeSettingException ex) {
-                                throw new RuntimeException(ex);
-                            } finally {
-                                lastScanCheckRan = new JSONObject();
-                            }
-                        });
-                    } else if(scanCheck.getString("type").equals(VulnerabilityScanType.Regex.name())) {
-                        RepeatStrikeExtension.executorService.submit(() -> {
-                            try {
-                                Set<String> requestKeys = new HashSet<>();
-                                AnalyseProxyHistory.analyseWithRegex(requestKeys, scanCheck.getJSONObject("analysis"), scanCheck.getJSONObject("param"));
-                            } catch (UnregisteredSettingException | InvalidTypeSettingException ex) {
-                                throw new RuntimeException(ex);
-                            } finally {
-                                lastScanCheckRan = new JSONObject();
-                            }
-                        });
-                    } else if(scanCheck.getString("type").equals(VulnerabilityScanType.Java.name())) {
-                        RepeatStrikeExtension.executorService.submit(() -> {
-                            try {
-                                Set<String> requestKeys = new HashSet<>();
-                                String javaCode = scanCheck.getString("code");
-                                Object compiledScanCheck = compileScanCheck(javaCode);
-                                AnalyseProxyHistory.analyseWithObject(requestKeys, compiledScanCheck);
-                            } catch (UnregisteredSettingException | InvalidTypeSettingException ex) {
-                                throw new RuntimeException(ex);
-                            } finally {
-                                lastScanCheckRan = new JSONObject();
-                            }
-                        });
-                    }
+                    ScanCheckUtils.scanProxyHistory(scanCheck);
                 });
                 savedScanChecks.add(runScanCheck);
             });

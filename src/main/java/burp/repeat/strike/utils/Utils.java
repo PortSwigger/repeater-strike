@@ -2,11 +2,14 @@ package burp.repeat.strike.utils;
 
 
 import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.HttpParameter;
 import burp.api.montoya.http.message.params.HttpParameterType;
 import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
+import burp.api.montoya.http.message.responses.analysis.AttributeType;
+import burp.api.montoya.http.message.responses.analysis.ResponseVariationsAnalyzer;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.Settings;
@@ -21,13 +24,13 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static burp.repeat.strike.RepeatStrikeExtension.*;
+import static burp.repeat.strike.proxy.AnalyseProxyHistory.makeRequest;
 
 public class Utils {
 
@@ -215,5 +218,94 @@ public class Utils {
 
     public static String prompt(JComponent component, String title, String message) {
         return JOptionPane.showInputDialog(component, message, title, JOptionPane.QUESTION_MESSAGE);
+    }
+
+    public static String getInvariantFingerprint(ResponseVariationsAnalyzer analyzer) {
+        return analyzer.invariantAttributes().stream().map(AttributeType::name).collect(Collectors.joining(","));
+    }
+
+    public static String getVariantFingerprint(ResponseVariationsAnalyzer analyzer) {
+        return analyzer.variantAttributes().stream().map(AttributeType::name).collect(Collectors.joining(","));
+    }
+
+    public static ArrayList<HttpRequestResponse> getBaseResponses(HttpRequest request, String paramType, String paramName) {
+        ArrayList<HttpRequestResponse> baseResponses = new ArrayList<>();
+        for(int i=0;i<2;i++) {
+            HttpRequestResponse baseRequestResponse = null;
+            try {
+                baseRequestResponse = makeRequest(request, paramType, paramName, Utils.randomAlphaString(1) + Utils.randomString(7));
+                if(baseRequestResponse != null) {
+                    baseResponses.add(baseRequestResponse);
+                }
+            } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return baseResponses;
+    }
+
+    public static boolean checkForDifferences(HttpRequest request, String baseFingerprint, ArrayList<HttpRequestResponse> baseResponses, String paramType, String paramName, String paramValue, boolean sendToOrganizer) {
+        HttpRequestResponse attackRequestResponse = null;
+        try {
+            attackRequestResponse = makeRequest(request, paramType, paramName, paramValue);
+        } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
+            throw new RuntimeException(e);
+        }
+        if (attackRequestResponse != null) {
+            String fingerprint = Utils.getFingerprint(baseResponses, attackRequestResponse.response());
+            if(!fingerprint.equals(baseFingerprint)) {
+                if(sendToOrganizer) {
+                    attackRequestResponse.annotations().setNotes("Attack found using diffing");
+                    api.organizer().sendToOrganizer(attackRequestResponse);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String getBaseFingerprint(ArrayList<HttpRequestResponse> baseResponses) {
+        ResponseVariationsAnalyzer analyzer = api.http().createResponseVariationsAnalyzer();
+        for(HttpRequestResponse baseResponse: baseResponses) {
+            analyzer.updateWith(baseResponse.response());
+        }
+        return Utils.getInvariantFingerprint(analyzer);
+    }
+
+    public static String getFingerprint(ArrayList<HttpRequestResponse> baseResponses, HttpResponse response) {
+        ResponseVariationsAnalyzer analyzer = api.http().createResponseVariationsAnalyzer();
+        for(HttpRequestResponse baseResponse: baseResponses) {
+            analyzer.updateWith(baseResponse.response());
+        }
+        analyzer.updateWith(response);
+        return Utils.getInvariantFingerprint(analyzer);
+    }
+
+    public static String randomAlphaString(int length) {
+        String CHARACTERS = "abcdefghijklmnopqrstuvwxyz";
+        SecureRandom RANDOM = new SecureRandom();
+        if (length <= 0) {
+            throw new IllegalArgumentException("Length must be greater than 0");
+        }
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
+        }
+
+        return sb.toString();
+    }
+
+    public static String randomString(int length) throws IllegalArgumentException {
+        String CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom RANDOM = new SecureRandom();
+        if (length <= 0) {
+            throw new IllegalArgumentException("Length must be greater than 0");
+        }
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(CHARACTERS.charAt(RANDOM.nextInt(CHARACTERS.length())));
+        }
+
+        return sb.toString();
     }
 }
