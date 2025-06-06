@@ -23,7 +23,11 @@ public class ScanCheckUtils {
             return false;
         }
         String scanCheckNameRegex = "^\\w[\\s\\w\\-]*$";
-        return name.matches(scanCheckNameRegex);
+        if(!name.matches(scanCheckNameRegex)) {
+            alert("Invalid scan check name.");
+            return false;
+        }
+        return true;
     }
 
     public static JSONObject getSavedCustomScanChecks() {
@@ -45,7 +49,6 @@ public class ScanCheckUtils {
         }
         String scanCheckName = prompt(null, "Save Last Scan", "Enter the name of your scan check:");
         if(!ScanCheckUtils.validateScanCheckName(scanCheckName)) {
-            alert("Invalid scan check name.");
             return false;
         }
         ScanCheckUtils.addCustomScanCheck(scanCheckName, lastScanCheckRan, scanChecksJSON);

@@ -72,7 +72,7 @@ public class AnalyseProxyHistory {
 
         final int[] vulnCount = {0};
         analyse((request, response, historyParam, item) -> {
-            if (isVulnerable(analysis, request, null, vulnClass, historyParam.type().name(), historyParam.name(), true, true)) {
+            if (isVulnerable(analysis, request, vulnClass, historyParam.type().name(), historyParam.name(), true, true)) {
                 if (debugOutput) api.logging().logToOutput("Found vulnerability");
                 vulnCount[0]++;
             }
