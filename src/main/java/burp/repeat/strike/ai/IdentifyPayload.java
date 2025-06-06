@@ -23,10 +23,13 @@ public class IdentifyPayload {
                         You are going to analyse requests and responses and determine which parameter or header the user is testing. 
                         Ignore any blank parameter. Focus on parameters that look like security testing.
                         Once you have identified the parameter you should look at what vulnerability class they are looking for and update the vulnerability class property.
-                        Do not output markdown.
+                        Do not output markdown. When using the path always include the path prefix in the pathPrefix value.
+                        The path prefix should always start with "/".
+                        *important* Note name is not relevant for path types.                       
                         Return a single JSON object with the following structure:
                         {
                           "name": string,
+                          "pathPrefix": "/[somepath]",
                           "values": [string],
                           "type": "URL" | "PATH" | "HEADER" | "BODY" | "JSON" | "COOKIE",
                           "vulnerabilityClass": """+" \""+String.join("\" | \"", Arrays.stream(Vulnerability.values()).map(Enum::name).toArray(String[]::new))+"\"\n"+"""                
