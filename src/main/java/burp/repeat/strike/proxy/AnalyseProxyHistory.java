@@ -29,6 +29,7 @@ public class AnalyseProxyHistory {
 
     public static void analyse(ParamAnalysisCallback callback) {
         repeatStrikePanel.setStatus("Scanning proxy history...", false);
+        Set<String> requestKeys = new HashSet<>();
         try {
             boolean debugOutput;
             int maxProxyHistory;
@@ -43,15 +44,23 @@ public class AnalyseProxyHistory {
                 ProxyHttpRequestResponse item = proxyHistory.get(i);
                 HttpRequest request = item.finalRequest();
                 HttpResponse response = item.response();
+                String requestKey = Utils.generateRequestKey(request);
+
+                if(requestKeys.contains(requestKey)) {
+                    continue;
+                }
+
                 if (!request.isInScope()) continue;
 
                 if (debugOutput) {
                     api.logging().logToOutput("Testing URL " + request.path() + "...");
                 }
                 callback.analyse(request, response, null, item);
-
-                if(request.parameters().isEmpty()) continue;
-
+                if(request.parameters().isEmpty()) {
+                    requestKeys.add(requestKey);
+                    continue;
+                }
+                requestKeys.add(requestKey);
                 for (ParsedHttpParameter param : request.parameters()) {
                     if (debugOutput) {
                         api.logging().logToOutput("Testing URL " + request.path() + "...");
