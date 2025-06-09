@@ -101,8 +101,7 @@ public class Utils {
 
     public static JMenu generateMenuBar() {
         JMenu menuBar = new JMenu(RepeatStrikeExtension.extensionName);
-        JMenuItem settingsMenu = new JMenuItem("Settings");
-        settingsMenu.addActionListener(e -> Settings.showSettingsWindow());
+        JMenuItem settingsMenu = buildSettingsMenu();
         menuBar.add(settingsMenu);
         JMenuItem reportFeedbackMenu = new JMenuItem("Report feedback");
         reportFeedbackMenu.addActionListener(e -> Utils.openUrl("https://github.com/hackvertor/auto-notes/issues/new"));
