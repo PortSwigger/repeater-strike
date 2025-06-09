@@ -78,6 +78,8 @@ public class AnalyseProxyHistory {
             StringWriter writer = new StringWriter();
             t.printStackTrace(new PrintWriter(writer));
             api.logging().logToError(writer.toString());
+        } finally {
+            requestKeys.clear();
         }
     }
 
