@@ -33,6 +33,7 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
     public static final ExecutorService executorService = Executors.newSingleThreadExecutor();
     public static RepeatStrikeTab repeatStrikeTab;
     public static RepeatStrikePanel repeatStrikePanel;
+    public static boolean hasShutDown = false;
     @Override
     public void initialize(MontoyaApi montoyaApi) {
         RepeatStrikeExtension.api = montoyaApi;
@@ -65,5 +66,7 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
     @Override
     public void extensionUnloaded() {
         executorService.shutdown();
+        hasShutDown = true;
+        api.logging().logToOutput("Extension unloaded");
     }
 }

@@ -38,16 +38,23 @@ public class AnalyseProxyHistory {
             int proxyHistorySize = proxyHistory.size();
             int count = 0;
             for (int i = proxyHistorySize - 1; i >= 0; i--) {
-                if (count >= maxProxyHistory) break;
+                if (count >= maxProxyHistory || hasShutDown) break;
 
                 ProxyHttpRequestResponse item = proxyHistory.get(i);
                 HttpRequest request = item.finalRequest();
                 HttpResponse response = item.response();
-                if (request.parameters().isEmpty() || !request.isInScope()) continue;
+                if (!request.isInScope()) continue;
+
+                if (debugOutput) {
+                    api.logging().logToOutput("Testing URL " + request.path() + "...");
+                }
+                callback.analyse(request, response, null, item);
+
+                if(request.parameters().isEmpty()) continue;
 
                 for (ParsedHttpParameter param : request.parameters()) {
                     if (debugOutput) {
-                        api.logging().logToOutput("Testing URL " + request.pathWithoutQuery() + "...");
+                        api.logging().logToOutput("Testing URL " + request.path() + "...");
                         api.logging().logToOutput("Testing parameter name" + param.name() + "...");
                     }
                     callback.analyse(request, response, param, item);
@@ -72,7 +79,10 @@ public class AnalyseProxyHistory {
 
         final int[] vulnCount = {0};
         analyse((request, response, historyParam, item) -> {
-            if (isVulnerable(analysis, request, vulnClass, historyParam.type().name(), historyParam.name(), true, true)) {
+            final String paramType = historyParam == null ? "path" : historyParam.type().name();
+            final String paramName = historyParam == null ? "foo" : historyParam.name();
+
+            if (isVulnerable(analysis, request, response, vulnClass, paramType, paramName, true, true, true)) {
                 if (debugOutput) api.logging().logToOutput("Found vulnerability");
                 vulnCount[0]++;
             }
