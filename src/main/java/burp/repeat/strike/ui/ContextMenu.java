@@ -21,7 +21,7 @@ public class ContextMenu implements ContextMenuItemsProvider {
     {
         java.util.List<Component> menuItemList = new ArrayList<>();
         if(event.messageEditorRequestResponse().isPresent() && event.invocationType() == InvocationType.MESSAGE_EDITOR_REQUEST && event.isFromTool(ToolType.REPEATER)) {
-            menuItemList.add(ScanChecksMenus.buildAddToRepeatStrikeMenu(event, repeatStrikeTab));
+            menuItemList.add(ScanChecksMenus.buildSendToRepeatStrikeMenu(event, repeatStrikeTab));
         }
         menuItemList.add(buildSettingsMenu());
         return menuItemList;

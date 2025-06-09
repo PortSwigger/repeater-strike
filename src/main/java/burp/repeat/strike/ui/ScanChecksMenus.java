@@ -6,7 +6,6 @@ import burp.api.montoya.ui.contextmenu.ContextMenuEvent;
 import burp.repeat.strike.ai.VulnerabilityAnalysis;
 import burp.repeat.strike.ai.VulnerabilityScanType;
 import burp.repeat.strike.utils.ScanCheckUtils;
-import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -17,9 +16,9 @@ import static burp.repeat.strike.utils.Utils.alert;
 
 public class ScanChecksMenus {
 
-    public static JMenuItem buildAddToRepeatStrikeMenu(ContextMenuEvent event, RepeatStrikeTab repeatStrikeTab) {
-        JMenuItem addToRepeatStrike = new JMenuItem("Send to Repeat Strike");
-        addToRepeatStrike.addActionListener(e -> {
+    public static JMenuItem buildSendToRepeatStrikeMenu(ContextMenuEvent event, RepeatStrikeTab repeatStrikeTab) {
+        JMenuItem sendToRepeatStrike = new JMenuItem("Send to Repeat Strike");
+        sendToRepeatStrike.addActionListener(e -> {
             if (event.messageEditorRequestResponse().isPresent()) {
                 HttpRequest req = event.messageEditorRequestResponse().get().requestResponse().request();
                 HttpResponse resp = event.messageEditorRequestResponse().get().requestResponse().response();
@@ -36,7 +35,7 @@ public class ScanChecksMenus {
                 repeatStrikeTab.addRequestResponse(event.messageEditorRequestResponse().get().requestResponse());
             }
         });
-        return addToRepeatStrike;
+        return sendToRepeatStrike;
     }
 
     public static JMenuItem buildRunDiffingScanMenu(){
