@@ -2,6 +2,7 @@ package burp.repeat.strike.utils;
 
 
 import burp.api.montoya.core.Annotations;
+import burp.api.montoya.http.message.HttpHeader;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.params.HttpParameter;
 import burp.api.montoya.http.message.params.HttpParameterType;
@@ -46,6 +47,38 @@ public class Utils {
             case "URL", "BODY", "COOKIE", "JSON" -> request.parameter(name, HttpParameterType.valueOf(type.toUpperCase())).value();
             default -> null;
         };
+    }
+
+    public static boolean hasDigits(String input) {
+        return input.matches(".*\\d.*");
+    }
+
+    public static String replaceDigits(String base, String replacementDigits) {
+        StringBuilder result = new StringBuilder();
+        int digitIndex = 0;
+
+        for (int i = 0; i < base.length(); i++) {
+            char c = base.charAt(i);
+            if (Character.isDigit(c)) {
+                if (digitIndex < replacementDigits.length()) {
+                    result.append(replacementDigits.charAt(digitIndex++));
+                } else {
+                    result.append(c);
+                }
+            } else {
+                result.append(c);
+            }
+        }
+
+        return result.toString();
+    }
+
+
+    public static String replaceNumericValuesInPath(String basePath, String attackPath) {
+        if(hasDigits(basePath) && hasDigits(attackPath)) {
+            return replaceDigits(basePath, attackPath);
+        }
+        return basePath;
     }
 
     public static HttpRequest modifyRequest(HttpRequest req, String type, String name, String value) {
@@ -131,8 +164,9 @@ public class Utils {
 
     public static String generateRequestKey(HttpRequest req) {
         String currentHost = req.httpService().host();
+        String headerNames = req.headers().stream().map(HttpHeader::name).collect(Collectors.joining(","));
         String paramNames = req.parameters().stream().map(ParsedHttpParameter::name).collect(Collectors.joining(","));
-        return currentHost + "|" + paramNames;
+        return currentHost + "|" + paramNames + "|" + headerNames;
     }
 
     public static void resetHistory(boolean shouldDebug) {

@@ -10,6 +10,7 @@ import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.settings.InvalidTypeSettingException;
 import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.repeat.strike.utils.Utils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.PrintWriter;
@@ -56,11 +57,10 @@ public class AnalyseProxyHistory {
                     api.logging().logToOutput("Testing URL " + request.path() + "...");
                 }
                 callback.analyse(request, response, null, item);
+                requestKeys.add(requestKey);
                 if(request.parameters().isEmpty()) {
-                    requestKeys.add(requestKey);
                     continue;
                 }
-                requestKeys.add(requestKey);
                 for (ParsedHttpParameter param : request.parameters()) {
                     if (debugOutput) {
                         api.logging().logToOutput("Testing URL " + request.path() + "...");
@@ -93,7 +93,14 @@ public class AnalyseProxyHistory {
             final String paramType = historyParam == null ? "path" : historyParam.type().name();
             final String paramName = historyParam == null ? "foo" : historyParam.name();
 
-            if (isVulnerable(analysis, request, response, vulnClass, paramType, paramName, true, true, true)) {
+            if (isVulnerable(analysis, request, response, vulnClass, paramType, paramName, true)) {
+                if (debugOutput) api.logging().logToOutput("Found vulnerability");
+                vulnCount[0]++;
+            }
+
+            JSONArray mutatedProbes = analysis.getJSONArray("mutatedProbesToUse");
+            JSONArray mutatedResponsesRegexes = analysis.getJSONArray("mutatedResponsesRegexes");
+            if(tryProbes(mutatedProbes, mutatedResponsesRegexes, request, response, vulnClass, paramType, paramName, true, false)) {
                 if (debugOutput) api.logging().logToOutput("Found vulnerability");
                 vulnCount[0]++;
             }
