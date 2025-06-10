@@ -49,7 +49,6 @@ public class SavedScanChecksEditor extends JPanel {
         topPanel.add(scanChecksComboBox);
         JPanel editorPanel = new JPanel();
         editorPanel.setLayout(new BorderLayout());
-        editorPanel.add(new JLabel("Code:"), BorderLayout.WEST);
         scanChecksComboBox.addActionListener(e -> {
             if(scanChecksComboBox.getSelectedIndex() == 0) {
                 codeEditor.setText("");
