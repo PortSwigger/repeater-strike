@@ -86,7 +86,7 @@ public class Utils {
         type = type.toUpperCase();
         return switch (type) {
             case "HEADER" -> req.withRemovedHeader(name).withAddedHeader(name, value);
-            case "PATH" -> req.withPath(value);
+            case "PATH" -> req.withPath(value.startsWith("/") ? value : "/" + value);
             case "URL", "BODY", "COOKIE", "JSON" -> {
                 if ((type.equals("BODY") || type.equals("URL")) && !isUrlEncoded(value)) {
                     value = api.utilities().urlUtils().encode(value);
