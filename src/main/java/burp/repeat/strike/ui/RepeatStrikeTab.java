@@ -43,6 +43,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         httpResponseEditor.setResponse(HttpResponse.httpResponse());
         clearButton.setEnabled(false);
         generateScanCheckButton.setEnabled(false);
+        repeatStrikePanel.setStatus("Idle", false);
     }
 
     public RepeatStrikeTab(UserInterface userInterface) {
@@ -197,6 +198,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         public void clear() {
             data.clear();
             fireTableDataChanged();
+            repeatStrikePanel.setStatus("Idle", false);
         }
 
         public void removeRow(int rowIndex) {
