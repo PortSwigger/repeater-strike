@@ -99,11 +99,6 @@ public class AnalyseProxyHistory {
                 if (debugOutput) api.logging().logToOutput("Found vulnerability");
                 vulnCount[0]++;
             }
-
-//            if (isVulnerable(analysis, request, response, vulnClass, paramType, paramName, true)) {
-//                if (debugOutput) api.logging().logToOutput("Found vulnerability");
-//                vulnCount[0]++;
-//            }
         });
 
         outputVulCount(vulnCount[0]);
