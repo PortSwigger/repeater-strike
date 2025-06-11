@@ -162,6 +162,7 @@ public class AnalyseProxyHistory {
         final boolean debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
         long timeoutMs = 10000;
         HttpRequest modifiedRequest = Utils.modifyRequest(request, paramType, paramName, paramValue);
+        modifiedRequest = Utils.modifyRequest(modifiedRequest, "HEADER", "Connection", "close");
         if (modifiedRequest != null) {
             if(debugOutput) {
                 api.logging().logToOutput("Conducting attack:" + paramValue);
