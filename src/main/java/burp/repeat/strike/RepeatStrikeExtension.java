@@ -36,7 +36,6 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
     public static RepeatStrikeTab repeatStrikeTab;
     public static RepeatStrikePanel repeatStrikePanel;
     public static boolean hasShutDown = false;
-    public static JSONObject lastScanCheckRan = new JSONObject();
     @Override
     public void initialize(MontoyaApi montoyaApi) {
         RepeatStrikeExtension.api = montoyaApi;

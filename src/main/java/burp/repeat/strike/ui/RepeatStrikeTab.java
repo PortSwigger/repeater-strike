@@ -26,7 +26,6 @@ import static burp.repeat.strike.ui.ScanChecksMenus.*;
 import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 
 public class RepeatStrikeTab extends JTabbedPane {
-    public final JButton saveLastScanCheckButton;
     public final JButton runSavedScanChecksButton;
     public final SavedScanChecksEditor scanChecksEditor = new SavedScanChecksEditor();
     private final HttpRequestEditor httpRequestEditor;
@@ -54,14 +53,6 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.httpRequestEditor = userInterface.createHttpRequestEditor(READ_ONLY);
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
         this.clearButton = new JButton("Clear");
-        this.saveLastScanCheckButton = new JButton("Save last scan check");
-        this.saveLastScanCheckButton.setEnabled(false);
-        this.saveLastScanCheckButton.addActionListener(e -> {
-           if(ScanCheckUtils.saveGeneratedScanCheck(lastScanCheckRan)) {
-                lastScanCheckRan = new JSONObject();
-                saveLastScanCheckButton.setEnabled(false);
-           }
-        });
         runSavedScanChecksButton = new JButton("Scan proxy history");
         runSavedScanChecksButton.setEnabled(!ScanCheckUtils.getSavedCustomScanChecks().keySet().isEmpty());
         runSavedScanChecksButton.addActionListener(e -> {
@@ -161,7 +152,6 @@ public class RepeatStrikeTab extends JTabbedPane {
         });
         buttonPanel.add(clearButton);
         generateScanCheckButton.setEnabled(false);
-        buttonPanel.add(saveLastScanCheckButton);
         buttonPanel.add(runSavedScanChecksButton);
         buttonPanel.add(generateScanCheckButton);
         panel.add(buttonPanel, BorderLayout.SOUTH);
