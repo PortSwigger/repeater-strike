@@ -10,6 +10,7 @@ public class RepeatStrikePanel extends javax.swing.JPanel {
     public RepeatStrikePanel(RepeatStrikeTab repeatStrikeTab) {
         super(new BorderLayout());
         SwingUtilities.invokeLater(() -> {
+            statusLabel.setForeground(Color.GREEN);
             JPanel topPanel = new JPanel();
             topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
             JLabel repeatStrikeTitle = new JLabel("Repeat Strike");
