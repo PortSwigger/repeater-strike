@@ -93,17 +93,17 @@ public class AnalyseProxyHistory {
             final String paramType = historyParam == null ? "path" : historyParam.type().name();
             final String paramName = historyParam == null ? "foo" : historyParam.name();
 
-            if (isVulnerable(analysis, request, response, vulnClass, paramType, paramName, true)) {
-                if (debugOutput) api.logging().logToOutput("Found vulnerability");
-                vulnCount[0]++;
-            }
-
             JSONArray mutatedProbes = analysis.getJSONArray("mutatedProbesToUse");
             JSONArray mutatedResponsesRegexes = analysis.getJSONArray("mutatedResponsesRegexes");
             if(tryProbes(mutatedProbes, mutatedResponsesRegexes, request, response, vulnClass, paramType, paramName, true, false)) {
                 if (debugOutput) api.logging().logToOutput("Found vulnerability");
                 vulnCount[0]++;
             }
+
+//            if (isVulnerable(analysis, request, response, vulnClass, paramType, paramName, true)) {
+//                if (debugOutput) api.logging().logToOutput("Found vulnerability");
+//                vulnCount[0]++;
+//            }
         });
 
         outputVulCount(vulnCount[0]);

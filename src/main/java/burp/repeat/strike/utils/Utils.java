@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import static burp.repeat.strike.RepeatStrikeExtension.*;
@@ -177,6 +178,95 @@ public class Utils {
         }
         repeatStrikeTab.clearQueue();
     }
+
+    public static String escapeInvalidRegexMeta(String input) {
+        StringBuilder result = new StringBuilder();
+        boolean inCharClass = false;
+        boolean escaped = false;
+
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+
+            if (escaped) {
+                result.append(c);
+                escaped = false;
+                continue;
+            }
+
+            if (c == '\\') {
+                result.append(c);
+                escaped = true;
+                continue;
+            }
+
+            if (c == '[') {
+                inCharClass = true;
+                result.append(c);
+                continue;
+            }
+
+            if (c == ']') {
+                inCharClass = false;
+                result.append(c);
+                continue;
+            }
+
+            if (!inCharClass && (c == '{')) {
+                int j = i + 1;
+                boolean validQuantifier = false;
+                while (j < input.length() && Character.isDigit(input.charAt(j))) j++;
+                if (j < input.length() && input.charAt(j) == '}') {
+                    validQuantifier = true;
+                } else if (j < input.length() && input.charAt(j) == ',') {
+                    j++;
+                    while (j < input.length() && Character.isDigit(input.charAt(j))) j++;
+                    if (j < input.length() && input.charAt(j) == '}') {
+                        validQuantifier = true;
+                    }
+                }
+
+                if (!validQuantifier) {
+                    result.append('\\');
+                }
+                result.append(c);
+                continue;
+            }
+
+            if (!inCharClass && c == '}') {
+                boolean valid = false;
+                int k = i - 1;
+                while (k >= 0 && Character.isDigit(input.charAt(k))) k--;
+                if (k >= 0 && input.charAt(k) == '{') {
+                    valid = true;
+                } else if (k >= 0 && input.charAt(k) == ',') {
+                    k--;
+                    while (k >= 0 && Character.isDigit(input.charAt(k))) k--;
+                    if (k >= 0 && input.charAt(k) == '{') {
+                        valid = true;
+                    }
+                }
+
+                if (!valid) {
+                    result.append('\\');
+                }
+                result.append(c);
+                continue;
+            }
+
+            result.append(c);
+        }
+
+        return result.toString();
+    }
+
+    public static Pattern generatePattern(String regex) {
+        try {
+            return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        } catch(PatternSyntaxException e) {
+            return Pattern.compile(escapeInvalidRegexMeta(regex), Pattern.CASE_INSENSITIVE);
+        }
+    }
+
     public static String truncateRequest(HttpRequest request) {
         int maxRequestLimit;
         try {
