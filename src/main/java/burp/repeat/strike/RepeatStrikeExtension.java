@@ -15,6 +15,7 @@ import burp.repeat.strike.ui.ContextMenu;
 import burp.repeat.strike.ui.RepeatStrikePanel;
 import burp.repeat.strike.ui.RepeatStrikeTab;
 import burp.repeat.strike.utils.Utils;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
     public static RepeatStrikeTab repeatStrikeTab;
     public static RepeatStrikePanel repeatStrikePanel;
     public static boolean hasShutDown = false;
+    public static JSONObject lastScanCheckRan = new JSONObject();
     @Override
     public void initialize(MontoyaApi montoyaApi) {
         RepeatStrikeExtension.api = montoyaApi;
