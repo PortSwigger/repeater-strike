@@ -98,6 +98,7 @@ public class Utils {
     }
 
     public static void registerGeneralSettings(Settings settings) {
+        settings.registerBooleanSetting("autoInvoke", false, "Auto invoke after repeater requests", "Repeater settings", null);
         settings.registerBooleanSetting("debugOutput", false, "Print debug output", "General", null);
         settings.registerBooleanSetting("debugAi", false, "Debug AI requests/responses", "AI", null);
         settings.registerIntegerSetting("maxProxyHistory", 25000, "Max proxy history to scan (1-500000)", "Limits", 1, 500000);

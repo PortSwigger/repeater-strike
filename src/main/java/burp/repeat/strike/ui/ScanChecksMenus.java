@@ -42,7 +42,7 @@ public class ScanChecksMenus {
         JMenuItem runRepeatStrikeDiffing = new JMenuItem("Using Diffing Non-AI");
         runRepeatStrikeDiffing.setEnabled(requestHistory.size() > 1);
         runRepeatStrikeDiffing.addActionListener(e -> {
-            VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.DiffingNonAi);
+            VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.DiffingNonAi, true);
         });
         return runRepeatStrikeDiffing;
     }
@@ -51,7 +51,7 @@ public class ScanChecksMenus {
         JMenuItem runRepeatStrikeRegex = new JMenuItem("Using AI Regex");
         runRepeatStrikeRegex.setEnabled(!requestHistory.isEmpty());
         runRepeatStrikeRegex.addActionListener(e -> {
-            VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Regex);
+            VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Regex, true);
         });
         return runRepeatStrikeRegex;
     }
@@ -60,7 +60,7 @@ public class ScanChecksMenus {
         JMenuItem runRepeatStrikeJava = new JMenuItem("Using AI Java");
         runRepeatStrikeJava.setEnabled(!requestHistory.isEmpty());
         runRepeatStrikeJava.addActionListener(e -> {
-            VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Java);
+            VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Java, true);
         });
         return runRepeatStrikeJava;
     }

@@ -9,6 +9,7 @@ import burp.api.montoya.extension.ExtensionUnloadingHandler;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.repeat.strike.ai.AI;
+import burp.repeat.strike.http.HttpHandler;
 import burp.repeat.strike.settings.Settings;
 import burp.repeat.strike.ui.ContextMenu;
 import burp.repeat.strike.ui.RepeatStrikePanel;
@@ -48,6 +49,7 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
         api.userInterface().registerContextMenuItemsProvider(new ContextMenu(repeatStrikeTab));
         repeatStrikePanel = new RepeatStrikePanel(repeatStrikeTab);
         api.userInterface().registerSuiteTab(extensionName, repeatStrikePanel);
+        api.http().registerHttpHandler(new HttpHandler());
     }
 
     @Override
