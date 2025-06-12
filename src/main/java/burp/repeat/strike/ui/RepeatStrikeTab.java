@@ -54,6 +54,15 @@ public class RepeatStrikeTab extends JTabbedPane {
         return text.split("\n");
     }
 
+    public void changeTabColour(String title, Color colour) {
+        for(int i = 0; i < getTabCount(); i++) {
+            if(this.getTitleAt(i).equals(title)) {
+                this.setForegroundAt(i, colour);
+                return;
+            }
+        }
+    }
+
     public JPanel buildWordListPanel() {
         String savedWordList = api.persistence().extensionData().getString("wordList");
         if(savedWordList != null && !savedWordList.isEmpty()) {
@@ -65,18 +74,30 @@ public class RepeatStrikeTab extends JTabbedPane {
         populateWordListButton.addActionListener(e -> wordListTextArea.setText(String.join("\n", defaultValues)));
         JPanel buttonPanel = new JPanel();
         JButton clearButton = new JButton("Clear");
-        clearButton.addActionListener(e -> wordListTextArea.setText(""));
+        clearButton.addActionListener(e -> {
+            wordListTextArea.setText("");
+            saveWordList();
+        });
         buttonPanel.add(clearButton);
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
-            api.persistence().extensionData().setString("wordList", String.join("\n", wordListTextArea.getText()));
+            saveWordList();
         });
-        buttonPanel.add(saveButton);
         buttonPanel.add(populateWordListButton);
+        buttonPanel.add(saveButton);
         JScrollPane wordListScrollPane = new JScrollPane(wordListTextArea);
         wordListPanel.add(buttonPanel, BorderLayout.NORTH);
         wordListPanel.add(wordListScrollPane, BorderLayout.CENTER);
         return wordListPanel;
+    }
+
+    public void saveWordList() {
+        api.persistence().extensionData().setString("wordList", String.join("\n", wordListTextArea.getText()));
+        if(wordListTextArea.getText().isEmpty()) {
+            changeTabColour("Word list", null);
+        } else {
+            changeTabColour("Word list", Color.ORANGE);
+        }
     }
 
     public RepeatStrikeTab(UserInterface userInterface) {
@@ -85,6 +106,9 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.add("Requests/responses queue", panel);
         this.add("Saved scan checks", scanChecksEditor);
         this.add("Word list", this.buildWordListPanel());
+        if(getWordList().length > 0) {
+            this.changeTabColour("Word list", Color.ORANGE);
+        }
         this.httpRequestEditor = userInterface.createHttpRequestEditor(READ_ONLY);
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
         this.clearButton = new JButton("Clear");
