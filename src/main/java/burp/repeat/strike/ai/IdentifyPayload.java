@@ -25,7 +25,7 @@ public class IdentifyPayload {
                         Once you have identified the parameter you should look at what vulnerability class they are looking for and update the vulnerability class property.
                         Do not output markdown. When using the path always include the full path prefix in the value.                        
                         *important* Note name is not relevant for path types.  
-                        URL types should be use for get parameters.                    
+                        URL types should be use for get parameters. When generating a URL type the value should be the value of the parameter and the name should go in the name property.                   
                         Return a single JSON object with the following structure:
                         {
                           "name": string,                         

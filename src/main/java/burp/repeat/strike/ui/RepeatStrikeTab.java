@@ -35,6 +35,7 @@ public class RepeatStrikeTab extends JTabbedPane {
     private final java.util.List<HttpRequestResponse> requestResponseList = new ArrayList<>();
     private final RequestTableModel tableModel = new RequestTableModel(requestResponseList);
     private final JTable table = new JTable(tableModel);
+    private final JTextArea wordListTextArea = new JTextArea();
     public void clearQueue() {
         repeatStrikePanel.resetInstructions();
         requestResponseList.clear();
@@ -45,11 +46,41 @@ public class RepeatStrikeTab extends JTabbedPane {
         repeatStrikePanel.setStatus("Idle", false);
     }
 
+    public String[] getWordList() {
+        return wordListTextArea.getText().split("\n");
+    }
+
+    public JPanel buildWordListPanel() {
+        String savedWordList = api.persistence().extensionData().getString("wordList");
+        if(savedWordList != null && !savedWordList.isEmpty()) {
+            wordListTextArea.setText(savedWordList);
+        }
+        JPanel wordListPanel = new JPanel(new BorderLayout());
+        JButton populateWordListButton = new JButton("Populate with default word list");
+        String[] defaultValues = new String[]{"admin", "administrator", "carlos", "wiener", "peter"};
+        populateWordListButton.addActionListener(e -> wordListTextArea.setText(String.join("\n", defaultValues)));
+        JPanel buttonPanel = new JPanel();
+        JButton clearButton = new JButton("Clear");
+        clearButton.addActionListener(e -> wordListTextArea.setText(""));
+        buttonPanel.add(clearButton);
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> {
+            api.persistence().extensionData().setString("wordList", String.join("\n", wordListTextArea.getText()));
+        });
+        buttonPanel.add(saveButton);
+        buttonPanel.add(populateWordListButton);
+        JScrollPane wordListScrollPane = new JScrollPane(wordListTextArea);
+        wordListPanel.add(buttonPanel, BorderLayout.NORTH);
+        wordListPanel.add(wordListScrollPane, BorderLayout.CENTER);
+        return wordListPanel;
+    }
+
     public RepeatStrikeTab(UserInterface userInterface) {
         super();
         JPanel panel = new JPanel(new BorderLayout());
         this.add("Requests/responses queue", panel);
         this.add("Saved scan checks", scanChecksEditor);
+        this.add("Word list", this.buildWordListPanel());
         this.httpRequestEditor = userInterface.createHttpRequestEditor(READ_ONLY);
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
         this.clearButton = new JButton("Clear");
