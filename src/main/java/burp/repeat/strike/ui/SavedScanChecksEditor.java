@@ -6,8 +6,6 @@ import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,9 +93,7 @@ public class SavedScanChecksEditor extends JPanel {
         JPanel row1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         row1.add(deleteButton);
         row1.add(saveButton);
-        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottomPanel.add(row1);
-        bottomPanel.add(row2);
         this.add(topPanel, BorderLayout.NORTH);
         this.add(editorPanel, BorderLayout.CENTER);
         this.add(bottomPanel, BorderLayout.SOUTH);
