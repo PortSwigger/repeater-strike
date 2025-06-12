@@ -47,7 +47,11 @@ public class RepeatStrikeTab extends JTabbedPane {
     }
 
     public String[] getWordList() {
-        return wordListTextArea.getText().split("\n");
+        String text = wordListTextArea.getText();
+        if(text == null || text.isEmpty()) {
+            return new String[0];
+        }
+        return text.split("\n");
     }
 
     public JPanel buildWordListPanel() {
