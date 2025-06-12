@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import static burp.repeat.strike.utils.Utils.alert;
 import static burp.repeat.strike.utils.Utils.confirm;
 
 public class SavedScanChecksEditor extends JPanel {
@@ -76,7 +77,6 @@ public class SavedScanChecksEditor extends JPanel {
                 codeEditor.setText("");
             }
         });
-        JLabel message = new JLabel();
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             if(scanChecksComboBox.getSelectedIndex() == 0) {
@@ -87,25 +87,15 @@ public class SavedScanChecksEditor extends JPanel {
             try {
                 scanChecksJSON.put(selectedItem, new JSONObject(codeEditor.getText()));
                 ScanCheckUtils.saveCustomScanChecks(scanChecksJSON);
-                message.setText("Scan check saved.");
-                Timer timer = new Timer(2000, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        message.setText("");
-                    }
-                });
-                timer.setRepeats(false);
-                timer.start();
                 scanChecksComboBox.setSelectedIndex(selectedIndex);
             } catch (JSONException ex) {
-                message.setText("Invalid JSON saved failed:" + ex.getMessage());
+                alert("Invalid JSON saved failed:" + ex.getMessage());
             }
         });
         JPanel row1 = new JPanel(new FlowLayout(FlowLayout.CENTER));
         row1.add(deleteButton);
         row1.add(saveButton);
         JPanel row2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        row2.add(message);
         bottomPanel.add(row1);
         bottomPanel.add(row2);
         this.add(topPanel, BorderLayout.NORTH);
