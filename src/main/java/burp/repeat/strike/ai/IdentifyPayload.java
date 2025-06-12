@@ -24,7 +24,8 @@ public class IdentifyPayload {
                         Ignore any blank parameter. Focus on parameters that look like security testing.
                         Once you have identified the parameter you should look at what vulnerability class they are looking for and update the vulnerability class property.
                         Do not output markdown. When using the path always include the full path prefix in the value.                        
-                        *important* Note name is not relevant for path types.                      
+                        *important* Note name is not relevant for path types.  
+                        URL types should be use for get parameters.                    
                         Return a single JSON object with the following structure:
                         {
                           "name": string,                         

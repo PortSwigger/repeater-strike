@@ -95,7 +95,8 @@ public class AnalyseProxyHistory {
 
             JSONArray mutatedProbes = analysis.getJSONArray("mutatedProbesToUse");
             JSONArray mutatedResponsesRegexes = analysis.getJSONArray("mutatedResponsesRegexes");
-            if(tryProbes(mutatedProbes, mutatedResponsesRegexes, request, response, vulnClass, paramType, paramName, true, false)) {
+            JSONArray originalResponseRegexes = analysis.getJSONArray("responseRegexes");
+            if(tryProbes(mutatedProbes, mutatedResponsesRegexes, request, response, vulnClass, paramType, paramName, true, false, originalResponseRegexes)) {
                 if (debugOutput) api.logging().logToOutput("Found vulnerability");
                 vulnCount[0]++;
             }
