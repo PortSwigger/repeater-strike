@@ -72,7 +72,10 @@ public class RepeatStrikeTab extends JTabbedPane {
         JPanel wordListPanel = new JPanel(new BorderLayout());
         JButton populateWordListButton = new JButton("Populate with default word list");
         String[] defaultValues = new String[]{"admin", "administrator", "carlos", "wiener", "peter"};
-        populateWordListButton.addActionListener(e -> wordListTextArea.setText(String.join("\n", defaultValues)));
+        populateWordListButton.addActionListener(e -> {
+            wordListTextArea.setText(String.join("\n", defaultValues));
+            saveWordList();
+        });
         JPanel buttonPanel = new JPanel();
         JButton clearButton = new JButton("Clear");
         clearButton.addActionListener(e -> {
