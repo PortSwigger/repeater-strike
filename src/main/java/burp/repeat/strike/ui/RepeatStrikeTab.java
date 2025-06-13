@@ -139,7 +139,6 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.generateScanCheckButton.addActionListener(e -> {
             JPopupMenu scanPopupMenu = new JPopupMenu();
             scanPopupMenu.setEnabled(!requestHistory.isEmpty());
-            //scanPopupMenu.add(buildRunJavaScanMenu());
             scanPopupMenu.add(buildRunRegexScanMenu());
             scanPopupMenu.add(buildRunDiffingScanMenu());
             scanPopupMenu.show(generateScanCheckButton, 0, generateScanCheckButton.getHeight());

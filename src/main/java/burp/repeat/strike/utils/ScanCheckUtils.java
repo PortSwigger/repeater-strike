@@ -8,7 +8,6 @@ import burp.repeat.strike.settings.UnregisteredSettingException;
 import org.json.JSONObject;
 
 import static burp.repeat.strike.RepeatStrikeExtension.*;
-import static burp.repeat.strike.ai.VulnerabilityAnalysis.compileScanCheck;
 import static burp.repeat.strike.utils.Utils.alert;
 import static burp.repeat.strike.utils.Utils.prompt;
 
@@ -95,16 +94,6 @@ public class ScanCheckUtils {
             RepeatStrikeExtension.executorService.submit(() -> {
                 try {
                     AnalyseProxyHistory.analyseWithRegex(scanCheck.getJSONObject("analysis"), scanCheck.getJSONObject("param"));
-                } catch (UnregisteredSettingException | InvalidTypeSettingException ex) {
-                    throw new RuntimeException(ex);
-                }
-            });
-        } else if(scanCheck.getString("type").equals(VulnerabilityScanType.Java.name())) {
-            RepeatStrikeExtension.executorService.submit(() -> {
-                try {
-                    String javaCode = scanCheck.getString("code");
-                    Object compiledScanCheck = compileScanCheck(javaCode);
-                    AnalyseProxyHistory.analyseWithObject(compiledScanCheck);
                 } catch (UnregisteredSettingException | InvalidTypeSettingException ex) {
                     throw new RuntimeException(ex);
                 }
