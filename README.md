@@ -10,7 +10,7 @@ Repeat Strike is an AI-powered tool that helps uncover IDOR and other vulnerabil
 
 **In Burp Suite Professional, go to Extensions->BApp store and search for Repeat Strike. Click the install button and then navigate to the installed tab then select Repeat Strike and check the "Use AI" checkbox in the Extension tab.**
 
-![](https://github.com/hackvertor/shadow-repeater/blob/main/screenshots/shadow-repeater-install-screenshot.png)
+![Installation screen](https://github.com/hackvertor/repeat-strike/blob/main/screenshots/repeat-strike-install-screenshot.png)
 
 ## How to use
 
