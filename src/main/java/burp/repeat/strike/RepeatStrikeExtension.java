@@ -50,6 +50,9 @@ public class RepeatStrikeExtension implements BurpExtension, IBurpExtender, Exte
         api.userInterface().registerContextMenuItemsProvider(new ContextMenu(repeatStrikeTab));
         repeatStrikePanel = new RepeatStrikePanel(repeatStrikeTab);
         api.userInterface().registerSuiteTab(extensionName, repeatStrikePanel);
+        if(repeatStrikeTab.getWordList().length > 0) {
+            repeatStrikePanel.setWordListWarning(repeatStrikeTab.wordListWarning);
+        }
         api.http().registerHttpHandler(new HttpHandler());
     }
 

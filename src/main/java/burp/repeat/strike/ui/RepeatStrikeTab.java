@@ -26,6 +26,7 @@ import static burp.repeat.strike.ui.ScanChecksMenus.*;
 import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 
 public class RepeatStrikeTab extends JTabbedPane {
+    public final String wordListWarning = "Warning you are using the word list, this will affect the AI's responses.";
     public final JButton runSavedScanChecksButton;
     public final SavedScanChecksEditor scanChecksEditor = new SavedScanChecksEditor();
     private final HttpRequestEditor httpRequestEditor;
@@ -95,8 +96,10 @@ public class RepeatStrikeTab extends JTabbedPane {
         api.persistence().extensionData().setString("wordList", String.join("\n", wordListTextArea.getText()));
         if(wordListTextArea.getText().isEmpty()) {
             changeTabColour("Word list", null);
+            repeatStrikePanel.setWordListWarning("");
         } else {
-            changeTabColour("Word list", Color.ORANGE);
+            changeTabColour("Word list", Color.decode("#00d390"));
+            repeatStrikePanel.setWordListWarning(wordListWarning);
         }
     }
 
@@ -106,8 +109,9 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.add("Requests/responses queue", panel);
         this.add("Saved scan checks", scanChecksEditor);
         this.add("Word list", this.buildWordListPanel());
+
         if(getWordList().length > 0) {
-            this.changeTabColour("Word list", Color.ORANGE);
+            this.changeTabColour("Word list", Color.decode("#00d390"));
         }
         this.httpRequestEditor = userInterface.createHttpRequestEditor(READ_ONLY);
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
