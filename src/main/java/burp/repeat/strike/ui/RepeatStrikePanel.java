@@ -1,7 +1,12 @@
 package burp.repeat.strike.ui;
 
+import burp.repeat.strike.utils.GridbagUtils;
+import burp.repeat.strike.utils.Utils;
+
 import javax.swing.*;
 import java.awt.*;
+
+import static burp.repeat.strike.utils.GridbagUtils.createConstraints;
 
 public class RepeatStrikePanel extends javax.swing.JPanel {
     private final String defaultInstructions = "Click on a request in Repeater, then right-click and select Extensions → Repeat Strike → Send to Repeat Strike to begin.";
@@ -13,7 +18,7 @@ public class RepeatStrikePanel extends javax.swing.JPanel {
         super(new BorderLayout());
         SwingUtilities.invokeLater(() -> {
             JPanel topPanel = new JPanel();
-            topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+            topPanel.setLayout(new GridBagLayout());
             JLabel repeatStrikeTitle = new JLabel("Repeat Strike");
             repeatStrikeTitle.setFont(new Font(repeatStrikeTitle.getFont().getName(), Font.BOLD, repeatStrikeTitle.getFont().getSize()+3));
             JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -26,10 +31,14 @@ public class RepeatStrikePanel extends javax.swing.JPanel {
             row4.add(new JLabel("Status:"));
             row4.add(statusLabel);
             row2.add(repeatStrikeDescription);
-            topPanel.add(row1);
-            topPanel.add(row2);
-            topPanel.add(row3);
-            topPanel.add(row4);
+            topPanel.add(row1, createConstraints(0, 0, 1, GridBagConstraints.BOTH, 1, 0, 1, 1, GridBagConstraints.WEST));
+            topPanel.add(row2, createConstraints(0, 1, 1, GridBagConstraints.BOTH, 1, 0, 1, 1, GridBagConstraints.WEST));
+            topPanel.add(row3, createConstraints(0, 2, 1, GridBagConstraints.BOTH, 1, 0, 1, 1, GridBagConstraints.WEST));
+            topPanel.add(row4, createConstraints(0, 3, 1, GridBagConstraints.BOTH, 1, 0, 1, 1, GridBagConstraints.WEST));
+            GridBagConstraints gbc = GridbagUtils.addMarginToGbc(createConstraints(1, 0, 1, GridBagConstraints.NONE, 1, 0, 1, 1, GridBagConstraints.EAST), 5, 5, 5, 5);
+            gbc.gridheight = 4;
+            JLabel logoLabel = new JLabel(Utils.createImageIcon("/images/logo.png", "logo"));
+            topPanel.add(logoLabel, gbc);
             this.add(topPanel, BorderLayout.NORTH);
             this.add(repeatStrikeTab, BorderLayout.CENTER);
         });
