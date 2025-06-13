@@ -25,3 +25,8 @@ In Repeater identify the target you want to test. You can use this Academy Lab a
 6. Choose Using AI Regex; if successful, save the scan check and it will scan the proxy history.
 
 Edit saved scan checks in the "Saved scan checks" tab and scan proxy history anytime using the "Scan proxy history" button.
+
+## Options
+
+Configure Repeat Strike in Repeat Strike → Settings.
+Here, you can set proxy data scan limits, request/response/image caps, and enable automatic scan checks and proxy history scanning when sending Repeater requests.
