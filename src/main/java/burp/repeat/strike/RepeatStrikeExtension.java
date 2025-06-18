@@ -12,7 +12,6 @@ import burp.repeat.strike.http.HttpHandler;
 import burp.repeat.strike.ui.ContextMenu;
 import burp.repeat.strike.ui.RepeatStrikePanel;
 import burp.repeat.strike.ui.RepeatStrikeTab;
-import burp.repeat.strike.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Set;

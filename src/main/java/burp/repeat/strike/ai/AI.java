@@ -1,6 +1,5 @@
 package burp.repeat.strike.ai;
 
-import burp.repeat.strike.RepeatStrikeExtension;
 import burp.api.montoya.ai.chat.Message;
 import burp.api.montoya.ai.chat.PromptOptions;
 import burp.api.montoya.ai.chat.PromptResponse;

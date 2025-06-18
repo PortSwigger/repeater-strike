@@ -5,7 +5,6 @@ import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.core.ToolSource;
 import burp.api.montoya.core.ToolType;
 import burp.api.montoya.http.message.responses.HttpResponse;
-import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.ai.AI;
 import burp.repeat.strike.ai.VulnerabilityAnalysis;
 import burp.repeat.strike.ai.VulnerabilityScanType;

@@ -6,7 +6,6 @@ import burp.api.montoya.http.message.params.ParsedHttpParameter;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
-import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
