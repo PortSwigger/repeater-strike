@@ -8,9 +8,6 @@ import burp.api.montoya.ui.contextmenu.InvocationType;
 import java.awt.*;
 import java.util.ArrayList;
 
-import static burp.repeat.strike.utils.Utils.buildSettingsMenu;
-
-
 public class ContextMenu implements ContextMenuItemsProvider {
     private final RepeatStrikeTab repeatStrikeTab;
     public ContextMenu(RepeatStrikeTab repeatStrikeTab) {
@@ -23,7 +20,6 @@ public class ContextMenu implements ContextMenuItemsProvider {
         if(event.messageEditorRequestResponse().isPresent() && event.invocationType() == InvocationType.MESSAGE_EDITOR_REQUEST && event.isFromTool(ToolType.REPEATER)) {
             menuItemList.add(ScanChecksMenus.buildSendToRepeatStrikeMenu(event, repeatStrikeTab));
         }
-        menuItemList.add(buildSettingsMenu());
         return menuItemList;
     }
 }

@@ -12,16 +12,11 @@ import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.http.message.responses.analysis.AttributeType;
 import burp.api.montoya.http.message.responses.analysis.ResponseVariationsAnalyzer;
 import burp.repeat.strike.RepeatStrikeExtension;
-import burp.repeat.strike.settings.InvalidTypeSettingException;
-import burp.repeat.strike.settings.Settings;
-import burp.repeat.strike.settings.UnregisteredSettingException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -97,16 +92,6 @@ public class Utils {
         };
     }
 
-    public static void registerGeneralSettings(Settings settings) {
-        settings.registerBooleanSetting("autoInvoke", false, "Auto invoke after Repeater requests", "Repeater settings", null);
-        settings.registerBooleanSetting("debugOutput", false, "Print debug output", "General", null);
-        settings.registerBooleanSetting("debugAi", false, "Debug AI requests/responses", "AI", null);
-        settings.registerIntegerSetting("maxProxyHistory", 25000, "Max proxy history to scan (1-500000)", "Limits", 1, 500000);
-        settings.registerIntegerSetting("maxImageResponseLimit", 1000, "Maximum image response limit (1-128000)", "Limits", 1, 128000);
-        settings.registerIntegerSetting("maxRequestLimit", 100000, "Maximum request limit (1-128000)", "Limits", 1, 128000);
-        settings.registerIntegerSetting("maxResponseLimit", 100000, "Maximum response limit (1-128000)", "Limits", 1, 128000);
-    }
-
     public static void openUrl(String url) {
         if(url.startsWith("https://")) {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
@@ -116,32 +101,6 @@ public class Utils {
                 }
             }
         }
-    }
-
-    public static JFrame getSettingsWindowInstance() {
-        if(SettingsFrame != null) {
-            return SettingsFrame;
-        }
-        SettingsFrame = new JFrame();
-        SettingsFrame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                SettingsFrame.setVisible(false);
-                SettingsFrame.getContentPane().removeAll();
-                SettingsFrame.getContentPane().setLayout(new BorderLayout());
-            }
-        });
-        return SettingsFrame;
-    }
-
-    public static JMenu generateMenuBar() {
-        JMenu menuBar = new JMenu(RepeatStrikeExtension.extensionName);
-        JMenuItem settingsMenu = buildSettingsMenu();
-        menuBar.add(settingsMenu);
-        JMenuItem reportFeedbackMenu = new JMenuItem("Report feedback");
-        reportFeedbackMenu.addActionListener(e -> Utils.openUrl("https://github.com/hackvertor/auto-notes/issues/new"));
-        menuBar.add(reportFeedbackMenu);
-        return menuBar;
     }
 
     public static ImageIcon createImageIcon(String path, String description) {
@@ -269,13 +228,7 @@ public class Utils {
     }
 
     public static String truncateRequest(HttpRequest request) {
-        int maxRequestLimit;
-        try {
-            maxRequestLimit = RepeatStrikeExtension.generalSettings.getInteger("maxRequestLimit");
-        } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
-            api.logging().logToError("Error loading settings:" + e);
-            throw new RuntimeException(e);
-        }
+        int maxRequestLimit = settings.getInteger("Max request limit");
         String output = request.toString();
         if(output.length() > maxRequestLimit) {
             output = output.substring(0, maxRequestLimit);
@@ -283,15 +236,8 @@ public class Utils {
         return output;
     }
     public static String truncateResponse(HttpResponse response) {
-        int maxImageResponseLimit;
-        int maxResponseLimit;
-        try {
-            maxImageResponseLimit = RepeatStrikeExtension.generalSettings.getInteger("maxImageResponseLimit");
-            maxResponseLimit = RepeatStrikeExtension.generalSettings.getInteger("maxResponseLimit");
-        } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
-            api.logging().logToError("Error loading settings:" + e);
-            throw new RuntimeException(e);
-        }
+        int maxImageResponseLimit = settings.getInteger("Max image response limit");
+        int maxResponseLimit = settings.getInteger("Max response limit");
         String output = response.toString();
         if(response.mimeType().toString().toLowerCase().startsWith("image") && output.length() > maxImageResponseLimit) {
             output = output.substring(0, maxImageResponseLimit);
@@ -326,12 +272,6 @@ public class Utils {
         return "Requests:\n"+requestsJSON+"\n\nResponses:\n"+responsesJSON;
     }
 
-    public static JMenuItem buildSettingsMenu() {
-        JMenuItem settings = new JMenuItem("Settings");
-        settings.addActionListener(e -> Settings.showSettingsWindow());
-        return settings;
-    }
-
     public static void alert(String message) {
         JOptionPane.showMessageDialog(null, message);
     }
@@ -356,26 +296,17 @@ public class Utils {
         ArrayList<HttpRequestResponse> baseResponses = new ArrayList<>();
         for(int i=0;i<2;i++) {
             HttpRequestResponse baseRequestResponse = null;
-            try {
-                baseRequestResponse = makeRequest(request, paramType, paramName, Utils.randomAlphaString(1) + Utils.randomString(7));
-                if(baseRequestResponse == null) {
-                    return null;
-                }
-                baseResponses.add(baseRequestResponse);
-            } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
-                throw new RuntimeException(e);
+            baseRequestResponse = makeRequest(request, paramType, paramName, Utils.randomAlphaString(1) + Utils.randomString(7));
+            if(baseRequestResponse == null) {
+                return null;
             }
+            baseResponses.add(baseRequestResponse);
         }
         return baseResponses;
     }
 
     public static boolean checkForDifferences(HttpRequest request, String baseFingerprint, ArrayList<HttpRequestResponse> baseResponses, String paramType, String paramName, String paramValue, boolean sendToOrganizer) {
-        HttpRequestResponse attackRequestResponse = null;
-        try {
-            attackRequestResponse = makeRequest(request, paramType, paramName, paramValue);
-        } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
-            throw new RuntimeException(e);
-        }
+        HttpRequestResponse attackRequestResponse = makeRequest(request, paramType, paramName, paramValue);
         if (attackRequestResponse != null) {
             String fingerprint = Utils.getFingerprint(baseResponses, attackRequestResponse.response());
             if(!fingerprint.equals(baseFingerprint)) {

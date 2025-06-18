@@ -3,8 +3,6 @@ package burp.repeat.strike.utils;
 import burp.repeat.strike.RepeatStrikeExtension;
 import burp.repeat.strike.ai.VulnerabilityScanType;
 import burp.repeat.strike.proxy.AnalyseProxyHistory;
-import burp.repeat.strike.settings.InvalidTypeSettingException;
-import burp.repeat.strike.settings.UnregisteredSettingException;
 import org.json.JSONObject;
 
 import static burp.repeat.strike.RepeatStrikeExtension.*;
@@ -84,19 +82,11 @@ public class ScanCheckUtils {
     public static void scanProxyHistory(JSONObject scanCheck) {
         if(scanCheck.getString("type").equals(VulnerabilityScanType.DiffingNonAi.name())) {
             RepeatStrikeExtension.executorService.submit(() -> {
-                try {
-                    AnalyseProxyHistory.analyseWithDiffing(scanCheck.getString("value"));
-                } catch (UnregisteredSettingException | InvalidTypeSettingException ex) {
-                    throw new RuntimeException(ex);
-                }
+                AnalyseProxyHistory.analyseWithDiffing(scanCheck.getString("value"));
             });
         } else if(scanCheck.getString("type").equals(VulnerabilityScanType.Regex.name())) {
             RepeatStrikeExtension.executorService.submit(() -> {
-                try {
-                    AnalyseProxyHistory.analyseWithRegex(scanCheck.getJSONObject("analysis"), scanCheck.getJSONObject("param"));
-                } catch (UnregisteredSettingException | InvalidTypeSettingException ex) {
-                    throw new RuntimeException(ex);
-                }
+                AnalyseProxyHistory.analyseWithRegex(scanCheck.getJSONObject("analysis"), scanCheck.getJSONObject("param"));
             });
         }
     }

@@ -1,8 +1,6 @@
 package burp.repeat.strike.ai;
 
 import burp.repeat.strike.RepeatStrikeExtension;
-import burp.repeat.strike.settings.InvalidTypeSettingException;
-import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.api.montoya.ai.chat.Message;
 import burp.api.montoya.ai.chat.PromptOptions;
 import burp.api.montoya.ai.chat.PromptResponse;
@@ -11,6 +9,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import static burp.repeat.strike.RepeatStrikeExtension.api;
+import static burp.repeat.strike.RepeatStrikeExtension.settings;
 
 public class AI {
     public static final int maxTokenLength = 128000;
@@ -60,13 +59,7 @@ public class AI {
         return new String(messageDigest.digest());
     }
     public String execute() {
-        boolean debugAi;
-        try {
-            debugAi = RepeatStrikeExtension.generalSettings.getBoolean("debugAi");
-        } catch (UnregisteredSettingException | InvalidTypeSettingException e) {
-            api.logging().logToError("Error loading settings:" + e);
-            throw new RuntimeException(e);
-        }
+        boolean debugAi = settings.getBoolean("Debug AI");
         if(!isAiSupported()) {
             throw new RuntimeException("Montoya AI API is not enabled. You need to enable use AI in the extension tab.");
         }

@@ -7,8 +7,6 @@ import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import burp.repeat.strike.RepeatStrikeExtension;
-import burp.repeat.strike.settings.InvalidTypeSettingException;
-import burp.repeat.strike.settings.UnregisteredSettingException;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,17 +23,15 @@ public class AnalyseProxyHistory {
 
     @FunctionalInterface
     public interface ParamAnalysisCallback {
-        void analyse(HttpRequest baseRequest, HttpResponse baseResponse, ParsedHttpParameter param, ProxyHttpRequestResponse historyItem) throws UnregisteredSettingException, InvalidTypeSettingException;
+        void analyse(HttpRequest baseRequest, HttpResponse baseResponse, ParsedHttpParameter param, ProxyHttpRequestResponse historyItem);
     }
 
     public static void analyse(ParamAnalysisCallback callback) {
         repeatStrikePanel.setStatus("Scanning proxy history...", false);
         Set<String> requestKeys = new HashSet<>();
         try {
-            boolean debugOutput;
-            int maxProxyHistory;
-            debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
-            maxProxyHistory = RepeatStrikeExtension.generalSettings.getInteger("maxProxyHistory");
+            boolean debugOutput = settings.getBoolean("Debug output");
+            int maxProxyHistory = settings.getInteger("Max proxy history");
             List<ProxyHttpRequestResponse> proxyHistory = api.proxy().history();
             int proxyHistorySize = proxyHistory.size();
             int count = 0;
@@ -83,8 +79,8 @@ public class AnalyseProxyHistory {
         }
     }
 
-    public static void analyseWithRegex(JSONObject analysis, JSONObject param) throws UnregisteredSettingException, InvalidTypeSettingException {
-        final boolean debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
+    public static void analyseWithRegex(JSONObject analysis, JSONObject param) {
+        final boolean debugOutput = settings.getBoolean("Debug output");
 
         final String vulnClass = param.getString("vulnerabilityClass");
 
@@ -105,9 +101,9 @@ public class AnalyseProxyHistory {
         outputVulCount(vulnCount[0]);
     }
 
-    public static void analyseWithDiffing(String attackValue) throws UnregisteredSettingException, InvalidTypeSettingException {
+    public static void analyseWithDiffing(String attackValue) {
         final int[] vulnCount = {0};
-        final boolean debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
+        final boolean debugOutput = settings.getBoolean("Debug output");
 
         analyse((request, response, historyParam, item) -> {
             ArrayList<HttpRequestResponse> baseResponses = Utils.getBaseResponses(request, historyParam.type().name(), historyParam.name());
@@ -128,8 +124,8 @@ public class AnalyseProxyHistory {
         api.logging().logToOutput(vulnMessage);
     }
 
-    public static HttpRequestResponse makeRequest(HttpRequest request, String paramType, String paramName, String paramValue) throws UnregisteredSettingException, InvalidTypeSettingException {
-        final boolean debugOutput = RepeatStrikeExtension.generalSettings.getBoolean("debugOutput");
+    public static HttpRequestResponse makeRequest(HttpRequest request, String paramType, String paramName, String paramValue) {
+        final boolean debugOutput = settings.getBoolean("Debug output");
         long timeoutMs = 10000;
         HttpRequest modifiedRequest = Utils.modifyRequest(request, paramType, paramName, paramValue);
         modifiedRequest = Utils.modifyRequest(modifiedRequest, "HEADER", "Connection", "close");
