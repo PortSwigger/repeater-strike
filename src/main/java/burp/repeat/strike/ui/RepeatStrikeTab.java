@@ -6,7 +6,7 @@ import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.UserInterface;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
-import burp.repeat.strike.utils.ScanCheckUtils;
+import burp.repeat.strike.utils.StrikeRulesUtils;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
 
@@ -22,16 +22,16 @@ import java.util.List;
 
 import static burp.api.montoya.ui.editor.EditorOptions.READ_ONLY;
 import static burp.repeat.strike.RepeatStrikeExtension.*;
-import static burp.repeat.strike.ui.ScanChecksMenus.*;
+import static burp.repeat.strike.ui.StrikeRuleMenus.*;
 import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 
 public class RepeatStrikeTab extends JTabbedPane {
     public final String wordListWarning = "Warning you are using the word list, this will affect the AI's responses.";
-    public final JButton runSavedScanChecksButton;
-    public final SavedScanChecksEditor scanChecksEditor = new SavedScanChecksEditor();
+    public final JButton runSavedStrikeRuleButton;
+    public final SavedStrikeRulesEditor strikeRuleEditor = new SavedStrikeRulesEditor();
     private final HttpRequestEditor httpRequestEditor;
     private final HttpResponseEditor httpResponseEditor;
-    private final JButton generateScanCheckButton;
+    private final JButton generateStrikeRuleButton;
     private final JButton clearButton;
     private final java.util.List<HttpRequestResponse> requestResponseList = new ArrayList<>();
     private final RequestTableModel tableModel = new RequestTableModel(requestResponseList);
@@ -43,7 +43,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
         httpResponseEditor.setResponse(HttpResponse.httpResponse());
         clearButton.setEnabled(false);
-        generateScanCheckButton.setEnabled(false);
+        generateStrikeRuleButton.setEnabled(false);
         repeatStrikePanel.setStatus("Idle", false);
     }
 
@@ -110,7 +110,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         super();
         JPanel panel = new JPanel(new BorderLayout());
         this.add("Requests/responses queue", panel);
-        this.add("Saved scan checks", scanChecksEditor);
+        this.add("Saved Strike Rules", strikeRuleEditor);
         this.add("Word list", this.buildWordListPanel());
 
         if(getWordList().length > 0) {
@@ -119,29 +119,29 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.httpRequestEditor = userInterface.createHttpRequestEditor(READ_ONLY);
         this.httpResponseEditor = userInterface.createHttpResponseEditor(READ_ONLY);
         this.clearButton = new JButton("Clear");
-        runSavedScanChecksButton = new JButton("Scan proxy history");
-        runSavedScanChecksButton.setEnabled(!ScanCheckUtils.getSavedCustomScanChecks().keySet().isEmpty());
-        runSavedScanChecksButton.addActionListener(e -> {
-            JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
-            JPopupMenu savedScanChecksPopupMenu;
-            if(scanChecksJSON.keySet().isEmpty()) {
-                savedScanChecksPopupMenu = new JPopupMenu();
-                savedScanChecksPopupMenu.add(new JMenuItem("No scan checks are saved."));
+        runSavedStrikeRuleButton = new JButton("Run Strike Rule on proxy history");
+        runSavedStrikeRuleButton.setEnabled(!StrikeRulesUtils.getSavedStrikeRules().keySet().isEmpty());
+        runSavedStrikeRuleButton.addActionListener(e -> {
+            JSONObject strikeRulesJSON = StrikeRulesUtils.getSavedStrikeRules();
+            JPopupMenu savedStrikeRulesPopupMenu;
+            if(strikeRulesJSON.keySet().isEmpty()) {
+                savedStrikeRulesPopupMenu = new JPopupMenu();
+                savedStrikeRulesPopupMenu.add(new JMenuItem("No Strike Rules are saved."));
             } else {
-                savedScanChecksPopupMenu = ScanChecksMenus.buildScanCheckMenu(scanChecksJSON);
+                savedStrikeRulesPopupMenu = StrikeRuleMenus.buildStrikeRuleMenu(strikeRulesJSON);
             }
 
-            savedScanChecksPopupMenu.show(runSavedScanChecksButton, 0, runSavedScanChecksButton.getHeight());
+            savedStrikeRulesPopupMenu.show(runSavedStrikeRuleButton, 0, runSavedStrikeRuleButton.getHeight());
         });
-        this.generateScanCheckButton = new JButton("Generate scan check");
-        this.generateScanCheckButton.setBackground(Color.decode("#d86633"));
-        this.generateScanCheckButton.setForeground(Color.white);
-        this.generateScanCheckButton.addActionListener(e -> {
-            JPopupMenu scanPopupMenu = new JPopupMenu();
-            scanPopupMenu.setEnabled(!requestHistory.isEmpty());
-            scanPopupMenu.add(buildRunRegexScanMenu());
-            scanPopupMenu.add(buildRunDiffingScanMenu());
-            scanPopupMenu.show(generateScanCheckButton, 0, generateScanCheckButton.getHeight());
+        this.generateStrikeRuleButton = new JButton("Generate Strike Rule");
+        this.generateStrikeRuleButton.setBackground(Color.decode("#d86633"));
+        this.generateStrikeRuleButton.setForeground(Color.white);
+        this.generateStrikeRuleButton.addActionListener(e -> {
+            JPopupMenu strikeRulePopupMenu = new JPopupMenu();
+            strikeRulePopupMenu.setEnabled(!requestHistory.isEmpty());
+            strikeRulePopupMenu.add(buildRunRegexScanMenu());
+            strikeRulePopupMenu.add(buildRunDiffingScanMenu());
+            strikeRulePopupMenu.show(generateStrikeRuleButton, 0, generateStrikeRuleButton.getHeight());
         });
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -210,15 +210,15 @@ public class RepeatStrikeTab extends JTabbedPane {
         clearButton.addActionListener(e -> {
             tableModel.clear();
             clearButton.setEnabled(false);
-            generateScanCheckButton.setEnabled(false);
+            generateStrikeRuleButton.setEnabled(false);
             httpRequestEditor.setRequest(HttpRequest.httpRequest(""));
             httpResponseEditor.setResponse(HttpResponse.httpResponse());
             Utils.resetHistory(false);
         });
         buttonPanel.add(clearButton);
-        generateScanCheckButton.setEnabled(false);
-        buttonPanel.add(runSavedScanChecksButton);
-        buttonPanel.add(generateScanCheckButton);
+        generateStrikeRuleButton.setEnabled(false);
+        buttonPanel.add(runSavedStrikeRuleButton);
+        buttonPanel.add(generateStrikeRuleButton);
         panel.add(buttonPanel, BorderLayout.SOUTH);
         addHierarchyListener(new HierarchyListener() {
             @Override
@@ -246,8 +246,8 @@ public class RepeatStrikeTab extends JTabbedPane {
                 table.scrollRectToVisible(table.getCellRect(rowCount - 1, 0, true));
             }
             clearButton.setEnabled(true);
-            generateScanCheckButton.setEnabled(true);
-            repeatStrikePanel.setInstructions("You now have requests and responses in the queue. Click the \"Generate scan check\" button at the bottom right to start.");
+            generateStrikeRuleButton.setEnabled(true);
+            repeatStrikePanel.setInstructions("You now have requests and responses in the queue. Click the \"Generate Strike Rule\" button at the bottom right to start.");
         });
     }
 

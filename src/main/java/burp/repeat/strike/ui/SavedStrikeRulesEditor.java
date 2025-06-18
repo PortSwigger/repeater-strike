@@ -1,6 +1,6 @@
 package burp.repeat.strike.ui;
 
-import burp.repeat.strike.utils.ScanCheckUtils;
+import burp.repeat.strike.utils.StrikeRulesUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,49 +12,49 @@ import java.util.List;
 import static burp.repeat.strike.utils.Utils.alert;
 import static burp.repeat.strike.utils.Utils.confirm;
 
-public class SavedScanChecksEditor extends JPanel {
-    private JSONObject scanChecksJSON;
-    private final JComboBox<String> scanChecksComboBox = new JComboBox<>();
+public class SavedStrikeRulesEditor extends JPanel {
+    private JSONObject strikeRuleJSON;
+    private final JComboBox<String> strikeRuleComboBox = new JComboBox<>();
     private final JTextArea codeEditor = new JTextArea(20, 100);
-    public SavedScanChecksEditor() {
+    public SavedStrikeRulesEditor() {
         super(new BorderLayout());
         SwingUtilities.invokeLater(this::buildInterface);
     }
 
     public void loadData() {
-        scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
+        strikeRuleJSON = StrikeRulesUtils.getSavedStrikeRules();
         List<String> options = new ArrayList<>();
         options.add("Please select");
-        options.addAll(scanChecksJSON.keySet());
-        scanChecksComboBox.setModel(new DefaultComboBoxModel<>(options.toArray(new String[0])));
+        options.addAll(strikeRuleJSON.keySet());
+        strikeRuleComboBox.setModel(new DefaultComboBoxModel<>(options.toArray(new String[0])));
         codeEditor.setText("");
     }
 
     public void buildInterface() {
         JPanel topPanel = new JPanel();
-        JButton deleteAllScanChecksButton = new JButton("Delete All Scan Checks");
-        deleteAllScanChecksButton.addActionListener(e -> {
-            JSONObject scanChecksJSON = ScanCheckUtils.getSavedCustomScanChecks();
-            if(scanChecksJSON.isEmpty()) {
+        JButton deleteAllStrikeRulesButton = new JButton("Delete All Strike Rule");
+        deleteAllStrikeRulesButton.addActionListener(e -> {
+            JSONObject strikeRuleJSON = StrikeRulesUtils.getSavedStrikeRules();
+            if(strikeRuleJSON.isEmpty()) {
                 return;
             }
-            if (confirm(null, "Confirm delete scan checks", "Are you sure you want to delete all saved scan checks?")) {
-                ScanCheckUtils.deleteAllScanChecks();
+            if (confirm(null, "Confirm delete Strike Rule", "Are you sure you want to delete all saved Strike Rules?")) {
+                StrikeRulesUtils.deleteAllStrikeRules();
             }
         });
-        topPanel.add(deleteAllScanChecksButton);
-        JLabel scanCheckLabel = new JLabel("Scan Checks");
-        topPanel.add(scanCheckLabel);
-        topPanel.add(scanChecksComboBox);
+        topPanel.add(deleteAllStrikeRulesButton);
+        JLabel strikeRulesLabel = new JLabel("Strike Rules");
+        topPanel.add(strikeRulesLabel);
+        topPanel.add(strikeRuleComboBox);
         JPanel editorPanel = new JPanel();
         editorPanel.setLayout(new BorderLayout());
-        scanChecksComboBox.addActionListener(e -> {
-            if(scanChecksComboBox.getSelectedIndex() == 0) {
+        strikeRuleComboBox.addActionListener(e -> {
+            if(strikeRuleComboBox.getSelectedIndex() == 0) {
                 codeEditor.setText("");
                 return;
             }
-            String selectedItem = (String) scanChecksComboBox.getSelectedItem();
-            codeEditor.setText(scanChecksJSON.getJSONObject(selectedItem).toString(4));
+            String selectedItem = (String) strikeRuleComboBox.getSelectedItem();
+            codeEditor.setText(strikeRuleJSON.getJSONObject(selectedItem).toString(4));
         });
         codeEditor.setLineWrap(true);
         codeEditor.setWrapStyleWord(true);
@@ -66,26 +66,26 @@ public class SavedScanChecksEditor extends JPanel {
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         JButton deleteButton = new JButton("Delete");
         deleteButton.addActionListener(e -> {
-            if(scanChecksComboBox.getSelectedIndex() == 0) {
+            if(strikeRuleComboBox.getSelectedIndex() == 0) {
                 return;
             }
-            if(confirm(null, "Confirm delete scan check", "Are you sure you want to this scan check?")) {
-                String selectedItem = (String) scanChecksComboBox.getSelectedItem();
-                ScanCheckUtils.deleteCustomScanCheck(selectedItem, scanChecksJSON);
+            if(confirm(null, "Confirm delete Strike Rule", "Are you sure you want to this Strike Rule?")) {
+                String selectedItem = (String) strikeRuleComboBox.getSelectedItem();
+                StrikeRulesUtils.deleteStrikeRule(selectedItem, strikeRuleJSON);
                 codeEditor.setText("");
             }
         });
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
-            if(scanChecksComboBox.getSelectedIndex() == 0) {
+            if(strikeRuleComboBox.getSelectedIndex() == 0) {
                 return;
             }
-            String selectedItem = (String) scanChecksComboBox.getSelectedItem();
-            int selectedIndex = scanChecksComboBox.getSelectedIndex();
+            String selectedItem = (String) strikeRuleComboBox.getSelectedItem();
+            int selectedIndex = strikeRuleComboBox.getSelectedIndex();
             try {
-                scanChecksJSON.put(selectedItem, new JSONObject(codeEditor.getText()));
-                ScanCheckUtils.saveCustomScanChecks(scanChecksJSON);
-                scanChecksComboBox.setSelectedIndex(selectedIndex);
+                strikeRuleJSON.put(selectedItem, new JSONObject(codeEditor.getText()));
+                StrikeRulesUtils.saveStrikeRule(strikeRuleJSON);
+                strikeRuleComboBox.setSelectedIndex(selectedIndex);
             } catch (JSONException ex) {
                 alert("Invalid JSON saved failed:" + ex.getMessage());
             }

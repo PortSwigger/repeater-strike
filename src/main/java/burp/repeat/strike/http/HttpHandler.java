@@ -28,9 +28,9 @@ public class HttpHandler implements burp.api.montoya.http.handler.HttpHandler {
             boolean autoInvoke = settings.getBoolean("Auto invoke");
             boolean debugOutput = settings.getBoolean("Debug output");
             if(autoInvoke) {
-                VulnerabilityAnalysis.generateScanCheck(new HttpRequest[]{req}, new HttpResponse[]{resp}, VulnerabilityScanType.Regex, false);
+                VulnerabilityAnalysis.generateStrikeRule(new HttpRequest[]{req}, new HttpResponse[]{resp}, VulnerabilityScanType.Regex, false);
                 if(debugOutput) {
-                    api.logging().logToOutput("Generating scan check for Repeater request");
+                    api.logging().logToOutput("Generating Strike Rule for Repeater request");
                 }
             }
         }

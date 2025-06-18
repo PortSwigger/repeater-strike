@@ -5,7 +5,7 @@ import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.contextmenu.ContextMenuEvent;
 import burp.repeat.strike.ai.VulnerabilityAnalysis;
 import burp.repeat.strike.ai.VulnerabilityScanType;
-import burp.repeat.strike.utils.ScanCheckUtils;
+import burp.repeat.strike.utils.StrikeRulesUtils;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -14,7 +14,7 @@ import javax.swing.*;
 import static burp.repeat.strike.RepeatStrikeExtension.*;
 import static burp.repeat.strike.utils.Utils.alert;
 
-public class ScanChecksMenus {
+public class StrikeRuleMenus {
 
     public static JMenuItem buildSendToRepeatStrikeMenu(ContextMenuEvent event, RepeatStrikeTab repeatStrikeTab) {
         JMenuItem sendToRepeatStrike = new JMenuItem("Send to Repeat Strike");
@@ -42,7 +42,7 @@ public class ScanChecksMenus {
         JMenuItem runRepeatStrikeDiffing = new JMenuItem("Using Diffing Non-AI");
         runRepeatStrikeDiffing.setEnabled(requestHistory.size() > 1);
         runRepeatStrikeDiffing.addActionListener(e -> {
-            VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.DiffingNonAi, true);
+            VulnerabilityAnalysis.generateStrikeRule(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.DiffingNonAi, true);
         });
         return runRepeatStrikeDiffing;
     }
@@ -51,7 +51,7 @@ public class ScanChecksMenus {
         JMenuItem runRepeatStrikeRegex = new JMenuItem("Using AI Regex");
         runRepeatStrikeRegex.setEnabled(!requestHistory.isEmpty());
         runRepeatStrikeRegex.addActionListener(e -> {
-            VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Regex, true);
+            VulnerabilityAnalysis.generateStrikeRule(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Regex, true);
         });
         return runRepeatStrikeRegex;
     }
@@ -60,23 +60,23 @@ public class ScanChecksMenus {
         JMenuItem runRepeatStrikeJava = new JMenuItem("Using AI Java");
         runRepeatStrikeJava.setEnabled(!requestHistory.isEmpty());
         runRepeatStrikeJava.addActionListener(e -> {
-            VulnerabilityAnalysis.generateScanCheck(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Java, true);
+            VulnerabilityAnalysis.generateStrikeRule(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Java, true);
         });
         return runRepeatStrikeJava;
     }
 
-    public static JPopupMenu buildScanCheckMenu(JSONObject scanChecksJSON) {
-        JPopupMenu savedScanChecks = new JPopupMenu();
-        if(!scanChecksJSON.isEmpty()) {
-            scanChecksJSON.keySet().stream().sorted().forEach(key -> {
-                JMenuItem runScanCheck = new JMenuItem(key);
-                runScanCheck.addActionListener(e -> {
-                    JSONObject scanCheck = scanChecksJSON.getJSONObject(key);
-                    ScanCheckUtils.scanProxyHistory(scanCheck);
+    public static JPopupMenu buildStrikeRuleMenu(JSONObject strikeRuleJSON) {
+        JPopupMenu savedStrikeRules = new JPopupMenu();
+        if(!strikeRuleJSON.isEmpty()) {
+            strikeRuleJSON.keySet().stream().sorted().forEach(key -> {
+                JMenuItem runStrikeRule = new JMenuItem(key);
+                runStrikeRule.addActionListener(e -> {
+                    JSONObject strikeRule = strikeRuleJSON.getJSONObject(key);
+                    StrikeRulesUtils.scanProxyHistory(strikeRule);
                 });
-                savedScanChecks.add(runScanCheck);
+                savedStrikeRules.add(runStrikeRule);
             });
         }
-        return savedScanChecks;
+        return savedStrikeRules;
     }
 }
