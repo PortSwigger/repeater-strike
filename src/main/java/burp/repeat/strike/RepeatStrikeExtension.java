@@ -58,6 +58,7 @@ public class RepeatStrikeExtension implements BurpExtension, ExtensionUnloadingH
                         Max image response limit - Controls the maximum length limit of image responses sent to the AI.
                         Max request limit - Controls the maximum length limit of requests sent to the AI.
                         Max response limit - Controls the maximum length limit of requests sent to the AI.
+                        Excluded headers - Comma separated list of headers to to exclude from analysis
                         """)
                 .withKeywords("Repeater", "Repeat", "Strike")
                 .withSettings(
@@ -67,7 +68,8 @@ public class RepeatStrikeExtension implements BurpExtension, ExtensionUnloadingH
                         SettingsPanelSetting.integerSetting("Max proxy history", 25000),
                         SettingsPanelSetting.integerSetting("Max image response limit", 1000),
                         SettingsPanelSetting.integerSetting("Max request limit", 100000),
-                        SettingsPanelSetting.integerSetting("Max response limit", 100000)
+                        SettingsPanelSetting.integerSetting("Max response limit", 100000),
+                        SettingsPanelSetting.stringSetting("Excluded headers", "Authorization,Cookie,Content-Length,Connection")
                 )
                 .build();
         api.userInterface().registerSettingsPanel(settings);

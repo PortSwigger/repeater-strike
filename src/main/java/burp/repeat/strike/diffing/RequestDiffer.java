@@ -10,18 +10,20 @@ import org.json.JSONObject;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static burp.repeat.strike.RepeatStrikeExtension.settings;
+
 public class RequestDiffer {
     public static Set<String> headersToSkip = Set.of("Content-Length");
     public static JSONArray generateHeadersAndParametersJson(HttpRequest[] requests) {
         JSONArray result = new JSONArray();
         if (requests == null || requests.length == 0) return result;
-
-        boolean allIdentical = areAllRequestsIdentical(requests);
+        HttpRequest[] requestsWithoutFilteredHeaders = filterHeaders(requests);
+        boolean allIdentical = areAllRequestsIdentical(requestsWithoutFilteredHeaders);
 
         if (!allIdentical) {
             HttpRequest previous = null;
-            for (int i = 0; i < requests.length; i++) {
-                HttpRequest current = requests[i];
+            for (int i = 0; i < requestsWithoutFilteredHeaders.length; i++) {
+                HttpRequest current = requestsWithoutFilteredHeaders[i];
                 if (i == 0) {
                     addAllItems(result, current);
                 } else {
@@ -29,12 +31,27 @@ public class RequestDiffer {
                 }
                 previous = current;
             }
-            Set<String> inAll = intersectionOfAllRequests(requests);
+            Set<String> inAll = intersectionOfAllRequests(requestsWithoutFilteredHeaders);
             result = filterNeverChangedItems(result, inAll);
             result = getMostFrequentParam(result);
         }
 
         return result;
+    }
+
+    public static HttpRequest[] filterHeaders(HttpRequest[] requests) {
+        String[] excludedHeaders = Arrays.stream(settings.getString("Excluded headers").split(","))
+                .map(String::trim)
+                .toArray(String[]::new);
+        HttpRequest[] filteredRequests = new HttpRequest[requests.length];
+        for (int i = 0; i < requests.length; i++) {
+            HttpRequest req = requests[i];
+            for (String header : excludedHeaders) {
+                req = req.withRemovedHeader(header.trim());
+            }
+            filteredRequests[i] = req;
+        }
+        return filteredRequests;
     }
 
     private static boolean areAllRequestsIdentical(HttpRequest[] requests) {

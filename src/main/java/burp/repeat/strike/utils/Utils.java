@@ -27,6 +27,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import static burp.repeat.strike.RepeatStrikeExtension.*;
+import static burp.repeat.strike.diffing.RequestDiffer.filterHeaders;
 import static burp.repeat.strike.proxy.AnalyseProxyHistory.makeRequest;
 
 public class Utils {
@@ -258,7 +259,8 @@ public class Utils {
 
     public static String getRequestsAndResponsesAsJson(HttpRequest[] requests, HttpResponse[] responses) {
         JSONArray requestsJSON = new JSONArray();
-        for(HttpRequest request : requests) {
+        HttpRequest[] requestsWithoutFilteredHeaders = filterHeaders(requests);
+        for(HttpRequest request : requestsWithoutFilteredHeaders) {
             JSONObject json = new JSONObject();
             json.put("request", Utils.truncateRequest(request));
             requestsJSON.put(json);
