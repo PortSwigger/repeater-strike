@@ -21,12 +21,12 @@ In Repeater identify the target you want to test. You can use this Academy Lab a
 2. Note the API key and send the request to Repeater via the proxy.
 3. In Repeater, make a request to the host, then right-click → Extensions → Repeat Strike → Send to Repeat Strike.
 4. In the Repeat Strike tab, open the Word list sub-tab and click Populate with default word list.
-5. Switch to the Requests/Responses queue sub-tab and click Generate scan check.
-6. Choose Using AI Regex; if successful, save the scan check and it will scan the proxy history.
+5. Switch to the Requests/Responses queue sub-tab and click Generate Strike Rule.
+6. Choose Using AI Regex; if successful, save the Strike Rule and it will scan the proxy history.
 
-Edit saved scan checks in the "Saved scan checks" tab and scan proxy history anytime using the "Scan proxy history" button.
+Edit saved Strike Rules in the "Saved Strike Rules" tab and scan proxy history anytime using the "Run Strike rule on proxy history" button.
 
 ## Settings
 
-Configure Repeat Strike in Repeat Strike → Settings.
-Here, you can set proxy data scan limits, request/response/image caps, and enable automatic scan checks and proxy history scanning when sending Repeater requests.
+Configure Repeat Strike in Extension tab → Extensions settings → Repeat Strike.
+Here, you can set proxy data scan limits, request/response/image caps, and enable automatic Strike Rules and proxy history scanning when sending Repeater requests.
