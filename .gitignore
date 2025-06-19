@@ -10,5 +10,3 @@ out/
 /build/
 /.gradle/
 .idea/
-
-/libs/montoya-api-2025.3.8-spike.jar
