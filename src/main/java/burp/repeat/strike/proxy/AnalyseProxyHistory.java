@@ -57,6 +57,7 @@ public class AnalyseProxyHistory {
                     continue;
                 }
                 for (ParsedHttpParameter param : request.parameters()) {
+                    if(hasShutDown) break;
                     if (debugOutput) {
                         api.logging().logToOutput("Testing URL " + request.path() + "...");
                         api.logging().logToOutput("Testing parameter name" + param.name() + "...");
