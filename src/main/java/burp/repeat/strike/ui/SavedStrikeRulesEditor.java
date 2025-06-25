@@ -32,7 +32,7 @@ public class SavedStrikeRulesEditor extends JPanel {
 
     public void buildInterface() {
         JPanel topPanel = new JPanel();
-        JButton deleteAllStrikeRulesButton = new JButton("Delete All Strike Rule");
+        JButton deleteAllStrikeRulesButton = new JButton("Delete All Strike Rules");
         deleteAllStrikeRulesButton.addActionListener(e -> {
             JSONObject strikeRuleJSON = StrikeRulesUtils.getSavedStrikeRules();
             if(strikeRuleJSON.isEmpty()) {
