@@ -4,7 +4,7 @@
 
 Repeater Strike is an AI-powered tool that helps uncover IDOR and other vulnerabilities by analyzing your Repeater requests. It automatically generates targeted regular expressions based on the requests and responses you're testing. Once a vulnerability is detected, these regexes are applied to your proxy history to rapidly identify similar issues across your entire traffic, helping you scale your findings and save time.
 
-![Repeater Strike Demo](https://github.com/hackvertor/repeat-strike/blob/main/videos/repeat-strike-demo.gif)
+![Repeater Strike Demo](https://github.com/hackvertor/repeat-strike/blob/main/videos/repeater-strike-demo.gif)
 
 ## Installation instructions
 
