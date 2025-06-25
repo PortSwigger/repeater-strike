@@ -8,7 +8,7 @@ Repeater Strike is an AI-powered tool that helps uncover IDOR and other vulnerab
 
 ## Installation instructions
 
-**In Burp Suite Professional, go to Extensions->BApp store and search for Repeater Strike. Click the install button and then navigate to the installed tab then select Repeater Strike and check the "Use AI" checkbox in the Extension tab.**
+**In Burp Suite Professional, go to Extensions->BApp store and search for Repeater Strike. Click the installation button and then navigate to the installed tab then select Repeater Strike and check the "Use AI" checkbox in the Extension tab.**
 
 ![Installation screen](https://github.com/hackvertor/repeat-strike/blob/main/screenshots/repeater-strike-screenshot.png)
 
@@ -22,7 +22,7 @@ In Repeater identify the target you want to test. You can use this Academy Lab a
 3. In Repeater, make a request to the host, then right-click → Extensions → Repeater Strike → Send to Repeater Strike.
 4. In the Repeater Strike tab, open the Word list sub-tab and click Populate with default word list.
 5. Switch to the Requests/Responses queue sub-tab and click Generate Strike Rule.
-6. Choose Using AI Regex; if successful, save the Strike Rule and it will scan the proxy history.
+6. Choose Using AI Regex; if successful, save the Strike Rule, and it will scan the proxy history.
 
 Edit saved Strike Rules in the "Saved Strike Rules" tab and scan proxy history anytime using the "Run Strike rule on proxy history" button.
 
