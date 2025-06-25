@@ -56,15 +56,6 @@ public class StrikeRuleMenus {
         return runRepeatStrikeRegex;
     }
 
-    public static JMenuItem buildRunJavaScanMenu() {
-        JMenuItem runRepeatStrikeJava = new JMenuItem("Using AI Java");
-        runRepeatStrikeJava.setEnabled(!requestHistory.isEmpty());
-        runRepeatStrikeJava.addActionListener(e -> {
-            VulnerabilityAnalysis.generateStrikeRule(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Java, true);
-        });
-        return runRepeatStrikeJava;
-    }
-
     public static JPopupMenu buildStrikeRuleMenu(JSONObject strikeRuleJSON) {
         JPopupMenu savedStrikeRules = new JPopupMenu();
         if(!strikeRuleJSON.isEmpty()) {
