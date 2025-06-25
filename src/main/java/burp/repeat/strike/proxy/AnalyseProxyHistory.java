@@ -106,6 +106,7 @@ public class AnalyseProxyHistory {
         final boolean debugOutput = settings.getBoolean("Debug output");
 
         analyse((request, response, historyParam, item) -> {
+            if(historyParam == null) return;
             ArrayList<HttpRequestResponse> baseResponses = Utils.getBaseResponses(request, historyParam.type().name(), historyParam.name());
             if(baseResponses != null) {
                 String baseFingerprint = Utils.getBaseFingerprint(baseResponses);
