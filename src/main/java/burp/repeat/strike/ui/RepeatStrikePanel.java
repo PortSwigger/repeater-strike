@@ -9,7 +9,7 @@ import java.awt.*;
 import static burp.repeat.strike.utils.GridbagUtils.createConstraints;
 
 public class RepeatStrikePanel extends javax.swing.JPanel {
-    private final String defaultInstructions = "Click on a request in Repeater, then right-click and select Extensions → Repeat Strike → Send to Repeat Strike to begin.";
+    private final String defaultInstructions = "Click on a request in Repeater, then right-click and select Extensions → Repeater Strike → Send to Repeater Strike to begin.";
     private final JLabel repeatStrikeDescription = new JLabel(defaultInstructions);
     private final RoundedLabel statusLabel = new RoundedLabel("Idle", Color.decode("#00533d"), Color.decode("#00d390"), 12);
     private final RoundedLabel repeatStrikeWordlistWarning = new RoundedLabel("", Color.decode("#793205"), Color.decode("#fcb700"), 12);
@@ -19,7 +19,7 @@ public class RepeatStrikePanel extends javax.swing.JPanel {
         SwingUtilities.invokeLater(() -> {
             JPanel topPanel = new JPanel();
             topPanel.setLayout(new GridBagLayout());
-            JLabel repeatStrikeTitle = new JLabel("Repeat Strike");
+            JLabel repeatStrikeTitle = new JLabel("Repeater Strike");
             repeatStrikeTitle.setFont(new Font(repeatStrikeTitle.getFont().getName(), Font.BOLD, repeatStrikeTitle.getFont().getSize()+3));
             JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
             row1.add(repeatStrikeTitle);

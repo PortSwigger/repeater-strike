@@ -118,7 +118,7 @@ public class AnalyseProxyHistory {
     }
 
     public static void outputVulCount(int vulnCount) {
-        String vulnMessage = "Repeat Strike found " + vulnCount + " potential vulnerabilit" + (vulnCount == 1 ? "y" : "ies");
+        String vulnMessage = "Repeater Strike found " + vulnCount + " potential vulnerabilit" + (vulnCount == 1 ? "y" : "ies");
         repeatStrikePanel.setStatus(vulnMessage, false);
         api.logging().logToOutput(vulnMessage);
     }

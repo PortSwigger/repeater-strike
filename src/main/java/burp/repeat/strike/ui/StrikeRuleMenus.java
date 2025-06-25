@@ -17,13 +17,13 @@ import static burp.repeat.strike.utils.Utils.alert;
 public class StrikeRuleMenus {
 
     public static JMenuItem buildSendToRepeatStrikeMenu(ContextMenuEvent event, RepeatStrikeTab repeatStrikeTab) {
-        JMenuItem sendToRepeatStrike = new JMenuItem("Send to Repeat Strike");
+        JMenuItem sendToRepeatStrike = new JMenuItem("Send to Repeater Strike");
         sendToRepeatStrike.addActionListener(e -> {
             if (event.messageEditorRequestResponse().isPresent()) {
                 HttpRequest req = event.messageEditorRequestResponse().get().requestResponse().request();
                 HttpResponse resp = event.messageEditorRequestResponse().get().requestResponse().response();
                 if (req == null || resp == null) {
-                    alert("Repeat Strike requires a request and response.");
+                    alert("Repeater Strike requires a request and response.");
                     return;
                 }
                 if(!req.isInScope()) {

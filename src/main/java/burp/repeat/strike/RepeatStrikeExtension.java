@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
 
 public class RepeatStrikeExtension implements BurpExtension, ExtensionUnloadingHandler {
     public static MontoyaApi api;
-    public static String extensionName = "Repeat Strike";
+    public static String extensionName = "Repeater Strike";
     public static String version = "v1.0.0";
     public static ArrayList<HttpRequest> requestHistory = new ArrayList<>();
     public static ArrayList<HttpResponse> responseHistory = new ArrayList<>();
@@ -49,11 +49,11 @@ public class RepeatStrikeExtension implements BurpExtension, ExtensionUnloadingH
         api.http().registerHttpHandler(new HttpHandler());
         settings = SettingsPanelBuilder.settingsPanel()
                 .withPersistence(SettingsPanelPersistence.USER_SETTINGS)
-                .withTitle("Repeat Strike Settings")
+                .withTitle(extensionName + " Settings")
                 .withDescription("""                       
-                        Auto invoke - Allows you to execute Repeat Strike on every Repeater request sent.
+                        Auto invoke - Allows you to execute Repeater Strike on every Repeater request sent.
                         Debug output - Outputs debug information to the console.
-                        Debug AI - Make Repeat Strike log all AI requests and responses to the console.
+                        Debug AI - Make Repeater Strike log all AI requests and responses to the console.
                         Max proxy history - Controls the maximum amount of proxy history to scan.
                         Max image response limit - Controls the maximum length limit of image responses sent to the AI.
                         Max request limit - Controls the maximum length limit of requests sent to the AI.
