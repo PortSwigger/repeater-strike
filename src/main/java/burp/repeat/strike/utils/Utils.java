@@ -270,7 +270,7 @@ public class Utils {
         return requestsJSON;
     }
 
-    public static String getRequestsAndResponsesAsJson(HttpRequest[] requests, HttpResponse[] responses) {
+    public static String getRequestsAndResponsesPrompt(HttpRequest[] requests, HttpResponse[] responses) {
         JSONArray requestsJSON = getRequestsAsJson(requests);
         JSONArray responsesJSON = getResponsesAsJson(responses);
         return "Requests:\n"+requestsJSON+"\n\nResponses:\n"+responsesJSON;

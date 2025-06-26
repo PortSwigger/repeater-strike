@@ -34,7 +34,7 @@ public class IdentifyPayload {
                           "vulnerabilityClass": """+" \""+String.join("\" | \"", Arrays.stream(Vulnerability.values()).map(Enum::name).toArray(String[]::new))+"\"\n"+"""                
                         }
                         """);
-            ai.setPrompt(Utils.getRequestsAndResponsesAsJson(requests, responses));
+            ai.setPrompt(Utils.getRequestsAndResponsesPrompt(requests, responses));
             ai.setTemperature(1.0);
             return new JSONObject(ai.execute());
         } catch (Throwable throwable) {
