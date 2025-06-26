@@ -249,15 +249,17 @@ public class Utils {
         return output;
     }
 
-    public static String getResponseAsJson(HttpResponse response) {
-        JSONArray responseJSON = new JSONArray();
-        JSONObject json = new JSONObject();
-        json.put("response", response);
-        responseJSON.put(json);
-        return "Response:\n"+responseJSON;
+    public static JSONArray getResponsesAsJson(HttpResponse[] responses) {
+        JSONArray responsesJSON = new JSONArray();
+        for(HttpResponse response : responses) {
+            JSONObject json = new JSONObject();
+            json.put("response", Utils.truncateResponse(response));
+            responsesJSON.put(json);
+        }
+        return responsesJSON;
     }
 
-    public static String getRequestsAndResponsesAsJson(HttpRequest[] requests, HttpResponse[] responses) {
+    public static JSONArray getRequestsAsJson(HttpRequest[] requests) {
         JSONArray requestsJSON = new JSONArray();
         HttpRequest[] requestsWithoutFilteredHeaders = filterHeaders(requests);
         for(HttpRequest request : requestsWithoutFilteredHeaders) {
@@ -265,12 +267,12 @@ public class Utils {
             json.put("request", Utils.truncateRequest(request));
             requestsJSON.put(json);
         }
-        JSONArray responsesJSON = new JSONArray();
-        for(HttpResponse response : responses) {
-            JSONObject json = new JSONObject();
-            json.put("response", Utils.truncateResponse(response));
-            responsesJSON.put(json);
-        }
+        return requestsJSON;
+    }
+
+    public static String getRequestsAndResponsesAsJson(HttpRequest[] requests, HttpResponse[] responses) {
+        JSONArray requestsJSON = getRequestsAsJson(requests);
+        JSONArray responsesJSON = getResponsesAsJson(responses);
         return "Requests:\n"+requestsJSON+"\n\nResponses:\n"+responsesJSON;
     }
 
