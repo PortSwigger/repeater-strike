@@ -21,7 +21,7 @@ import java.util.concurrent.Executors;
 public class RepeatStrikeExtension implements BurpExtension, ExtensionUnloadingHandler {
     public static MontoyaApi api;
     public static String extensionName = "Repeater Strike";
-    public static String version = "v1.0.0";
+    public static String version = "v0.9.0";
     public static ArrayList<HttpRequest> requestHistory = new ArrayList<>();
     public static ArrayList<HttpResponse> responseHistory = new ArrayList<>();
     public static final ExecutorService executorService = Executors.newSingleThreadExecutor();
