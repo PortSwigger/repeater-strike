@@ -45,6 +45,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         clearButton.setEnabled(false);
         generateStrikeRuleButton.setEnabled(false);
         repeatStrikePanel.setStatus("Idle", false);
+        Utils.resetHistory(false);
     }
 
     public String[] getWordList() {
