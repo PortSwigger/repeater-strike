@@ -80,11 +80,7 @@ public class StrikeRulesUtils {
     }
 
     public static void scanProxyHistory(JSONObject strikeRule) {
-        if(strikeRule.getString("type").equals(VulnerabilityScanType.DiffingNonAi.name())) {
-            RepeatStrikeExtension.executorService.submit(() -> {
-                AnalyseProxyHistory.analyseWithDiffing(strikeRule.getString("value"));
-            });
-        } else if(strikeRule.getString("type").equals(VulnerabilityScanType.Regex.name())) {
+        if(strikeRule.getString("type").equals(VulnerabilityScanType.Regex.name())) {
             RepeatStrikeExtension.executorService.submit(() -> {
                 AnalyseProxyHistory.analyseWithRegex(strikeRule.getJSONObject("analysis"), strikeRule.getJSONObject("param"));
             });

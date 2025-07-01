@@ -6,6 +6,8 @@ import burp.api.montoya.http.message.responses.HttpResponse;
 import burp.api.montoya.ui.UserInterface;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
+import burp.repeat.strike.ai.VulnerabilityAnalysis;
+import burp.repeat.strike.ai.VulnerabilityScanType;
 import burp.repeat.strike.utils.StrikeRulesUtils;
 import burp.repeat.strike.utils.Utils;
 import org.json.JSONObject;
@@ -22,7 +24,6 @@ import java.util.List;
 
 import static burp.api.montoya.ui.editor.EditorOptions.READ_ONLY;
 import static burp.repeat.strike.RepeatStrikeExtension.*;
-import static burp.repeat.strike.ui.StrikeRuleMenus.*;
 import static java.awt.event.HierarchyEvent.SHOWING_CHANGED;
 
 public class RepeatStrikeTab extends JTabbedPane {
@@ -44,8 +45,6 @@ public class RepeatStrikeTab extends JTabbedPane {
         httpResponseEditor.setResponse(HttpResponse.httpResponse());
         clearButton.setEnabled(false);
         generateStrikeRuleButton.setEnabled(false);
-        repeatStrikePanel.setStatus("Idle", false);
-        Utils.resetHistory(false);
     }
 
     public String[] getWordList() {
@@ -138,11 +137,7 @@ public class RepeatStrikeTab extends JTabbedPane {
         this.generateStrikeRuleButton.setBackground(Color.decode("#d86633"));
         this.generateStrikeRuleButton.setForeground(Color.white);
         this.generateStrikeRuleButton.addActionListener(e -> {
-            JPopupMenu strikeRulePopupMenu = new JPopupMenu();
-            strikeRulePopupMenu.setEnabled(!requestHistory.isEmpty());
-            strikeRulePopupMenu.add(buildRunRegexScanMenu());
-            strikeRulePopupMenu.add(buildRunDiffingScanMenu());
-            strikeRulePopupMenu.show(generateStrikeRuleButton, 0, generateStrikeRuleButton.getHeight());
+            VulnerabilityAnalysis.generateStrikeRule(requestHistory.toArray(new HttpRequest[0]), responseHistory.toArray(new HttpResponse[0]), VulnerabilityScanType.Regex, true);
         });
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
