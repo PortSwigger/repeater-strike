@@ -37,7 +37,7 @@ public class IdentifyPayload {
             ai.setPrompt(Utils.getRequestsAndResponsesPrompt(requests, responses));
             ai.setTemperature(1.0);
             JSONObject json = new JSONObject(ai.execute());
-            if(json.getString("name") == null) {
+            if(json.get("name") == null) {
                 json.put("name", "");
             }
             return json;
