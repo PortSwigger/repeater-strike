@@ -1,9 +1,9 @@
-<p>Repeater Strike is an AI-powered tool designed to uncover IDOR and other vulnerabilities through the analysis of your Repeater requests. By automatically generating targeted regular expressions based on tested requests and responses, it aids in detecting vulnerabilities. Once a potential vulnerability is identified, these regular expressions are applied to your proxy history, allowing for quick identification of similar issues across your entire traffic. This accelerates the discovery process and can significantly save time.</p>
+<p>Repeater Strike is an AI-powered tool that helps uncover IDOR and other vulnerabilities by analyzing your Repeater requests. It automatically generates targeted regular expressions based on the requests and responses you're testing. Once a vulnerability is detected, these regexes are applied to your proxy history to rapidly identify similar issues across your entire traffic, helping you scale your findings and save time.</p>
 
 <h2>Features</h2>
 
 <ul>
-    <li>Artificial Intelligence powered vulnerability detection</li>
+    <li>Burp AI powered vulnerability detection</li>
     <li>Automatic generation and application of regular expressions based on testing requests and responses</li>
     <li>Quick identification of similar issues across the entire traffic for scaling findings</li>
 </ul>
@@ -12,15 +12,12 @@
 
 <p>To use Repeater Strike, begin by identifying the target you wish to test. Follow the steps below:</p>
 
-<ul>
-    <li>Open the target in Burps browser and log in if necessary</li>
-    <li>Record the API key and send the request to Repeater via the proxy</li>
-    <li>In Repeater, make a request to the host, then right-click -&gt; Extensions -&gt; Repeater Strike -&gt; Send to Repeater Strike</li>
-    <li>In the Repeater Strike tab, open the Word list sub-tab and click \Populate with default word list\</li>
-    <li>Switch to the Requests/Responses queue sub-tab and click \Generate Strike Rule\</li>
-    <li>Select \Using AI Regex\; if successful, save the Strike Rule. This will initiate a scan of the proxy history</li>
-</ul>
+<ol>
+    <li>In Repeater, make a request to the host, then "Right-click &rarr; Extensions &rarr; Repeater Strike &rarr; Send to Repeater Strike".</li>
+    <li>In the "Repeater Strike" tab, open the "Word list" sub-tab and click "Populate with default word list".</li>
+    <li>Switch to the "Requests/Responses queue" sub-tab and click "Generate Strike Rule".</li>
+    <li>Choose "Using AI Regex"; if successful, save the Strike Rule, and it will scan the proxy history.</li>
+    <li>Edit saved Strike Rules in the "Saved Strike Rules" tab and scan proxy history anytime using the "Run Strike rule on proxy history" button.</li>
+</ol>
 
-<p>You can edit saved Strike Rules in the \Saved Strike Rules\ tab and scan proxy history anytime using the \Run Strike rule on proxy history\ button.</p>
-
-<p>Further configuration of Repeater Strike is available in the Extension tab -&gt; Extensions settings -&gt; Repeater Strike. Here, you can set proxy data scan limits, request/response/image caps, and enable automatic Strike Rules and proxy history scanning when sending Repeater requests.</p>
+<p>Further configuration of Repeater Strike is available in "Settings &rarr; Extensions &rarr; Repeater Strike". Here, you can set proxy data scan limits, request/response/image caps, and enable automatic Strike Rules and proxy history scanning when sending Repeater requests.</p>
