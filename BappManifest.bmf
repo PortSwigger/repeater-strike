@@ -1,0 +1,13 @@
+Uuid: c3f3fbf07b724c22908035ce4439ba39
+ExtensionType: 1
+Name: Repeater Strike
+RepoName: repeater-strike
+ScreenVersion: 0.9.0
+SerialVersion: 1
+MinPlatformVersion: 0
+ProOnly: False
+Author: hackvertor
+ShortDescription: This extension uses AI to analyze repeater requests, uncovering vulnerabilities like IDOR. It generates regular expressions for issue identification and applies them to proxy history for further vulnerability identification.
+EntryPoint: ./repeat-strike.jar
+BuildCommand: ./gradlew build test
+SupportedProducts: Pro, Community
