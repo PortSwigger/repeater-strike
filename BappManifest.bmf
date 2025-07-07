@@ -3,7 +3,7 @@ ExtensionType: 1
 Name: Repeater Strike
 RepoName: repeater-strike
 ScreenVersion: 0.9.0
-SerialVersion: 1
+SerialVersion: 2
 MinPlatformVersion: 0
 ProOnly: True
 Author: Gareth Heyes, PortSwigger
