@@ -2,12 +2,12 @@ Uuid: c3f3fbf07b724c22908035ce4439ba39
 ExtensionType: 1
 Name: Repeater Strike
 RepoName: repeater-strike
-ScreenVersion: 0.9.0
-SerialVersion: 4
+ScreenVersion: 1.0.0
+SerialVersion: 5
 MinPlatformVersion: 23
 ProOnly: True
 Author: Gareth Heyes, PortSwigger
 ShortDescription: Use AI to analyze repeater requests, generating regular expressions for issue identification and applying them to the Proxy History for further vulnerability identification.
-EntryPoint: ./repeat-strike.jar
+EntryPoint: repeat-strike.jar
 BuildCommand: ./gradlew jar
 SupportedProducts: Pro
