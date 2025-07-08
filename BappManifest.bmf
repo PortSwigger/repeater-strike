@@ -4,10 +4,10 @@ Name: Repeater Strike
 RepoName: repeater-strike
 ScreenVersion: 0.9.0
 SerialVersion: 4
-MinPlatformVersion: 0
+MinPlatformVersion: 23
 ProOnly: True
 Author: Gareth Heyes, PortSwigger
 ShortDescription: Use AI to analyze repeater requests, generating regular expressions for issue identification and applying them to the Proxy History for further vulnerability identification.
 EntryPoint: ./repeat-strike.jar
-BuildCommand: ./gradlew build test
+BuildCommand: ./gradlew jar
 SupportedProducts: Pro
